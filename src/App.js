@@ -1,35 +1,52 @@
-import './App.css';
 import React from 'react';
 import { Layout } from 'antd';
 import Blog from './components/blog/blog';
-import avatar from './static/images/avatar.png';
+import ajaxData from './static/json/blog-data.json';
+import './App.css';
 
 const { Content, Footer } = Layout;
 
 export default function App() {
-    let url1 = [
-        'https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp',
-        'https://gw.alipayobjects.com/zos/antfincdn/cV16ZqzMjW/photo-1473091540282-9b846e7965e3.webp',
-        'https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp',
-        avatar,
-        'https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp',
-        'https://gw.alipayobjects.com/zos/antfincdn/cV16ZqzMjW/photo-1473091540282-9b846e7965e3.webp',
-        'https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp',
-        avatar
-    ];
-    let url2 = [
-        'https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp',
-        'https://gw.alipayobjects.com/zos/antfincdn/cV16ZqzMjW/photo-1473091540282-9b846e7965e3.webp',
-        'https://gw.alipayobjects.com/zos/antfincdn/x43I27A55%26/photo-1438109491414-7198515b166b.webp',
-        avatar,
-        'https://gw.alipayobjects.com/zos/antfincdn/LlvErxo8H9/photo-1503185912284-5271ff81b9a8.webp',
-        'https://gw.alipayobjects.com/zos/antfincdn/cV16ZqzMjW/photo-1473091540282-9b846e7965e3.webp'
-    ];
+    let blogData = [];
+    for (let item of ajaxData) {
+        let propsObj = {};
+        propsObj['mid'] = item.mblog['mid'];
+        propsObj['text'] = item.mblog['text'];
+        propsObj['created_at'] = item.mblog['created_at'];
+        propsObj['reposts_count'] = item.mblog['reposts_count'];
+        propsObj['comments_count'] = item.mblog['comments_count'];
+        propsObj['attitudes_count'] = item.mblog['attitudes_count'];
+        propsObj['pic_ids'] = item.mblog['pic_ids'];
+        propsObj['pic_num'] = item.mblog['pic_num'];
+        propsObj['pics'] = item.mblog['pics'];
+        propsObj['region_name'] = item.mblog['region_name'];
+        propsObj['source'] = item.mblog['source'];
+        propsObj['textLength'] = item.mblog['textLength'];
+        blogData.push(propsObj);
+    }
     return (
         <div className='app'>
             <Content className=''>
-                <Blog picUrl={url1}></Blog>
-                <Blog picUrl={url2}></Blog>
+                {blogData.map(item => {
+                    let urls = [];
+                    let { mid, pics, text, reposts_count, comments_count, attitudes_count, source, created_at } = item;
+                    pics &&
+                        pics.forEach(pic => {
+                            urls.push(pic.large.url);
+                        });
+                    console.log(urls);
+                    return (
+                        <Blog
+                            key={mid}
+                            urls={urls}
+                            text={text}
+                            reposts_count={reposts_count}
+                            comments_count={comments_count}
+                            attitudes_count={attitudes_count}
+                            source={source}
+                            created_at={item.created_at}></Blog>
+                    );
+                })}
             </Content>
             <Footer style={{ textAlign: 'center' }}>©copyright yhl</Footer>
         </div>

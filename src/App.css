@@ -8,7 +8,7 @@ p {
 
 * {
     box-sizing: content-box;
-    transition: all .2s;
+    transition: color .2s;
 }
 
 main {

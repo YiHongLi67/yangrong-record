@@ -412,3 +412,15 @@
 .pointer {
     cursor: pointer;
 }
+
+.inline-block {
+    display: inline-block;
+}
+
+.inline {
+    display: inline;
+}
+
+.block {
+    display: block;
+}

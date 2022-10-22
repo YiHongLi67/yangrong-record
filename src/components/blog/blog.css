@@ -60,3 +60,39 @@
 .blog-foot>div:hover>span {
     color: var(--w-brand-hover);
 }
+
+.v {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    right: -2px;
+    bottom: 5px;
+
+}
+
+.icon-renzheng {
+    color: var(--w-color-red);
+    border-radius: 50%;
+    background-color: #FEFF5D;
+}
+
+.icon-weibohuiyuan {
+    width: 14px;
+    height: 16px;
+    color: var(--w-color-light);
+    background-color: var(--w-color-orange-3);
+}
+
+.icon-weibohuiyuan::before {
+    position: relative;
+    top: -2px;
+    left: -5px;
+}
+
+.surl-text {
+    color: var(--w-color-orange-4);
+}
+
+.surl-text:hover {
+    text-decoration: underline;
+}

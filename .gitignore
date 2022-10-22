@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/react笔记.md
 /.pnp
 .pnp.js
 

@@ -1,5 +1,5 @@
 .blog-content {
-    padding-left: 56px;
+    padding-left: 60px;
 }
 
 .blog {
@@ -63,14 +63,15 @@
 
 .v {
     position: absolute;
-    width: 16px;
-    height: 16px;
-    right: -2px;
-    bottom: 5px;
+    width: 15px;
+    height: 15px;
+    right: 0px;
+    bottom: 16px;
 
 }
 
 .icon-renzheng {
+    font-size: 15px;
     color: var(--w-color-red);
     border-radius: 50%;
     background-color: #FEFF5D;
@@ -89,10 +90,15 @@
     left: -5px;
 }
 
-.surl-text {
+.surl-text,
+.text a {
     color: var(--w-color-orange-4);
 }
 
 .surl-text:hover {
     text-decoration: underline;
+}
+
+.source {
+    color: var(--w-tip-warn);
 }

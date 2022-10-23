@@ -29,12 +29,11 @@ export default function App() {
             <Content className=''>
                 {blogData.map(item => {
                     let urls = [];
-                    let { mid, pics, text, reposts_count, comments_count, attitudes_count, source, created_at } = item;
+                    let { mid, pics, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = item;
                     pics &&
                         pics.forEach(pic => {
                             urls.push(pic.large.url);
                         });
-                    console.log(urls);
                     return (
                         <Blog
                             key={mid}
@@ -44,7 +43,8 @@ export default function App() {
                             comments_count={comments_count}
                             attitudes_count={attitudes_count}
                             source={source}
-                            created_at={item.created_at}></Blog>
+                            created_at={created_at}
+                            region_name={region_name}></Blog>
                     );
                 })}
             </Content>

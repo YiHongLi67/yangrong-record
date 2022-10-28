@@ -39,5 +39,6 @@
     "markdownFormatter.fullWidthTurnHalfWidth": "，：；！“”‘’（）？。",
     "editor.fontSize": 15,
     "debug.console.fontSize": 14,
-    "terminal.integrated.fontSize": 14
+    "terminal.integrated.fontSize": 14,
+    "sqltools.connections": []
 }

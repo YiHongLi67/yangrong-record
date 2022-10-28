@@ -21,6 +21,7 @@ export default function Blog(props) {
     const [source] = useState(props.source);
     const [created_at] = useState(formatTime(props.created_at));
     const [region_name] = useState(props.region_name);
+    // console.log('blog', urls, text, reposts_count);
     function formatTime(created_at) {
         created_at = new Date(created_at);
         if (new Date().getTime() - created_at.getTime() <= 1000 * 60 * 60 * 21) {

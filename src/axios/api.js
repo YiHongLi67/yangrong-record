@@ -1,11 +1,15 @@
 import request from './axios';
 
-export async function getblog() {
-    let res = await request({
-        url: '/getblog',
-        method: 'get'
-    });
-    return new Promise((resolve, reject) => {
-        resolve(res.data.data);
+export function getblog() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let res = await request({
+                url: '/getblog',
+                method: 'get'
+            });
+            resolve(res.data.err || res.data.data);
+        } catch (e) {
+            reject(e.message);
+        }
     });
 }

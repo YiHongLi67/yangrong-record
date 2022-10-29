@@ -42,7 +42,10 @@
 }
 
 .avatar {
+    display: block;
     position: relative;
+    width: 50px;
+    height: 50px;
 }
 
 .avatar:hover::after {
@@ -66,7 +69,7 @@
     width: 15px;
     height: 15px;
     right: 0px;
-    bottom: 16px;
+    bottom: 5px;
 
 }
 
@@ -101,4 +104,55 @@
 
 .source {
     color: var(--w-tip-warn);
+}
+
+.text img {
+    width: 18px !important;
+    height: 18px !important;
+    vertical-align: sub !important;
+}
+
+.text a.birthday {
+    position: relative;
+}
+
+a.birthday div {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+}
+
+.text a.birthday img {
+    position: absolute;
+    width: 110% !important;
+    height: auto !important;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+}
+
+.birthday-text {
+    width: 100%;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 15%;
+    font-size: 16px;
+    color: var(--w-color-orange-1);
+    text-decoration: none;
+    text-align: center;
+}
+
+.birthday-text:hover {
+    text-decoration: none;
+}
+
+.birthday video {
+    width: 100%;
+    height: auto;
+    /* 去掉video底部黑色的线条 */
+    mix-blend-mode: darken;
 }

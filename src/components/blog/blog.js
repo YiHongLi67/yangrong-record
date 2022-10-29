@@ -19,9 +19,14 @@ export default function Blog(props) {
     const [comments_count] = useState(props.comments_count);
     const [attitudes_count] = useState(props.attitudes_count);
     const [source] = useState(props.source);
-    const [created_at] = useState(formatTime(props.created_at));
+    const [created_at] = useState(props.created_at);
     const [region_name] = useState(props.region_name);
-    // console.log('blog', urls, text, reposts_count);
+    const [showImgs] = useState(urls.length ? 'block' : 'none');
+    const [showRegion] = useState(region_name ? 'block' : 'none');
+    const textHTML = { __html: text };
+    const width = picWidth();
+    const [pic_wrap_width] = useState(width && width.pic_wrap_width);
+    const [pics_wrap_width] = useState(width && width.pics_wrap_width);
     function formatTime(created_at) {
         created_at = new Date(created_at);
         if (new Date().getTime() - created_at.getTime() <= 1000 * 60 * 60 * 21) {
@@ -30,11 +35,6 @@ export default function Blog(props) {
             return moment(created_at).format('YY-M-D HH: mm');
         }
     }
-    let textHTML = { __html: text };
-    let [display] = useState(urls.length ? 'block' : 'none');
-    let width = picWidth();
-    const [pic_wrap_width] = useState(width && width.pic_wrap_width);
-    const [pics_wrap_width] = useState(width && width.pics_wrap_width);
     function picWidth() {
         let width = {
             pic_wrap_width: 'calc((100% - 16px) / 4)',
@@ -70,12 +70,14 @@ export default function Blog(props) {
         <div className='blogs'>
             <div className='blog padding-20 padding-b-0 ie-box'>
                 <div className='blog-head flex'>
-                    <a className='avatar'>
-                        <Avatar size={50} src={avatar} draggable={false} />
-                        <span className='v'>
-                            <span className='iconfont icon-renzheng'></span>
-                        </span>
-                    </a>
+                    <div>
+                        <a className='avatar'>
+                            <Avatar size={50} src={avatar} draggable={false} />
+                            <span className='v'>
+                                <span className='iconfont icon-renzheng'></span>
+                            </span>
+                        </a>
+                    </div>
                     <div className='flex flex-1 margin-l-10'>
                         <div>
                             <div className='flex flex-col-center margin-t-4'>
@@ -83,9 +85,9 @@ export default function Blog(props) {
                                 <span className='iconfont icon-weibohuiyuan line-20 inline-block font-24 margin-l-4'></span>
                             </div>
                             <p className='font-12 line-14 gray-2 margin-t-4'>
-                                {created_at} 来自 <span className='source'>{source}</span>
+                                {formatTime(created_at)} 来自 <span className='source'>{source}</span>
                             </p>
-                            <p className='font-12 line-14 gray-2 margin-t-6'>
+                            <p className='font-12 line-14 gray-2 margin-t-6' style={{ display: showRegion }}>
                                 <span>{region_name}</span>
                             </p>
                         </div>
@@ -95,7 +97,7 @@ export default function Blog(props) {
                     <div>
                         <p className='gray-1 text' dangerouslySetInnerHTML={textHTML}></p>
                     </div>
-                    <div className='margin-t-10' style={{ display }}>
+                    <div className='margin-t-10' style={{ display: showImgs }}>
                         <Image.PreviewGroup>
                             <div className='pics-wrap flex wrap' style={{ width: pics_wrap_width }}>
                                 {urls.map((item, index) => (

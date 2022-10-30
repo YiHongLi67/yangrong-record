@@ -8,17 +8,28 @@ const { Content, Footer } = Layout;
 
 export default function App() {
     let [blogData, setBlogData] = useState([]);
-    async function fetchBlog() {
-        let response = await getblog();
-        setBlogData(response);
+    let [page, setPage] = useState(1);
+    let [height] = useState(window.innerHeight);
+    async function fetchBlog(page) {
+        let response = await getblog(page);
+        setBlogData(blogData => {
+            return [...blogData, ...response];
+        });
     }
     useEffect(() => {
-        fetchBlog();
+        fetchBlog(page);
+        let app = document.querySelector('.app');
+        app.addEventListener('scroll', () => {
+            if (app.scrollHeight - app.scrollTop === window.innerHeight) {
+                setPage(++page);
+                fetchBlog(page);
+            }
+        });
         return () => {};
     }, []);
     return (
-        <div className='app'>
-            <Content className=''>
+        <div className='app' style={{ height }}>
+            <Content className='main'>
                 {blogData.map(item => {
                     let { mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = item;
                     return (

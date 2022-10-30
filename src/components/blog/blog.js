@@ -67,7 +67,7 @@ export default function Blog(props) {
     }
 
     return (
-        <div className='blogs'>
+        <div className='blog-wrap'>
             <div className='blog padding-20 padding-b-0 ie-box'>
                 <div className='blog-head flex'>
                     <div>

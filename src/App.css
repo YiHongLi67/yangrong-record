@@ -2,6 +2,11 @@ body {
     min-width: 600px;
 }
 
+html,
+body {
+    overflow: hidden;
+}
+
 p {
     margin: 0;
 }
@@ -14,4 +19,8 @@ p {
 main {
     margin-left: 300px;
     margin-right: 100px;
+}
+
+.app {
+    overflow-y: auto;
 }

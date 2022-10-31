@@ -44,12 +44,24 @@
     overflow: scroll;
 }
 
-.w-full {
+.w-v-full {
     width: 100vw;
 }
 
-.h-full {
+.h-v-full {
     height: 100vh;
+}
+
+.w-full {
+    width: 100%;
+}
+
+.h-full {
+    height: 100%;
+}
+
+.vertical-m {
+    vertical-align: middle;
 }
 
 .w-8r {
@@ -411,6 +423,34 @@
 
 .pointer {
     cursor: pointer;
+}
+
+.relative {
+    position: relative;
+}
+
+.absolute {
+    position: absolute;
+}
+
+.fixed {
+    position: fixed;
+}
+
+.align-center {
+    text-align: center;
+}
+
+.absolute-center {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+}
+
+.margin-x-auto {
+    margin: 0 auto;
 }
 
 .inline-block {

@@ -1,0 +1,67 @@
+.preview-mask {
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+.preview-mask img.preview-img {
+    height: 85%;
+    bottom: unset;
+}
+
+.preview-mask .mask-foot {
+    height: 15%;
+    background-color: rgba(0, 0, 0, 0.1);
+    bottom: 0;
+}
+
+.mask-head {
+    height: 50px;
+}
+
+.mask-head span.iconfont {
+    float: right;
+    color: var(--w-color-gray-9);
+    font-size: 22px;
+    line-height: 50px;
+    padding: 2px;
+    cursor: pointer;
+    margin: 0 15px;
+}
+
+.mask-head span.icon-fangda,
+.mask-head span.icon-suoxiao {
+    font-size: 20px;
+}
+
+.progress {
+    line-height: 50px;
+    color: var(--w-color-gray-9);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.toggle-btn {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.toggle-btn span {
+    font-size: 20px;
+}
+
+.toggle-btn div:nth-child(1) {
+    float: left;
+}
+
+.toggle-btn div:nth-child(2) {
+    float: right;
+}
+
+.toggle-btn div {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.1);
+}

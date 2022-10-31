@@ -13,7 +13,7 @@ moment.locale('zh-cn');
 // 评论详情
 // live: 同时显示图片和live
 export default function Blog(props) {
-    const [urls] = useState(props.urls);
+    const [urls, setUrls] = useState(props.urls);
     const [text] = useState(props.text);
     const [reposts_count] = useState(props.reposts_count);
     const [comments_count] = useState(props.comments_count);
@@ -21,12 +21,14 @@ export default function Blog(props) {
     const [source] = useState(props.source);
     const [created_at] = useState(props.created_at);
     const [region_name] = useState(props.region_name);
-    const [showImgs] = useState(urls.length ? 'block' : 'none');
-    const [showRegion] = useState(region_name ? 'block' : 'none');
+    const [showImgs] = useState(urls.length ? true : false);
+    const [showRegion] = useState(region_name ? true : false);
     const textHTML = { __html: text };
     const width = picWidth();
     const [pic_wrap_width] = useState(width && width.pic_wrap_width);
     const [pics_wrap_width] = useState(width && width.pics_wrap_width);
+    let [preIdx, setPreIdx] = useState(0);
+    let [visble, setVisblle] = useState(false);
     function formatTime(created_at) {
         created_at = new Date(created_at);
         if (new Date().getTime() - created_at.getTime() <= 1000 * 60 * 60 * 21) {
@@ -87,9 +89,13 @@ export default function Blog(props) {
                             <p className='font-12 line-14 gray-2 margin-t-4'>
                                 {formatTime(created_at)} 来自 <span className='source'>{source}</span>
                             </p>
-                            <p className='font-12 line-14 gray-2 margin-t-6' style={{ display: showRegion }}>
-                                <span>{region_name}</span>
-                            </p>
+                            {showRegion ? (
+                                <p className='font-12 line-14 gray-2 margin-t-6' style={{ display: showRegion }}>
+                                    <span>{region_name}</span>
+                                </p>
+                            ) : (
+                                <></>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -97,17 +103,21 @@ export default function Blog(props) {
                     <div>
                         <p className='gray-1 text' dangerouslySetInnerHTML={textHTML}></p>
                     </div>
-                    <div className='margin-t-10' style={{ display: showImgs }}>
-                        <Image.PreviewGroup>
-                            <div className='pics-wrap flex wrap' style={{ width: pics_wrap_width }}>
-                                {urls.map((item, index) => (
-                                    <div key={item + index} className='ie-box pic-wrap flex' style={{ width: pic_wrap_width }}>
-                                        <Image src={item} placeholder={true} />
-                                    </div>
-                                ))}
-                            </div>
-                        </Image.PreviewGroup>
-                    </div>
+                    {showImgs ? (
+                        <div className='margin-t-10'>
+                            <Image.PreviewGroup>
+                                <div className='pics-wrap flex wrap' style={{ width: pics_wrap_width }}>
+                                    {urls.map(item => (
+                                        <div key={item} className='ie-box pic-wrap flex' style={{ width: pic_wrap_width }}>
+                                            <Image src={item} placeholder={true} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </Image.PreviewGroup>
+                        </div>
+                    ) : (
+                        <></>
+                    )}
                 </div>
                 <div className='blog-foot flex line-38'>
                     <div className='flex flex-1 flex-row-center flex-col-center pointer'>

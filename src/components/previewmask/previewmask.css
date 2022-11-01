@@ -8,6 +8,11 @@
 .preview-mask img.preview-img {
     height: 85%;
     bottom: unset;
+    transition: transform .5s;
+}
+
+.preview-mask img.no-trans {
+    transition: transform 0s;
 }
 
 .preview-mask .mask-foot {

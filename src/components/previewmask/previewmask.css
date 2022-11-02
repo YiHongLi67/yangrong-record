@@ -8,11 +8,11 @@
 .preview-mask img.preview-img {
     height: 85%;
     bottom: unset;
-    transition: transform .5s;
+    transition: transform .2s linear;
 }
 
 .preview-mask img.no-trans {
-    transition: transform 0s;
+    transition: transform 0s linear;
 }
 
 .preview-mask .mask-foot {
@@ -22,7 +22,11 @@
 }
 
 .mask-head {
+    display: inline-block;
     height: 50px;
+    top: 0;
+    right: 0;
+    margin-right: 15px;
 }
 
 .mask-head span.iconfont {
@@ -45,26 +49,29 @@
     color: var(--w-color-gray-9);
     left: 50%;
     transform: translateX(-50%);
+    user-select: none;
 }
 
 .toggle-btn {
     top: 50%;
+    text-align: center;
     transform: translateY(-50%);
+}
+
+.left-btn {
+    left: 0;
+}
+
+.right-btn {
+    right: 0;
 }
 
 .toggle-btn span {
     font-size: 20px;
+    line-height: 45px;
 }
 
-.toggle-btn div:nth-child(1) {
-    float: left;
-}
-
-.toggle-btn div:nth-child(2) {
-    float: right;
-}
-
-.toggle-btn div {
+.toggle-btn {
     width: 45px;
     height: 45px;
     border-radius: 50%;

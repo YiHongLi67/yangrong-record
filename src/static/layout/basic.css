@@ -464,3 +464,11 @@
 .block {
     display: block;
 }
+
+.float-l {
+    float: left;
+}
+
+.float-r {
+    float: right;
+}

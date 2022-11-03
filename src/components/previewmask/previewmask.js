@@ -15,6 +15,7 @@ export default function PreviewMask(props) {
     let [scaleRatio, setScaleRatio] = useState(1);
     let [transX, setTransX] = useState(0);
     let [transY, setTransY] = useState(0);
+    let [rotate, setRotate] = useState(0);
     let throttleMove;
     let maskMove = throttle(() => {
         ismousemove = true;
@@ -56,6 +57,7 @@ export default function PreviewMask(props) {
             setScaleRatio((ratio = 1));
             setTransX((transX = 0));
             setTransY((transY = 0));
+            setRotate((rotate = 0));
         }
     }
     function toggleImg() {
@@ -64,6 +66,7 @@ export default function PreviewMask(props) {
         setTransX((transX = 0));
         setTransY((transY = 0));
         setScaleRatio((ratio = 1));
+        setRotate((rotate = 0));
         document.querySelector('.preview-img').classList.add('no-trans');
         onImgLoad(urls[current]);
     }
@@ -105,8 +108,7 @@ export default function PreviewMask(props) {
             } else {
                 ratio += 1;
             }
-            setScaleRatio(ratio);
-        } else if (e.wheelDelta < 0) {
+        } else {
             if (ratio <= 1) {
                 ratio -= 0;
             } else if (ratio <= 4) {
@@ -124,8 +126,8 @@ export default function PreviewMask(props) {
                 setTransX((transX = 0));
                 setTransY((transY = 0));
             }
-            setScaleRatio(ratio);
         }
+        setScaleRatio(ratio);
     }
 
     function grow() {
@@ -170,49 +172,82 @@ export default function PreviewMask(props) {
 
     function move(e, ...args) {
         ismousemove = true;
+        transX = args[0] + (e.clientX - args[2]) / ratio;
+        transY = args[1] + (e.clientY - args[3]) / ratio;
+        // setTransX((transX = args[0] + (e.clientX - args[2]) / ratio));
+        // setTransY((transY = args[1] + (e.clientY - args[3]) / ratio));
         e.stopPropagation();
-        setTransX((transX = args[0] + (e.clientX - args[2]) / ratio));
-        setTransY((transY = args[1] + (e.clientY - args[3]) / ratio));
-        let borderX, borderY;
-        if (ratio > 1) {
-            if ($('.preview-img').width() * ratio < window.innerWidth) {
-                borderX = (window.innerWidth - $('.preview-img').width() * ratio) / 2 / ratio;
-            } else {
-                borderX = ($('.preview-img').width() * ratio - window.innerWidth) / 2 / ratio;
-            }
-            borderY = ($('.preview-img').height() * (ratio - 1)) / 2 / ratio;
-            if (transX >= borderX) {
-                // 向右拖拽
-                transX = borderX;
-            }
-            if (transX <= -borderX) {
-                // 向左拖拽
-                transX = -borderX;
-            }
-            if (transY >= borderY) {
-                // 向下拖拽
-                transY = borderY;
-            }
-            if (transY <= -borderY) {
-                // 向上拖拽
-                transY = -borderY;
-            }
-        } else {
-            transX = 0;
-            transY = 0;
-        }
-        if (ratio > 1) {
-            // 如果ratio大于1, 在 mousemove 的时候设置边界值
+        let borderX,
+            borderY,
+            imgWidth = $('.preview-img').width(),
+            imgHeight = $('.preview-img').height(),
+            winWidth = window.innerWidth,
+            winHeight = window.innerHeight;
+        // 缩放比例为 1, 拖动的边界值在 mouseup 时设置为 0, 即无论怎么拖拽都是原始位置
+        if (ratio === 1) {
             setTransX(transX);
             setTransY(transY);
+            return;
         }
+        // 缩放比例大于 1, 给拖拽设置边界值
+        // 如果旋转后宽高未置反
+        if (!isRotate()) {
+            if (imgWidth * ratio < winWidth) {
+                borderX = (winWidth - imgWidth * ratio) / 2 / ratio;
+            } else {
+                borderX = (imgWidth * ratio - winWidth) / 2 / ratio;
+            }
+            borderY = (imgHeight * (ratio - 1)) / 2 / ratio;
+        } else {
+            // 旋转后宽高置反
+            // 缩放后图片的高度小于窗口宽度
+            if (imgHeight * ratio < winWidth) {
+                /**
+                 * 可向左 / 向右拖拽的最大距离: (窗口宽度 - 图片高度 * 缩放比例) / 2 / 缩放比例
+                 * 除以 2 是图片居中, 上下可 translate 的距离均分
+                 * 为何除以缩放比例 ratio, 摸索出来的
+                 */
+                borderX = (winWidth - imgHeight * ratio) / 2 / ratio;
+            } else {
+                borderX = (imgHeight * ratio - winWidth) / 2 / ratio;
+            }
+            // 缩放后图片的宽度小于窗口高度
+            if (imgWidth * ratio < winHeight) {
+                /**
+                 * 可向上 / 向下拖拽最的大距离: (窗口高度 - 图片宽度 * 缩放比例) / 2 / 缩放比例
+                 * 由于图片高度为100%, 所以宽口高度 winHeight 也就是图片高度 imgHeight
+                 */
+                borderY = (imgHeight - imgWidth * ratio) / 2 / ratio;
+            } else {
+                borderY = (imgWidth * ratio - imgHeight) / 2 / ratio;
+            }
+        }
+        if (transX >= borderX) {
+            // 向右拖拽
+            transX = borderX;
+        }
+        if (transX <= -borderX) {
+            // 向左拖拽
+            transX = -borderX;
+        }
+        if (transY >= borderY) {
+            // 向下拖拽
+            transY = borderY;
+        }
+        if (transY <= -borderY) {
+            // 向上拖拽
+            transY = -borderY;
+        }
+        // 缩放比例大于 1, 在 mousemove 的时候设置边界值
+        setTransX(transX);
+        setTransY(transY);
     }
 
     function up(e) {
         if (ratio === 1) {
-            // 如果ratio等于1, 在 mouseup 的时候设置边界值
-            setTransX(transX);
-            setTransY(transY);
+            // 如果缩放比例等于 1, 在 mouseup 的时候设置边界值为 0
+            setTransX((transX = 0));
+            setTransY((transY = 0));
         }
         document.querySelector('.preview-img').classList.add('no-trans');
         e.stopPropagation();
@@ -242,6 +277,22 @@ export default function PreviewMask(props) {
         document.removeEventListener('mouseup', maskUp);
     }
 
+    function isRotate() {
+        let remainder = (rotate / 90) % 2;
+        return remainder === 1 || remainder === -1;
+    }
+
+    function rotateLeft(e) {
+        setRotate(rotate => {
+            return rotate - 90;
+        });
+    }
+    function rotateRight(e) {
+        setRotate(rotate => {
+            return rotate + 90;
+        });
+    }
+
     let dom = showMask ? (
         <div id='preview-mask' className='preview-mask h-v-full w-v-full fixed' onClick={closeMask} onMouseDown={maskDown}>
             <img
@@ -250,17 +301,17 @@ export default function PreviewMask(props) {
                 src={src}
                 alt='translate3d(${moveX}px, ${moveY}px, 0)'
                 onMouseDown={mousedown}
-                style={{ transform: `scale3d(${scaleRatio}, ${scaleRatio}, 1) translate3d(${transX}px, ${transY}px, 0px)` }}
+                style={{ transform: `scale3d(${scaleRatio}, ${scaleRatio}, 1) translate3d(${transX}px, ${transY}px, 0px) rotate(${rotate}deg)` }}
             />
             <span className='progress relative'>
                 {current + 1} / {urls.length}
             </span>
             <div className='mask-head fixed'>
                 <span id='close' className='iconfont icon-24gl-delete' onClick={closeMask}></span>
-                <span id='fangda' className='iconfont icon-fangda' onClick={throttle(grow, 200)}></span>
-                <span id='suoxiao' className='iconfont icon-suoxiao' onClick={throttle(shrink, 200)}></span>
-                <span className='iconfont icon-rotate-right'></span>
-                <span className='iconfont icon-rotate-left'></span>
+                <span className='iconfont icon-fangda' onClick={throttle(grow, 200)}></span>
+                <span className='iconfont icon-suoxiao' onClick={throttle(shrink, 200)}></span>
+                <span className='iconfont icon-rotate-right' onClick={rotateRight}></span>
+                <span className='iconfont icon-rotate-left' onClick={rotateLeft}></span>
             </div>
             <div
                 className='toggle-btn left-btn margin-l-10 fixed'

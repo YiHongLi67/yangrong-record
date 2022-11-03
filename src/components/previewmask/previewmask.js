@@ -24,13 +24,6 @@ export default function PreviewMask(props) {
             setCurrent(data.idx);
             onImgLoad(data.urls[data.idx]);
         });
-        PubSub.subscribe('loadNormal', (_, src) => {
-            setTransX((transX = 0));
-            setTransY((transY = 0));
-            setScaleRatio((ratio = 1));
-            document.querySelector('.preview-img').classList.add('no-trans');
-            setSrc(src);
-        });
         document.body.onmousedown = function () {
             return false;
         };
@@ -45,7 +38,8 @@ export default function PreviewMask(props) {
         let img = new Image();
         img.src = src;
         $(img).on('load', function () {
-            PubSub.publish('loadNormal', src);
+            // 加载大图
+            setSrc(src);
         });
     }
 
@@ -60,29 +54,32 @@ export default function PreviewMask(props) {
             setTransY((transY = 0));
         }
     }
+    function toggleImg() {
+        setCurrent(current);
+        setSrc(urls[current]);
+        setTransX((transX = 0));
+        setTransY((transY = 0));
+        setScaleRatio((ratio = 1));
+        document.querySelector('.preview-img').classList.add('no-trans');
+        onImgLoad(urls[current]);
+    }
 
     function preImg() {
-        if (current > 0) {
-            onImgLoad(urls[current - 1]);
-            setCurrent(current => {
-                return --current;
-            });
-        }
         if (current === 0) {
             setCurrent(0);
+            return;
         }
+        current--;
+        toggleImg();
     }
 
     function nextImg() {
-        if (current < urls.length - 1) {
-            onImgLoad(urls[current + 1]);
-            setCurrent(current => {
-                return ++current;
-            });
-        }
         if (current === urls.length - 1) {
-            setCurrent(urls.length - 1);
+            setCurrent(current);
+            return;
         }
+        current++;
+        toggleImg();
     }
 
     function scaleImg(e) {

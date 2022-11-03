@@ -33,9 +33,9 @@ export default function App() {
     let URLS1 = [
         `${baseUrl}0021KfBmly1h7iondsnhaj624836d7wj02.jpg`,
         `${baseUrl}0021KfBmly1h3rlvj84gij635s23ux6s02.jpg`,
-        `${baseUrl}0021KfBmly1h6uldcxgi2j620q2wze8102.jpg`
+        `${baseUrl}0021KfBmly1h6wvoptmakj642o2qcb2902.jpg`
     ];
-    let URLS2 = [`${baseUrl}0021KfBmly1h6wvoptmakj642o2qcb2902.jpg`];
+    let URLS2 = [`${baseUrl}0021KfBmly1h6uldcxgi2j620q2wze8102.jpg`];
     return (
         <div className='app' style={{ height }}>
             <Content className='main'>

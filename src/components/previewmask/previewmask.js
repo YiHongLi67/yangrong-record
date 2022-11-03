@@ -16,6 +16,7 @@ export default function PreviewMask(props) {
     let [transX, setTransX] = useState(0);
     let [transY, setTransY] = useState(0);
     let [rotate, setRotate] = useState(0);
+    let [isFullScreen, setIsFullScreen] = useState(false);
     let throttleMove;
     let maskMove = throttle(() => {
         ismousemove = true;
@@ -287,10 +288,21 @@ export default function PreviewMask(props) {
             return rotate - 90;
         });
     }
+
     function rotateRight(e) {
         setRotate(rotate => {
             return rotate + 90;
         });
+    }
+
+    function fullScreen(e) {
+        const isFullScreen = document.webkitIsFullScreen || document.mozFullScreen || false;
+        setIsFullScreen(!isFullScreen);
+        if (isFullScreen) {
+            document.exitFullscreen();
+        } else {
+            document.querySelector('.preview-mask').requestFullscreen();
+        }
     }
 
     let dom = showMask ? (
@@ -301,17 +313,24 @@ export default function PreviewMask(props) {
                 src={src}
                 alt='translate3d(${moveX}px, ${moveY}px, 0)'
                 onMouseDown={mousedown}
-                style={{ transform: `scale3d(${scaleRatio}, ${scaleRatio}, 1) translate3d(${transX}px, ${transY}px, 0px) rotate(${rotate}deg)` }}
+                style={{
+                    transform: `scale3d(${scaleRatio}, ${scaleRatio}, 1) translate3d(${transX}px, ${transY}px, 0px) rotate(${rotate}deg)`,
+                    height: isFullScreen ? '100%' : '85%'
+                }}
             />
             <span className='progress relative'>
                 {current + 1} / {urls.length}
             </span>
             <div className='mask-head fixed'>
-                <span id='close' className='iconfont icon-24gl-delete' onClick={closeMask}></span>
-                <span className='iconfont icon-fangda' onClick={throttle(grow, 200)}></span>
-                <span className='iconfont icon-suoxiao' onClick={throttle(shrink, 200)}></span>
-                <span className='iconfont icon-rotate-right' onClick={rotateRight}></span>
-                <span className='iconfont icon-rotate-left' onClick={rotateLeft}></span>
+                <span id='close' className='iconfont icon-24gl-delete' title='关闭' onClick={closeMask}></span>
+                <span
+                    className={'iconfont ' + (isFullScreen ? 'icon-quxiaoquanping_huaban' : 'icon-quanping')}
+                    title={isFullScreen ? '退出全屏' : '全屏'}
+                    onClick={fullScreen}></span>
+                <span className='iconfont icon-fangda' title='最大化' onClick={throttle(grow, 200)}></span>
+                <span className='iconfont icon-suoxiao' title='最小化' onClick={throttle(shrink, 200)}></span>
+                <span className='iconfont icon-rotate-right' title='右旋转' onClick={rotateRight}></span>
+                <span className='iconfont icon-rotate-left' title='左旋转' onClick={rotateLeft}></span>
             </div>
             <div
                 className='toggle-btn left-btn margin-l-10 fixed'
@@ -331,7 +350,7 @@ export default function PreviewMask(props) {
                 }}>
                 <span className='iconfont icon-arrow-right-bold'></span>
             </div>
-            <div className='mask-foot fixed w-v-full'></div>
+            {isFullScreen ? <></> : <div className='mask-foot fixed w-v-full'></div>}
         </div>
     ) : (
         <></>

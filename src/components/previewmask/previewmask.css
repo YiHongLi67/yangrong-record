@@ -6,7 +6,6 @@
 }
 
 .preview-mask img.preview-img {
-    height: 85%;
     bottom: unset;
     transition: transform .2s linear;
 }

@@ -3,7 +3,8 @@ import PubSub from 'pubsub-js';
 import './previewmask.css';
 import jQuery from 'jquery';
 let ratio = 1;
-let ismouseup = false;
+let ismouseup = false,
+    ismousemove = false;
 
 export default function PreviewMask(props) {
     let $ = jQuery;
@@ -15,6 +16,9 @@ export default function PreviewMask(props) {
     let [transX, setTransX] = useState(0);
     let [transY, setTransY] = useState(0);
     let throttleMove;
+    let maskMove = throttle(() => {
+        ismousemove = true;
+    }, 300);
 
     useEffect(() => {
         PubSub.subscribe('showMask', (_, data) => {
@@ -44,7 +48,7 @@ export default function PreviewMask(props) {
     }
 
     function closeMask(e) {
-        if (ismouseup) {
+        if (ismousemove && ismouseup) {
             return;
         }
         if (e.target.id === 'preview-mask' || e.target.id === 'close') {
@@ -168,6 +172,7 @@ export default function PreviewMask(props) {
         setTransX((transX = args[0] + (e.clientX - args[2]) / ratio));
         setTransY((transY = args[1] + (e.clientY - args[3]) / ratio));
         e.stopPropagation();
+        ismousemove = true;
     }
 
     function up(e) {
@@ -207,13 +212,29 @@ export default function PreviewMask(props) {
         ismouseup = true;
         setTimeout(function () {
             ismouseup = false;
+            ismousemove = false;
         }, 200);
         document.removeEventListener('mousemove', throttleMove);
         document.removeEventListener('mouseup', up);
     }
 
+    function maskDown() {
+        // 解决拖拽功能按钮释放鼠标后 preview-mask 会关闭的bug
+        document.addEventListener('mousemove', maskMove);
+        document.addEventListener('mouseup', maskUp);
+    }
+    function maskUp() {
+        ismouseup = true;
+        setTimeout(() => {
+            ismouseup = false;
+            ismousemove = false;
+        }, 200);
+        document.removeEventListener('mousemove', maskMove);
+        document.removeEventListener('mouseup', maskUp);
+    }
+
     let dom = showMask ? (
-        <div id='preview-mask' className='preview-mask h-v-full w-v-full fixed' onClick={closeMask}>
+        <div id='preview-mask' className='preview-mask h-v-full w-v-full fixed' onClick={closeMask} onMouseDown={maskDown}>
             <img
                 id='preview-img'
                 className='preview-img absolute absolute-center pointer'

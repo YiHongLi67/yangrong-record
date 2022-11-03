@@ -169,14 +169,10 @@ export default function PreviewMask(props) {
     }
 
     function move(e, ...args) {
+        ismousemove = true;
+        e.stopPropagation();
         setTransX((transX = args[0] + (e.clientX - args[2]) / ratio));
         setTransY((transY = args[1] + (e.clientY - args[3]) / ratio));
-        e.stopPropagation();
-        ismousemove = true;
-    }
-
-    function up(e) {
-        document.querySelector('.preview-img').classList.add('no-trans');
         let borderX, borderY;
         if (ratio > 1) {
             if ($('.preview-img').width() * ratio < window.innerWidth) {
@@ -205,8 +201,20 @@ export default function PreviewMask(props) {
             transX = 0;
             transY = 0;
         }
-        setTransX(transX);
-        setTransY(transY);
+        if (ratio > 1) {
+            // 如果ratio大于1, 在 mousemove 的时候设置边界值
+            setTransX(transX);
+            setTransY(transY);
+        }
+    }
+
+    function up(e) {
+        if (ratio === 1) {
+            // 如果ratio等于1, 在 mouseup 的时候设置边界值
+            setTransX(transX);
+            setTransY(transY);
+        }
+        document.querySelector('.preview-img').classList.add('no-trans');
         e.stopPropagation();
         setShowMask((showMask = true));
         ismouseup = true;
@@ -223,6 +231,7 @@ export default function PreviewMask(props) {
         document.addEventListener('mousemove', maskMove);
         document.addEventListener('mouseup', maskUp);
     }
+
     function maskUp() {
         ismouseup = true;
         setTimeout(() => {

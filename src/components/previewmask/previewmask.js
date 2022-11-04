@@ -1,17 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PubSub from 'pubsub-js';
 import './previewmask.css';
-import jQuery from 'jquery';
 let ratio = 1;
 
-// bug: 全屏时, 关闭按钮需点击两下才能触发
-// 移除 jquery, 采用其他方法监听图片加载完成
-// 使用 ref 替换 document.querySelector
-// 使用其他方法替换jquery获取宽度
-// 将标签上的逻辑写成计算属性
+// 当图片未加载完成就切换下一张图片时, 停止上一张的加载, 进行下一张的加载
 // 移除pubsub-js, 使用其他方式进行兄弟元素间通信
+
 export default function PreviewMask(props) {
-    let $ = jQuery;
     let [showMask, setShowMask] = useState(false);
     let [current, setCurrent] = useState(0);
     let [urls, setUrls] = useState([]);
@@ -23,6 +18,8 @@ export default function PreviewMask(props) {
     let [isFullScreen, setIsFullScreen] = useState(false);
     let [emitUp, setEmitUp] = useState(false);
     let [emitMove, setEmtitMove] = useState(false);
+    let previewMask = useRef(null);
+    let previewImg = useRef(null);
     let throttleMove;
     let throttleMaskMove;
 
@@ -35,9 +32,9 @@ export default function PreviewMask(props) {
             onImgLoad(data.urls[data.idx]);
         });
         document.body.onmousedown = function () {
+            // 取消选中元素和图片默认禁止拖拽
             return false;
         };
-        document.addEventListener('wheel', throttle(scaleImg, 200));
         return () => {};
     }, []);
 
@@ -91,7 +88,7 @@ export default function PreviewMask(props) {
         setTransY((transY = 0));
         setScaleRatio((ratio = 1));
         setRotate((rotate = 0));
-        document.querySelector('.preview-img').classList.add('no-trans');
+        previewImg.current.classList.add('no-trans');
         onImgLoad(urls[current]);
     }
 
@@ -114,11 +111,8 @@ export default function PreviewMask(props) {
     }
 
     function scaleImg(e) {
-        if (!document.querySelector('#preview-mask')) {
-            return;
-        }
-        document.querySelector('.preview-img') && document.querySelector('.preview-img').classList.remove('no-trans');
-        if (e.wheelDelta > 0) {
+        previewImg.current.classList.remove('no-trans');
+        if (e.deltaY < 0) {
             if (ratio >= 50) {
                 ratio += 0;
             } else if (ratio >= 28) {
@@ -155,12 +149,12 @@ export default function PreviewMask(props) {
     }
 
     function grow() {
-        document.querySelector('.preview-img') && document.querySelector('.preview-img').classList.remove('no-trans');
+        previewImg.current.classList.remove('no-trans');
         setScaleRatio((ratio = 50));
     }
 
     function shrink() {
-        document.querySelector('.preview-img') && document.querySelector('.preview-img').classList.remove('no-trans');
+        previewImg.current.classList.remove('no-trans');
         setScaleRatio((ratio = 1));
         setTransX((transX = 0));
         setTransY((transY = 0));
@@ -180,7 +174,7 @@ export default function PreviewMask(props) {
     }
 
     function mousedown(e) {
-        document.querySelector('.preview-img').classList.remove('no-trans');
+        previewImg.current.classList.remove('no-trans');
         // 获取元素当前的偏移量
         let tx = transX;
         let ty = transY;
@@ -190,7 +184,6 @@ export default function PreviewMask(props) {
         throttleMove = throttle(move, 100, tx, ty, startX, startY);
         document.addEventListener('mousemove', throttleMove);
         document.addEventListener('mouseup', up);
-        e.stopPropagation();
         e.preventDefault();
     }
 
@@ -198,11 +191,16 @@ export default function PreviewMask(props) {
         setEmtitMove((emitMove = true));
         transX = args[0] + (e.clientX - args[2]) / ratio;
         transY = args[1] + (e.clientY - args[3]) / ratio;
-        e.stopPropagation();
+        // getComputedStyle 获取到的是未缩放前的宽高
+        // window.getComputedStyle(previewImg.current).width;
+        // window.getComputedStyle(previewImg.current).height;
+        // getBoundingClientRect 获取到的是缩放后的宽高
+        // previewImg.current.getBoundingClientRect().width;
+        // previewImg.current.getBoundingClientRect().height;
         let borderX,
             borderY,
-            imgWidth = $('.preview-img').width(),
-            imgHeight = $('.preview-img').height(),
+            imgWidth = parseFloat(window.getComputedStyle(previewImg.current).width),
+            imgHeight = parseFloat(window.getComputedStyle(previewImg.current).height),
             winWidth = window.innerWidth,
             winHeight = window.innerHeight;
         // 缩放比例为 1, 拖动的边界值在 mouseup 时设置为 0, 即无论怎么拖拽都是原始位置
@@ -265,14 +263,13 @@ export default function PreviewMask(props) {
         setTransY(transY);
     }
 
-    function up(e) {
+    function up() {
         if (ratio === 1) {
             // 如果缩放比例等于 1, 在 mouseup 的时候设置边界值为 0
             setTransX((transX = 0));
             setTransY((transY = 0));
         }
-        document.querySelector('.preview-img').classList.add('no-trans');
-        e.stopPropagation();
+        previewImg.current.classList.add('no-trans');
         setShowMask((showMask = true));
         setEmitUp((emitUp = true));
         document.removeEventListener('mousemove', throttleMove);
@@ -280,18 +277,18 @@ export default function PreviewMask(props) {
         setTimeout(function () {
             setEmitUp((emitMove = false));
             setEmtitMove((emitUp = false));
-        }, 200);
+        }, 100);
     }
 
     function maskDown(e) {
         let startX = e.clientX;
         let startY = e.clientY;
         throttleMaskMove = throttle(e => {
-            if (e.clientX - startX === 0 && e.clientY - startY) {
+            if (e.clientX - startX === 0 && e.clientY - startY === 0) {
                 return;
             }
             setEmtitMove((emitMove = true));
-        }, 300);
+        }, 200);
         // 解决拖拽功能按钮释放鼠标后 preview-mask 会关闭的 bug
         document.addEventListener('mousemove', throttleMaskMove);
         document.addEventListener('mouseup', maskUp);
@@ -304,7 +301,7 @@ export default function PreviewMask(props) {
         setTimeout(() => {
             setEmitUp((emitUp = false));
             setEmtitMove((emitMove = false));
-        }, 200);
+        }, 100);
     }
 
     function isRotate() {
@@ -329,54 +326,83 @@ export default function PreviewMask(props) {
         if (FullScreen) {
             document.exitFullscreen();
         } else {
-            document.querySelector('.preview-mask').requestFullscreen();
+            previewMask.current.requestFullscreen();
         }
         setIsFullScreen((isFullScreen = !FullScreen));
     }
 
+    function imgStyle() {
+        return {
+            transform: `scale3d(${scaleRatio}, ${scaleRatio}, 1) translate3d(${transX}px, ${transY}px, 0px) rotate(${rotate}deg)`,
+            height: isFullScreen ? '100%' : '85%'
+        };
+    }
+
+    function fullScreenTitle() {
+        return isFullScreen ? '退出全屏' : '全屏';
+    }
+
+    function fullScreenCls() {
+        return 'iconfont ' + (isFullScreen ? 'icon-quxiaoquanping_huaban' : 'icon-quanping');
+    }
+
+    function leftBtnStyle() {
+        return {
+            cursor: current === 0 ? 'no-drop' : 'pointer',
+            color: current === 0 ? 'rgba(204, 204, 204, 0.5)' : 'var(--w-color-gray-7)'
+        };
+    }
+    function rightBtnStyle() {
+        return {
+            cursor: current === urls.length - 1 ? 'no-drop' : 'pointer',
+            color: current === urls.length - 1 ? 'rgba(204, 204, 204, 0.5)' : 'var(--w-color-gray-7)'
+        };
+    }
+
+    function scaleMax() {
+        return {
+            cursor: ratio === 50 ? 'no-drop' : 'pointer',
+            color: ratio === 50 ? 'rgba(204, 204, 204, 0.5)' : 'var(--w-color-gray-9)'
+        };
+    }
+    function scaleMin() {
+        return {
+            cursor: ratio === 1 ? 'no-drop' : 'pointer',
+            color: ratio === 1 ? 'rgba(204, 204, 204, 0.5)' : 'var(--w-color-gray-9)'
+        };
+    }
+
     let dom = showMask ? (
-        <div id='preview-mask' className='preview-mask h-v-full w-v-full fixed' onClick={closeMask} onMouseDown={maskDown}>
+        <div
+            id='preview-mask'
+            ref={previewMask}
+            className='preview-mask h-v-full w-v-full fixed'
+            onClick={closeMask}
+            onMouseDown={maskDown}
+            onWheel={throttle(scaleImg, 200)}>
             <img
-                id='preview-img'
+                ref={previewImg}
                 className='preview-img absolute absolute-center pointer'
                 src={src}
                 alt='translate3d(${moveX}px, ${moveY}px, 0)'
                 onMouseDown={mousedown}
-                style={{
-                    transform: `scale3d(${scaleRatio}, ${scaleRatio}, 1) translate3d(${transX}px, ${transY}px, 0px) rotate(${rotate}deg)`,
-                    height: isFullScreen ? '100%' : '85%'
-                }}
+                style={imgStyle()}
             />
             <span className='progress relative'>
                 {current + 1} / {urls.length}
             </span>
             <div className='mask-head fixed'>
                 <span id='close' className='iconfont icon-24gl-delete' title='关闭' onClick={closeMask}></span>
-                <span
-                    className={'iconfont ' + (isFullScreen ? 'icon-quxiaoquanping_huaban' : 'icon-quanping')}
-                    title={isFullScreen ? '退出全屏' : '全屏'}
-                    onClick={fullScreen}></span>
-                <span className='iconfont icon-fangda' title='最大化' onClick={throttle(grow, 200)}></span>
-                <span className='iconfont icon-suoxiao' title='最小化' onClick={throttle(shrink, 200)}></span>
+                <span className={fullScreenCls()} title={fullScreenTitle()} onClick={fullScreen}></span>
+                <span className='iconfont icon-fangda' title='最大化' style={scaleMax()} onClick={throttle(grow, 200)}></span>
+                <span className='iconfont icon-suoxiao' title='最小化' style={scaleMin()} onClick={throttle(shrink, 200)}></span>
                 <span className='iconfont icon-rotate-right' title='右旋转' onClick={rotateRight}></span>
                 <span className='iconfont icon-rotate-left' title='左旋转' onClick={rotateLeft}></span>
             </div>
-            <div
-                className='toggle-btn left-btn margin-l-10 fixed'
-                onClick={preImg}
-                style={{
-                    cursor: current === 0 ? 'no-drop' : 'pointer',
-                    color: current === 0 ? 'rgba(204, 204, 204, 0.5)' : 'var(--w-color-gray-7)'
-                }}>
+            <div className='toggle-btn left-btn margin-l-10 fixed' onClick={preImg} style={leftBtnStyle()}>
                 <span className='iconfont icon-arrow-left-bold'></span>
             </div>
-            <div
-                className='toggle-btn right-btn margin-r-10 fixed'
-                onClick={nextImg}
-                style={{
-                    cursor: current === urls.length - 1 ? 'no-drop' : 'pointer',
-                    color: current === urls.length - 1 ? 'rgba(204, 204, 204, 0.5)' : 'var(--w-color-gray-7)'
-                }}>
+            <div className='toggle-btn right-btn margin-r-10 fixed' onClick={nextImg} style={rightBtnStyle()}>
                 <span className='iconfont icon-arrow-right-bold'></span>
             </div>
             {isFullScreen ? <></> : <div className='mask-foot fixed w-v-full'></div>}

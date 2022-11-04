@@ -3,9 +3,13 @@ import PubSub from 'pubsub-js';
 import './previewmask.css';
 import jQuery from 'jquery';
 let ratio = 1;
-let ismouseup = false,
-    ismousemove = false;
 
+// bug: 全屏时, 关闭按钮需点击两下才能触发
+// 移除 jquery, 采用其他方法监听图片加载完成
+// 使用 ref 替换 document.querySelector
+// 使用其他方法替换jquery获取宽度
+// 将标签上的逻辑写成计算属性
+// 移除pubsub-js, 使用其他方式进行兄弟元素间通信
 export default function PreviewMask(props) {
     let $ = jQuery;
     let [showMask, setShowMask] = useState(false);
@@ -17,10 +21,10 @@ export default function PreviewMask(props) {
     let [transY, setTransY] = useState(0);
     let [rotate, setRotate] = useState(0);
     let [isFullScreen, setIsFullScreen] = useState(false);
+    let [emitUp, setEmitUp] = useState(false);
+    let [emitMove, setEmtitMove] = useState(false);
     let throttleMove;
-    let maskMove = throttle(() => {
-        ismousemove = true;
-    }, 300);
+    let throttleMaskMove;
 
     useEffect(() => {
         PubSub.subscribe('showMask', (_, data) => {
@@ -41,26 +45,45 @@ export default function PreviewMask(props) {
         if (src.indexOf('thumbnail') !== -1) {
             src = src.replace('thumbnail', 'normal');
         }
-        let img = new Image();
+        let img = document.createElement('img');
         img.src = src;
-        $(img).on('load', function () {
+        img.onload = function () {
             // 加载大图
             setSrc(src);
-        });
+        };
+    }
+
+    function resetMask() {
+        setShowMask(false);
+        setScaleRatio((ratio = 1));
+        setTransX((transX = 0));
+        setTransY((transY = 0));
+        setRotate((rotate = 0));
+        setIsFullScreen((isFullScreen = false));
+        setEmtitMove((emitMove = false));
+        setEmitUp((emitUp = false));
     }
 
     function closeMask(e) {
-        if (ismousemove && ismouseup) {
-            return;
-        }
-        if (e.target.id === 'preview-mask' || e.target.id === 'close') {
-            setShowMask(false);
-            setScaleRatio((ratio = 1));
-            setTransX((transX = 0));
-            setTransY((transY = 0));
-            setRotate((rotate = 0));
+        e.stopPropagation();
+        if (isFullScreen) {
+            if (e.target.id === 'close') {
+                // 浏览器全屏模式下 click 的同时会触发模拟的 mousemove 事件
+                // 因此无法通过设置 emitMove emitUp 判断鼠标行为是否是点击还是拖拽
+                // 而全屏模式下本身解决了拖拽空白区域也会关闭 previewmask 的 bug, 因此不用通过 emitMove emitUp 解决
+                resetMask();
+            }
+        } else {
+            if (emitMove && emitUp) {
+                // 在非全屏模式下, 通过设置 emitMove emitUp 来判断鼠标行为是点击还是拖拽
+                return;
+            }
+            if (e.target.id === 'preview-mask' || e.target.id === 'close') {
+                resetMask();
+            }
         }
     }
+
     function toggleImg() {
         setCurrent(current);
         setSrc(urls[current]);
@@ -172,11 +195,9 @@ export default function PreviewMask(props) {
     }
 
     function move(e, ...args) {
-        ismousemove = true;
+        setEmtitMove((emitMove = true));
         transX = args[0] + (e.clientX - args[2]) / ratio;
         transY = args[1] + (e.clientY - args[3]) / ratio;
-        // setTransX((transX = args[0] + (e.clientX - args[2]) / ratio));
-        // setTransY((transY = args[1] + (e.clientY - args[3]) / ratio));
         e.stopPropagation();
         let borderX,
             borderY,
@@ -216,7 +237,7 @@ export default function PreviewMask(props) {
             if (imgWidth * ratio < winHeight) {
                 /**
                  * 可向上 / 向下拖拽最的大距离: (窗口高度 - 图片宽度 * 缩放比例) / 2 / 缩放比例
-                 * 由于图片高度为100%, 所以宽口高度 winHeight 也就是图片高度 imgHeight
+                 * 由于图片高度为 100%, 所以宽口高度 winHeight 也就是图片高度 imgHeight
                  */
                 borderY = (imgHeight - imgWidth * ratio) / 2 / ratio;
             } else {
@@ -253,29 +274,37 @@ export default function PreviewMask(props) {
         document.querySelector('.preview-img').classList.add('no-trans');
         e.stopPropagation();
         setShowMask((showMask = true));
-        ismouseup = true;
-        setTimeout(function () {
-            ismouseup = false;
-            ismousemove = false;
-        }, 200);
+        setEmitUp((emitUp = true));
         document.removeEventListener('mousemove', throttleMove);
         document.removeEventListener('mouseup', up);
+        setTimeout(function () {
+            setEmitUp((emitMove = false));
+            setEmtitMove((emitUp = false));
+        }, 200);
     }
 
-    function maskDown() {
-        // 解决拖拽功能按钮释放鼠标后 preview-mask 会关闭的bug
-        document.addEventListener('mousemove', maskMove);
+    function maskDown(e) {
+        let startX = e.clientX;
+        let startY = e.clientY;
+        throttleMaskMove = throttle(e => {
+            if (e.clientX - startX === 0 && e.clientY - startY) {
+                return;
+            }
+            setEmtitMove((emitMove = true));
+        }, 300);
+        // 解决拖拽功能按钮释放鼠标后 preview-mask 会关闭的 bug
+        document.addEventListener('mousemove', throttleMaskMove);
         document.addEventListener('mouseup', maskUp);
     }
 
     function maskUp() {
-        ismouseup = true;
-        setTimeout(() => {
-            ismouseup = false;
-            ismousemove = false;
-        }, 200);
-        document.removeEventListener('mousemove', maskMove);
+        setEmitUp((emitUp = true));
+        document.removeEventListener('mousemove', throttleMaskMove);
         document.removeEventListener('mouseup', maskUp);
+        setTimeout(() => {
+            setEmitUp((emitUp = false));
+            setEmtitMove((emitMove = false));
+        }, 200);
     }
 
     function isRotate() {
@@ -296,13 +325,13 @@ export default function PreviewMask(props) {
     }
 
     function fullScreen(e) {
-        const isFullScreen = document.webkitIsFullScreen || document.mozFullScreen || false;
-        setIsFullScreen(!isFullScreen);
-        if (isFullScreen) {
+        let FullScreen = document.webkitIsFullScreen || document.mozFullScreen || false;
+        if (FullScreen) {
             document.exitFullscreen();
         } else {
             document.querySelector('.preview-mask').requestFullscreen();
         }
+        setIsFullScreen((isFullScreen = !FullScreen));
     }
 
     let dom = showMask ? (

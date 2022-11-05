@@ -7,9 +7,8 @@
     max-width: 640px;
 }
 
-.pic-wrap {
+.img-group .img-wrap {
     margin: 2px;
-    aspect-ratio: 1/1;
     display: flex;
 }
 

@@ -6,7 +6,7 @@ let ratio = 1;
 // 当图片未加载完成就切换下一张图片时, 停止上一张的加载, 进行下一张的加载
 // 移除pubsub-js, 使用其他方式进行兄弟元素间通信
 
-export default function PreviewMask(props) {
+export default function PreviewMask() {
     let [showMask, setShowMask] = useState(false);
     let [current, setCurrent] = useState(0);
     let [urls, setUrls] = useState([]);
@@ -18,6 +18,7 @@ export default function PreviewMask(props) {
     let [isFullScreen, setIsFullScreen] = useState(false);
     let [emitUp, setEmitUp] = useState(false);
     let [emitMove, setEmtitMove] = useState(false);
+    let [parentNode, setParentNode] = useState(null);
     let previewMask = useRef(null);
     let previewImg = useRef(null);
     let throttleMove;
@@ -25,7 +26,8 @@ export default function PreviewMask(props) {
 
     useEffect(() => {
         PubSub.subscribe('showMask', (_, data) => {
-            setShowMask(data.isShow);
+            setParentNode(data.parentNode);
+            setShowMask(true);
             setUrls(data.urls);
             setSrc(data.urls[data.idx]);
             setCurrent(data.idx);
@@ -59,6 +61,7 @@ export default function PreviewMask(props) {
         setIsFullScreen((isFullScreen = false));
         setEmtitMove((emitMove = false));
         setEmitUp((emitUp = false));
+        setParentNode(parentNode.setAttribute('data-show', ''));
     }
 
     function closeMask(e) {

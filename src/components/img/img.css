@@ -1,15 +1,23 @@
 .img-wrap {
     overflow: hidden;
+    margin: 5px;
+    aspect-ratio: 1/1;
 }
 
 .img-wrap:hover {
-    position: relative;
     cursor: pointer;
 }
 
-.img-wrap:hover::before {
-    content: '预览';
-    position: absolute;
+.img-wrap img {
+    width: 100%;
+    height: 100%;
+}
+
+.img-mask {
+    display: none;
+}
+
+.img-wrap:hover .img-mask {
     width: 100%;
     height: 100%;
     top: 0;
@@ -19,7 +27,7 @@
     justify-content: center;
     color: white;
     background-color: rgba(0, 0, 0, 0.35);
-    animation: mask .4s;
+    animation: mask .3s;
 }
 
 @keyframes mask {

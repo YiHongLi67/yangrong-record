@@ -1,41 +1,84 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import PubSub from 'pubsub-js';
 import './img.css';
-import { useState } from 'react';
+import { judgeType } from '../../static/utils/utils';
 
 export default function Img(props) {
-    let defaultProps = {
-        alt: '',
-        className: '',
-        width: 200,
-        height: 200,
-        objectFit: 'cover'
-    };
-    let prefixCls = 'yr-img';
-    let className = props.className ? ' ' + props.className : defaultProps.className;
-    let alt = props.alt || defaultProps.alt;
-    let width = props.width || defaultProps.width;
-    let height = props.height || defaultProps.height;
-    let objectFit;
-    let objectFits = ['contain', 'cover', 'fill', 'none', 'scale-down'];
-    if (Object.prototype.toString.call(props.objectFit) === '[object String]' && objectFits.indexOf(props.objectFit) !== -1) {
-        objectFit = props.objectFit;
-    } else {
-        objectFit = defaultProps.objectFit;
-    }
+    // 用户传入的属性
+    let [src] = useState(getSrc(props.src));
+    let [width] = useState(getWidth(props.width));
+    let [height] = useState(getHeight(props.height));
+    let [objectFit] = useState(getObjFit(props.objectFit));
+    let [text] = useState(getText(props.text));
+    let [alt] = useState(getAlt(props.alt));
+    // 封装组件所需的属性
     let [urls] = useState(props.urls);
-    let idx = props.idx;
-    function showMask(e) {
-        PubSub.publish('showMask', { isShow: true, urls, idx });
+    let [idx] = useState(props.idx);
+
+    function getSrc(src) {
+        if (judgeType(src) === 'string') {
+            return src;
+        } else {
+            return '';
+        }
     }
-    useEffect(() => {
-        return () => {};
-    }, []);
+
+    function getWidth(width) {
+        if (judgeType(width) === 'number') {
+            return width + 'px';
+        } else if (judgeType(width) === 'string') {
+            return width;
+        } else {
+            return '150px';
+        }
+    }
+
+    function getHeight(height) {
+        if (judgeType(height) === 'number') {
+            return height + 'px';
+        } else if (judgeType(height) === 'string') {
+            return height;
+        } else {
+            return '';
+        }
+    }
+
+    function getObjFit(objFit) {
+        let objFits = ['contain', 'cover', 'fill', 'none', 'scale-down'];
+        if (objFits.indexOf(objFit) !== -1) {
+            return objFit;
+        } else {
+            return 'cover';
+        }
+    }
+
+    function getText(text) {
+        if (judgeType(text) === 'string') {
+            return text;
+        } else {
+            return '预览';
+        }
+    }
+
+    function getAlt(alt) {
+        if (judgeType(alt) === 'string') {
+            return alt;
+        } else {
+            return '加载失败';
+        }
+    }
+
+    function setShow(e) {
+        e.stopPropagation();
+        let parentNode = e.target.parentNode.parentNode;
+        parentNode.setAttribute('data-show', 'true');
+        PubSub.publish('updateShow', { urls, idx, parentNode });
+    }
+
     return (
-        <>
-            <div className='img-wrap overflow-hid inline-block vertical-m' onClick={showMask}>
-                <img className={prefixCls + className} src={props.src} style={{ width: width + 'px', height: height + 'px', objectFit }} alt={alt} />
-            </div>
-        </>
+        <div className='img-wrap overflow-hid inline-block vertical-m relative' onClick={setShow} style={{ width, height }}>
+            <img className='yr-img' src={src} alt={alt} style={{ objectFit }} />
+            <div className='img-mask absolute'>{text}</div>
+        </div>
     );
 }

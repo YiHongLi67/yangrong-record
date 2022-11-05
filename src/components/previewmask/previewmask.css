@@ -5,6 +5,10 @@
     z-index: 10;
 }
 
+.preview-mask img {
+    width: auto;
+}
+
 .preview-mask img.preview-img {
     bottom: unset;
     transition: transform .2s linear;

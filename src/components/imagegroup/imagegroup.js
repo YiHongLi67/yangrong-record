@@ -1,22 +1,87 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Img from '../img/img';
 import './imagegroup.css';
+import PreviewMask from '../previewmask/previewmask';
+import PubSub from 'pubsub-js';
+import { judgeType } from '../../static/utils/utils';
 
 export default function ImageGroup(props) {
-    let defaultProps = {
-        urls: []
-    };
-    let urls;
-    if (Object.prototype.toString.call(props.urls) === '[object Array]') {
-        urls = props.urls;
-    } else {
-        urls = defaultProps.urls;
+    let [urls] = useState(getUrls(props.urls));
+    let imggroup = useRef(null);
+    let [show, setShow] = useState(getShow());
+    let [className] = useState(getCls(props.className));
+    let [groupWidth] = useState(getSize(props.groupWidth));
+    let [groupHeight] = useState(getSize(props.groupHeight));
+    let [imgWidth] = useState(props.imgWidth);
+    let [imgHeight] = useState(props.imgHeight);
+    let [objectFit] = useState(props.objectFit);
+    let [text] = useState(props.text);
+    let [alt] = useState(props.alt);
+
+    useEffect(() => {
+        PubSub.subscribe('updateShow', (_, data) => {
+            setShow((show = getShow()));
+            if (!show) {
+                return;
+            }
+            setTimeout(() => {
+                PubSub.publish('showMask', data);
+            }, 10);
+        });
+        return () => {};
+    }, []);
+
+    function getUrls(urls) {
+        if (judgeType(urls) === 'array') {
+            return urls;
+        } else {
+            return [];
+        }
     }
+
+    function getShow() {
+        if (!imggroup.current) {
+            return '';
+        } else {
+            return imggroup.current.getAttribute('data-show');
+        }
+    }
+
+    function getCls(className) {
+        if (judgeType(className) === 'string') {
+            return 'img-group ' + className.trim();
+        } else {
+            return 'img-group';
+        }
+    }
+
+    function getSize(size) {
+        if (judgeType(size) === 'number') {
+            return size + 'px';
+        } else if (judgeType(size) === 'string') {
+            return size;
+        } else {
+            return '';
+        }
+    }
+
     return (
-        <div>
+        <div ref={imggroup} className={className} style={{ width: groupWidth, height: groupHeight }}>
             {urls.map((url, idx) => {
-                return <Img src={url} key={url + idx} idx={idx} urls={urls}></Img>;
+                return (
+                    <Img
+                        key={url + idx}
+                        src={url}
+                        idx={idx}
+                        urls={urls}
+                        width={imgWidth}
+                        height={imgHeight}
+                        objectFit={objectFit}
+                        text={text}
+                        alt={alt}></Img>
+                );
             })}
+            {show ? <PreviewMask></PreviewMask> : <></>}
         </div>
     );
 }

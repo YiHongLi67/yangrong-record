@@ -1,19 +1,19 @@
-import { Image, Avatar } from 'antd';
+import { Avatar } from 'antd';
 import React, { useState } from 'react';
 import './blog.css';
 import avatar from '../../static/images/avatar.png';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
+import ImageGroup from '../../components/imagegroup/imagegroup';
 moment.locale('zh-cn');
 
 // 微博会员svg图标
-// cn 欢度国庆icon
 // 展开全文
-// 发布时间格式化
 // 评论详情
 // live: 同时显示图片和live
+
 export default function Blog(props) {
-    const [urls, setUrls] = useState(props.urls);
+    const [urls] = useState(props.urls);
     const [text] = useState(props.text);
     const [reposts_count] = useState(props.reposts_count);
     const [comments_count] = useState(props.comments_count);
@@ -27,8 +27,7 @@ export default function Blog(props) {
     const width = picWidth();
     const [pic_wrap_width] = useState(width && width.pic_wrap_width);
     const [pics_wrap_width] = useState(width && width.pics_wrap_width);
-    let [preIdx, setPreIdx] = useState(0);
-    let [visble, setVisblle] = useState(false);
+
     function formatTime(created_at) {
         created_at = new Date(created_at);
         if (new Date().getTime() - created_at.getTime() <= 1000 * 60 * 60 * 21) {
@@ -37,6 +36,7 @@ export default function Blog(props) {
             return moment(created_at).format('YY-M-D HH: mm');
         }
     }
+
     function picWidth() {
         let width = {
             pic_wrap_width: 'calc((100% - 16px) / 4)',
@@ -105,15 +105,11 @@ export default function Blog(props) {
                     </div>
                     {showImgs ? (
                         <div className='margin-t-10'>
-                            <Image.PreviewGroup>
-                                <div className='pics-wrap flex wrap' style={{ width: pics_wrap_width }}>
-                                    {urls.map(item => (
-                                        <div key={item} className='ie-box pic-wrap flex' style={{ width: pic_wrap_width }}>
-                                            <Image src={item} placeholder={true} />
-                                        </div>
-                                    ))}
-                                </div>
-                            </Image.PreviewGroup>
+                            <ImageGroup
+                                className='pics-wrap flex wrap'
+                                urls={urls}
+                                groupWidth={pics_wrap_width}
+                                imgWidth={pic_wrap_width}></ImageGroup>
                         </div>
                     ) : (
                         <></>

@@ -78,7 +78,8 @@ export default function ImageGroup(props) {
                         height={imgHeight}
                         objectFit={objectFit}
                         text={text}
-                        alt={alt}></Img>
+                        alt={alt}
+                    ></Img>
                 );
             })}
             {show ? <PreviewMask></PreviewMask> : <></>}

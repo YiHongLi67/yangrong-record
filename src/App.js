@@ -3,50 +3,55 @@ import { Layout } from 'antd';
 import Blog from './components/blog/blog';
 import './App.css';
 import { getblog } from './axios/api';
-import { throttle } from './static/utils/utils';
+import { _throttle } from './static/utils/utils';
 
 const { Content, Footer } = Layout;
 
 // 优化: 鼠标向上滚动也会发送请求, 向下滚动到阈值偶尔会触发多次请求
+// 增加回到顶部阿牛
 
 export default function App() {
     let [blogData, setBlogData] = useState([]);
-    let [page, setPage] = useState(1);
-    let [height] = useState(window.innerHeight);
-    let beforeTop = 0;
-    let currentTop = 0;
+    let [winHeight] = useState(window.innerHeight);
+    let [beforeTop, setBeforeTop] = useState(0);
+    let [fetchDone, setFetchDone] = useState(true);
+    let [sinceId, setSinceId] = useState('');
+    let [preId, setPreId] = useState(null);
 
     useEffect(() => {
-        fetchBlog(page);
-        let app = document.querySelector('.app');
-        app.addEventListener('scroll', throttle(scroll, 200));
+        fetchBlog(sinceId);
         return () => {};
     }, []);
 
-    async function fetchBlog(page) {
-        let response = await getblog(page);
+    async function fetchBlog(sinceId) {
+        let response = await getblog(sinceId);
+        setFetchDone((fetchDone = true));
+        setPreId(sinceId);
+        if (response.length === 0) {
+            return;
+        }
+        setSinceId(response[response.length - 1].mid);
         setBlogData(blogData => {
             return [...blogData, ...response];
         });
     }
 
     function scroll(e) {
-        currentTop = e.target.scrollTop;
+        let currentTop = e.target.scrollTop;
         if (currentTop <= beforeTop) {
-            beforeTop = currentTop;
             // 向上滚动
+            setBeforeTop((beforeTop = currentTop));
             return;
         }
-        beforeTop = currentTop;
-        if (Math.round(e.target.scrollHeight - currentTop) <= window.innerHeight + 500) {
-            setPage(++page);
-            fetchBlog(page);
-            console.log('fetch');
+        setBeforeTop((beforeTop = currentTop));
+        if (e.target.scrollHeight - currentTop <= winHeight + 1000 && fetchDone && sinceId !== preId) {
+            setFetchDone((fetchDone = false));
+            fetchBlog(sinceId);
         }
     }
 
     return (
-        <div className='app' style={{ height }}>
+        <div className='app h-v-full' onScroll={_throttle(scroll, 200, { begin: true, end: true })}>
             <Content className='main'>
                 {blogData.map(item => {
                     let { mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = item;
@@ -60,7 +65,8 @@ export default function App() {
                             attitudes_count={attitudes_count}
                             source={source}
                             created_at={created_at}
-                            region_name={region_name}></Blog>
+                            region_name={region_name}
+                        ></Blog>
                     );
                 })}
             </Content>

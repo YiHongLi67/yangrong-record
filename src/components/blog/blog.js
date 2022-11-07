@@ -109,7 +109,8 @@ export default function Blog(props) {
                                 className='pics-wrap flex wrap'
                                 urls={urls}
                                 groupWidth={pics_wrap_width}
-                                imgWidth={pic_wrap_width}></ImageGroup>
+                                imgWidth={pic_wrap_width}
+                            ></ImageGroup>
                         </div>
                     ) : (
                         <></>

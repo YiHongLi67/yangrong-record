@@ -11,6 +11,32 @@ export function throttle(fn, wait, ...args) {
     };
 }
 
+export function _throttle(fn, wait, op = {}, ...args) {
+    //节流 控制最后一次和第一次
+    let timer = null;
+    let pre = 0;
+    return function (e) {
+        let now = Date.now();
+        if (now - pre > wait) {
+            if (pre == 0 && !op.bengin) {
+                pre = now;
+                return;
+            }
+            if (timer) {
+                clearTimeout(timer);
+                timer = null;
+            }
+            fn.call(this, e, ...args);
+            pre = now;
+        } else if (!timer && op.end) {
+            timer = setTimeout(() => {
+                fn.call(this, e, ...args);
+                timer = null;
+            }, wait);
+        }
+    };
+}
+
 export function judgeType(val) {
     // 类型判断
     switch (Object.prototype.toString.call(val)) {

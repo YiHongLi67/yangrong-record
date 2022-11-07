@@ -5,6 +5,8 @@ let ratio = 1;
 
 // 当图片未加载完成就切换下一张图片时, 停止上一张的加载, 进行下一张的加载
 // 移除pubsub-js, 使用其他方式进行兄弟元素间通信
+// footer 未完成
+// 增加下载当前图片和下载本条微博全部图片
 
 export default function PreviewMask() {
     let [showMask, setShowMask] = useState(false);
@@ -382,7 +384,8 @@ export default function PreviewMask() {
             className='preview-mask h-v-full w-v-full fixed'
             onClick={closeMask}
             onMouseDown={maskDown}
-            onWheel={throttle(scaleImg, 200)}>
+            onWheel={throttle(scaleImg, 200)}
+        >
             <img
                 ref={previewImg}
                 className='preview-img absolute absolute-center pointer'

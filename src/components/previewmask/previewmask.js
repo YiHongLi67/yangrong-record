@@ -205,8 +205,7 @@ export default function PreviewMask() {
     }
 
     function move(e, ...args) {
-        let t = args[0];
-        let start = args[1];
+        let [t, start] = args;
         setEmtitMove((emitMove = true));
         transX = t.tx + (e.clientX - start.startX) / ratio;
         transY = t.ty + (e.clientY - start.startY) / ratio;

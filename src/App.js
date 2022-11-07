@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Layout } from 'antd';
+import { Layout, Menu } from 'antd';
 import Blog from './components/blog/blog';
 import './App.css';
 import { getblog } from './axios/api';
 import { _throttle } from './static/utils/utils';
 
-const { Content, Footer } = Layout;
+const { Header, Content, Footer } = Layout;
 
 // 增加回到顶部按钮
 
@@ -16,6 +16,9 @@ export default function App() {
     let [fetchDone, setFetchDone] = useState(true);
     let [sinceId, setSinceId] = useState('');
     let [preId, setPreId] = useState(null);
+
+    document.onscroll = null;
+    document.onscroll = _throttle(scroll, 200, { begin: true, end: true });
 
     useEffect(() => {
         fetchBlog(sinceId);
@@ -36,21 +39,47 @@ export default function App() {
     }
 
     function scroll(e) {
-        let currentTop = e.target.scrollTop;
+        let currentTop = e.target.scrollingElement.scrollTop;
         if (currentTop <= beforeTop) {
             // 向上滚动
             setBeforeTop((beforeTop = currentTop));
             return;
         }
         setBeforeTop((beforeTop = currentTop));
-        if (e.target.scrollHeight - currentTop <= winHeight + 1000 && fetchDone && sinceId !== preId) {
+        if (e.target.scrollingElement.scrollHeight - currentTop <= winHeight + 1000 && fetchDone && sinceId !== preId) {
             setFetchDone((fetchDone = false));
             fetchBlog(sinceId);
         }
     }
 
+    let icon = [<span className='iconfont icon-shouye'></span>];
+
     return (
-        <div className='app h-v-full' onScroll={_throttle(scroll, 200, { begin: true, end: true })}>
+        <div className='app'>
+            <Header theme='white'>
+                <div className='logo'></div>
+                <Menu
+                    theme='white'
+                    mode='horizontal'
+                    defaultSelectedKeys={['1']}
+                    onClick={function (data) {
+                        if (data.key === '1') {
+                            setBlogData([]);
+                            setFetchDone(true);
+                            setPreId(null);
+                            setSinceId('');
+                            fetchBlog('');
+                        }
+                    }}
+                    items={new Array(2).fill(null).map((_, index) => {
+                        const key = index + 1;
+                        return {
+                            key,
+                            icon: icon[index]
+                        };
+                    })}
+                />
+            </Header>
             <Content className='main'>
                 {blogData.map(item => {
                     let { mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = item;

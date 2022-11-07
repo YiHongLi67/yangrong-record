@@ -5,6 +5,8 @@ import PreviewMask from '../previewmask/previewmask';
 import PubSub from 'pubsub-js';
 import { judgeType } from '../../static/utils/utils';
 
+// previewmask 事件的回调函数
+
 export default function ImageGroup(props) {
     let [urls] = useState(getUrls(props.urls));
     let imggroup = useRef(null);

@@ -4,7 +4,7 @@ body {
 
 html,
 body {
-    overflow: hidden;
+    height: 100%;
 }
 
 p {
@@ -19,8 +19,35 @@ p {
 main {
     margin-left: 300px;
     margin-right: 100px;
+    margin-top: 50px;
 }
 
 .app {
     overflow-y: auto;
+}
+
+.ant-layout-header {
+    background-color: white;
+}
+
+.app .ant-layout-header .ant-menu-title-content {
+    margin: 0;
+}
+
+.app .ant-layout-header .iconfont {
+    font-size: 30px;
+    color: var(--w-color-orange-1);
+}
+
+.app .ant-layout-header {
+    position: fixed;
+    z-index: 1;
+    width: 100%;
+    line-height: 50px;
+    height: 50px;
+}
+
+.app .ant-layout-header ul {
+    line-height: 50px;
+    height: 50px;
 }

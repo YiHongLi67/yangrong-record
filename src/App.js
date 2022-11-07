@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Layout, Menu } from 'antd';
 import Blog from './components/blog/blog';
 import './App.css';
@@ -7,8 +7,6 @@ import { _throttle } from './static/utils/utils';
 
 const { Header, Content, Footer } = Layout;
 
-// 增加回到顶部按钮
-
 export default function App() {
     let [blogData, setBlogData] = useState([]);
     let [winHeight] = useState(window.innerHeight);
@@ -16,9 +14,8 @@ export default function App() {
     let [fetchDone, setFetchDone] = useState(true);
     let [sinceId, setSinceId] = useState('');
     let [preId, setPreId] = useState(null);
-
-    document.onscroll = null;
-    document.onscroll = _throttle(scroll, 200, { begin: true, end: true });
+    let main = useRef(null);
+    let [width, setWidth] = useState('calc(100vw - 17px)');
 
     useEffect(() => {
         fetchBlog(sinceId);
@@ -36,17 +33,28 @@ export default function App() {
         setBlogData(blogData => {
             return [...blogData, ...response];
         });
+        getWidth();
+    }
+
+    function getWidth() {
+        setTimeout(() => {
+            if (main.current.clientHeight < main.current.scrollHeight) {
+                setWidth('calc(100vw - 17px)');
+            } else {
+                setWidth('100vw');
+            }
+        }, 0);
     }
 
     function scroll(e) {
-        let currentTop = e.target.scrollingElement.scrollTop;
+        let currentTop = e.target.scrollTop;
         if (currentTop <= beforeTop) {
             // 向上滚动
             setBeforeTop((beforeTop = currentTop));
             return;
         }
         setBeforeTop((beforeTop = currentTop));
-        if (e.target.scrollingElement.scrollHeight - currentTop <= winHeight + 1000 && fetchDone && sinceId !== preId) {
+        if (e.target.scrollHeight - currentTop <= winHeight + 1000 && fetchDone && sinceId !== preId) {
             setFetchDone((fetchDone = false));
             fetchBlog(sinceId);
         }
@@ -55,8 +63,8 @@ export default function App() {
     let icon = [<span className='iconfont icon-shouye'></span>];
 
     return (
-        <div className='app'>
-            <Header theme='white'>
+        <div className='app' onScroll={_throttle(scroll, 200, { begin: true, end: true })}>
+            <Header theme='white' className='fixed top-0 ie-box' style={{ width }}>
                 <div className='logo'></div>
                 <Menu
                     theme='white'
@@ -80,7 +88,7 @@ export default function App() {
                     })}
                 />
             </Header>
-            <Content className='main'>
+            <Content className='main' ref={main}>
                 {blogData.map(item => {
                     let { mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = item;
                     return (
@@ -98,7 +106,9 @@ export default function App() {
                     );
                 })}
             </Content>
-            <Footer style={{ textAlign: 'center' }}>©copyRight yhl</Footer>
+            <Footer className='fixed bottom-0 ie-box align-center' style={{ width }}>
+                ©copyRight yhl
+            </Footer>
         </div>
     );
 }

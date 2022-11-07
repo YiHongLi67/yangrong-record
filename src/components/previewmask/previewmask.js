@@ -22,6 +22,7 @@ export default function PreviewMask() {
     let [emitUp, setEmitUp] = useState(false);
     let [emitMove, setEmtitMove] = useState(false);
     let [parentNode, setParentNode] = useState(null);
+    let [img] = useState(document.createElement('img'));
     let previewMask = useRef(null);
     let previewImg = useRef(null);
     let throttleMove;
@@ -42,18 +43,6 @@ export default function PreviewMask() {
         };
         return () => {};
     }, []);
-
-    function onImgLoad(src) {
-        if (src.indexOf('thumbnail') !== -1) {
-            src = src.replace('thumbnail', 'normal');
-        }
-        let img = document.createElement('img');
-        img.src = src;
-        img.onload = function () {
-            // 加载大图
-            setSrc(src);
-        };
-    }
 
     function resetMask() {
         setShowMask(false);
@@ -96,6 +85,20 @@ export default function PreviewMask() {
         setRotate((rotate = 0));
         previewImg.current.classList.add('no-trans');
         onImgLoad(urls[current]);
+    }
+
+    function onImgLoad(src) {
+        // 停止加载上一张图片
+        img.src = '';
+        if (src.indexOf('thumbnail') !== -1) {
+            src = src.replace('thumbnail', 'normal');
+        }
+        // 开始加载下一张图片
+        img.src = src;
+        img.onload = function () {
+            // 加载大图
+            setSrc(src);
+        };
     }
 
     function preImg() {

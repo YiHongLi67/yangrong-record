@@ -5,6 +5,7 @@ body {
 html,
 body {
     height: 100%;
+    overflow: hidden;
 }
 
 p {
@@ -20,6 +21,8 @@ main {
     margin-left: 300px;
     margin-right: 100px;
     margin-top: 50px;
+    margin-bottom: 50px;
+    height: calc(100vh - 100px);
 }
 
 .app {
@@ -39,12 +42,18 @@ main {
     color: var(--w-color-orange-1);
 }
 
-.app .ant-layout-header {
-    position: fixed;
-    z-index: 1;
-    width: 100%;
+.app .ant-layout-header,
+.app .ant-layout-footer {
     line-height: 50px;
     height: 50px;
+    z-index: 1;
+}
+
+.app .ant-layout-footer {
+    height: 50px;
+    line-height: 50px;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .app .ant-layout-header ul {

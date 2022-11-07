@@ -7,8 +7,7 @@ import { _throttle } from './static/utils/utils';
 
 const { Content, Footer } = Layout;
 
-// 优化: 鼠标向上滚动也会发送请求, 向下滚动到阈值偶尔会触发多次请求
-// 增加回到顶部阿牛
+// 增加回到顶部按钮
 
 export default function App() {
     let [blogData, setBlogData] = useState([]);

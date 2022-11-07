@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PubSub from 'pubsub-js';
 import './previewmask.css';
+import { _throttle } from '../../static/utils/utils';
 let ratio = 1;
 
 // 当图片未加载完成就切换下一张图片时, 停止上一张的加载, 进行下一张的加载
@@ -181,21 +182,34 @@ export default function PreviewMask() {
     function mousedown(e) {
         previewImg.current.classList.remove('no-trans');
         // 获取元素当前的偏移量
-        let tx = transX;
-        let ty = transY;
+        let t = {
+            tx: transX,
+            ty: transY
+        };
         // 记录鼠标的起始位置
-        let startX = e.clientX;
-        let startY = e.clientY;
-        throttleMove = throttle(move, 100, tx, ty, startX, startY);
+        let start = {
+            startX: e.clientX,
+            startY: e.clientY
+        };
+        throttleMove = _throttle(move, 100, { begin: true, end: true }, t, start);
         document.addEventListener('mousemove', throttleMove);
         document.addEventListener('mouseup', up);
         e.preventDefault();
     }
 
+    function resetStart(t, start, e) {
+        t.tx = transX;
+        t.ty = transY;
+        start.startX = e.clientX;
+        start.startY = e.clientY;
+    }
+
     function move(e, ...args) {
+        let t = args[0];
+        let start = args[1];
         setEmtitMove((emitMove = true));
-        transX = args[0] + (e.clientX - args[2]) / ratio;
-        transY = args[1] + (e.clientY - args[3]) / ratio;
+        transX = t.tx + (e.clientX - start.startX) / ratio;
+        transY = t.ty + (e.clientY - start.startY) / ratio;
         // getComputedStyle 获取到的是未缩放前的宽高
         // window.getComputedStyle(previewImg.current).width;
         // window.getComputedStyle(previewImg.current).height;
@@ -250,18 +264,22 @@ export default function PreviewMask() {
         if (transX >= borderX) {
             // 向右拖拽
             transX = borderX;
+            resetStart(t, start, e);
         }
         if (transX <= -borderX) {
             // 向左拖拽
             transX = -borderX;
+            resetStart(t, start, e);
         }
         if (transY >= borderY) {
             // 向下拖拽
             transY = borderY;
+            resetStart(t, start, e);
         }
         if (transY <= -borderY) {
             // 向上拖拽
             transY = -borderY;
+            resetStart(t, start, e);
         }
         // 缩放比例大于 1, 在 mousemove 的时候设置边界值
         setTransX(transX);

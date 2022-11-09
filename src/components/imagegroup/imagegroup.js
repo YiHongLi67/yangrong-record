@@ -30,7 +30,9 @@ export default function ImageGroup(props) {
                 PubSub.publish('showMask', data);
             }, 10);
         });
-        return () => {};
+        return () => {
+            PubSub.unsubscribe('updateShow');
+        };
     }, []);
 
     function getUrls(urls) {

@@ -1,7 +1,7 @@
 .preview-mask {
     top: 0;
     left: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
     z-index: 10;
 }
 
@@ -19,8 +19,7 @@
 }
 
 .preview-mask .mask-foot {
-    height: 15%;
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.3);
     bottom: 0;
 }
 
@@ -79,4 +78,24 @@
     height: 45px;
     border-radius: 50%;
     background-color: rgba(0, 0, 0, 0.1);
+}
+
+.mask-foot>div {
+    height: 60px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin: 5px 0;
+}
+
+.mask-foot .img-mask {
+    border: 2px solid var(--w-color-orange-1);
+    box-sizing: border-box;
+}
+
+.mask-foot .img-wrap {
+    margin: 4px;
+}
+
+.preview-mask .mask-foot img {
+    width: 100%;
 }

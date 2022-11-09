@@ -2,12 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import PubSub from 'pubsub-js';
 import './previewmask.css';
 import { _throttle } from '../../static/utils/utils';
+import Img from '../img/img';
 let ratio = 1;
+let curIdx = 0;
 
-// 当图片未加载完成就切换下一张图片时, 停止上一张的加载, 进行下一张的加载
-// 移除pubsub-js, 使用其他方式进行兄弟元素间通信
 // footer 未完成
 // 增加下载当前图片和下载本条微博全部图片
+// bug: ratio为 1, mouseup 后偶现图片位置不复原
 
 export default function PreviewMask() {
     let [showMask, setShowMask] = useState(false);
@@ -25,6 +26,7 @@ export default function PreviewMask() {
     let [img] = useState(document.createElement('img'));
     let previewMask = useRef(null);
     let previewImg = useRef(null);
+    let maskFoot = useRef(null);
     let throttleMove;
     let throttleMaskMove;
 
@@ -34,14 +36,36 @@ export default function PreviewMask() {
             setShowMask(true);
             setUrls(data.urls);
             setSrc(data.urls[data.idx]);
+            curIdx = data.idx;
             setCurrent(data.idx);
+            setTimeout(() => {
+                PubSub.publish('changeStyle', { current: data.idx });
+            }, 0);
+            onImgLoad(data.urls[data.idx]);
+        });
+        PubSub.subscribe('changeImg', (_, data) => {
+            if (data.idx === curIdx) {
+                return;
+            }
+            setScaleRatio((ratio = 1));
+            setTransX((transX = 0));
+            setTransY((transY = 0));
+            setRotate((rotate = 0));
+            previewImg.current && previewImg.current.classList.add('no-trans');
+            setSrc(data.urls[data.idx]);
+            curIdx = data.idx;
+            setCurrent(data.idx);
+            PubSub.publish('changeStyle', { current: data.idx });
             onImgLoad(data.urls[data.idx]);
         });
         document.body.onmousedown = function () {
             // 取消选中元素和图片默认禁止拖拽
             return false;
         };
-        return () => {};
+        return () => {
+            PubSub.unsubscribe('showMask');
+            PubSub.unsubscribe('changeImg');
+        };
     }, []);
 
     function resetMask() {
@@ -77,6 +101,8 @@ export default function PreviewMask() {
     }
 
     function toggleImg() {
+        PubSub.publish('changeStyle', { current });
+        curIdx = current;
         setCurrent(current);
         setSrc(urls[current]);
         setTransX((transX = 0));
@@ -103,7 +129,8 @@ export default function PreviewMask() {
 
     function preImg() {
         if (current === 0) {
-            setCurrent(0);
+            curIdx = current;
+            setCurrent(current);
             return;
         }
         current--;
@@ -112,6 +139,7 @@ export default function PreviewMask() {
 
     function nextImg() {
         if (current === urls.length - 1) {
+            curIdx = current;
             setCurrent(current);
             return;
         }
@@ -350,6 +378,9 @@ export default function PreviewMask() {
         let FullScreen = document.webkitIsFullScreen || document.mozFullScreen || false;
         if (FullScreen) {
             document.exitFullscreen();
+            setTimeout(() => {
+                PubSub.publish('changeStyle', { current });
+            }, 0);
         } else {
             previewMask.current.requestFullscreen();
         }
@@ -359,7 +390,7 @@ export default function PreviewMask() {
     function imgStyle() {
         return {
             transform: `scale3d(${scaleRatio}, ${scaleRatio}, 1) translate3d(${transX}px, ${transY}px, 0px) rotate(${rotate}deg)`,
-            height: isFullScreen ? '100%' : '85%'
+            height: isFullScreen ? '100%' : 'calc(100vh - 70px)'
         };
     }
 
@@ -431,7 +462,17 @@ export default function PreviewMask() {
             <div className='toggle-btn right-btn margin-r-10 fixed' onClick={nextImg} style={rightBtnStyle()}>
                 <span className='iconfont icon-arrow-right-bold'></span>
             </div>
-            {isFullScreen ? <></> : <div className='mask-foot fixed w-v-full'></div>}
+            {isFullScreen ? (
+                <></>
+            ) : (
+                <div className='mask-foot fixed w-v-full' ref={maskFoot}>
+                    <div className='flex-center padding-t-6 padding-b-6 ie-box'>
+                        {urls.map((src, idx) => {
+                            return <Img key={src + idx} idx={idx} urls={urls} src={src} width='50px' text='' emitPreview={false}></Img>;
+                        })}
+                    </div>
+                </div>
+            )}
         </div>
     ) : (
         <></>

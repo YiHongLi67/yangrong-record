@@ -51,7 +51,7 @@ export function judgeType(val) {
         case '[object Null]':
             return 'null';
         case '[object Function]':
-            return 'null';
+            return 'function';
         case '[object Array]':
             return 'array';
         case '[object Object]':

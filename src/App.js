@@ -15,7 +15,7 @@ export default function App() {
     let [sinceId, setSinceId] = useState('');
     let [preId, setPreId] = useState(null);
     let main = useRef(null);
-    let [width, setWidth] = useState('calc(100vw - 17px)');
+    let [width, setWidth] = useState('100vw');
 
     useEffect(() => {
         fetchBlog(sinceId);

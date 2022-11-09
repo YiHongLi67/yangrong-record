@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+let baseURL = 'http://localhost:5000';
+// baseURL = 'http://114.132.218.229:5000';
+
 const request = axios.create({
-    baseURL: 'http://127.0.0.1:5000', //后端接口的基准地址
+    baseURL, //后端接口的基准地址
     timeout: 5000
 });
 //拦截请求

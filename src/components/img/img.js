@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import PubSub from 'pubsub-js';
 import './img.css';
 import { judgeType } from '../../static/utils/utils';
@@ -11,9 +11,26 @@ export default function Img(props) {
     let [objectFit] = useState(getObjFit(props.objectFit));
     let [text] = useState(getText(props.text));
     let [alt] = useState(getAlt(props.alt));
+    let [emitPreview] = useState(getEmitPreview(props.emitPreview));
+
     // 封装组件所需的属性
     let [urls] = useState(props.urls);
     let [idx] = useState(props.idx);
+    let imgMask = useRef(null);
+
+    useEffect(() => {
+        PubSub.subscribe('changeStyle', (_, data) => {
+            if (emitPreview) {
+                return;
+            }
+            if (data.current === idx) {
+                imgMask.current && imgMask.current.classList.remove('none');
+            } else {
+                imgMask.current && imgMask.current.classList.add('none');
+            }
+        });
+        return () => {};
+    }, []);
 
     function getSrc(src) {
         if (judgeType(src) === 'string') {
@@ -70,15 +87,29 @@ export default function Img(props) {
 
     function setShow(e) {
         e.stopPropagation();
-        let parentNode = e.target.parentNode.parentNode;
-        parentNode.setAttribute('data-show', 'true');
-        PubSub.publish('updateShow', { urls, idx, parentNode });
+        if (emitPreview) {
+            let parentNode = e.target.parentNode.parentNode;
+            parentNode.setAttribute('data-show', 'true');
+            PubSub.publish('updateShow', { urls, idx, parentNode });
+        } else {
+            PubSub.publish('changeImg', { urls, idx });
+        }
+    }
+
+    function getEmitPreview(emitPreview) {
+        if (judgeType(emitPreview) === 'boolean') {
+            return emitPreview;
+        } else {
+            return true;
+        }
     }
 
     return (
         <div className='img-wrap overflow-hid inline-block vertical-m relative' onClick={setShow} style={{ width, height }}>
             <img className='yr-img' src={src} alt={alt} style={{ objectFit }} />
-            <div className='img-mask absolute'>{text}</div>
+            <div className='img-mask absolute none' ref={imgMask}>
+                {text}
+            </div>
         </div>
     );
 }

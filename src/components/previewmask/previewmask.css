@@ -26,8 +26,6 @@
 .mask-head {
     display: inline-block;
     height: 50px;
-    top: 0;
-    right: 0;
     margin-right: 15px;
 }
 
@@ -39,6 +37,15 @@
     padding: 2px;
     cursor: pointer;
     padding: 0 15px;
+}
+
+.mask-head.download span {
+    float: left;
+}
+
+.mask-head.download {
+    margin-left: 15px;
+    margin-right: 0;
 }
 
 .mask-head span.icon-fangda,

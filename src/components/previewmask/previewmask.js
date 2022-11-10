@@ -6,7 +6,6 @@ import Img from '../img/img';
 let ratio = 1;
 let curIdx = 0;
 
-// footer 未完成
 // 增加下载当前图片和下载本条微博全部图片
 // bug: ratio为 1, mouseup 后偶现图片位置不复原
 
@@ -24,6 +23,7 @@ export default function PreviewMask() {
     let [emitMove, setEmtitMove] = useState(false);
     let [parentNode, setParentNode] = useState(null);
     let [img] = useState(document.createElement('img'));
+    let [browser] = useState(getBrowser());
     let previewMask = useRef(null);
     let previewImg = useRef(null);
     let maskFoot = useRef(null);
@@ -428,6 +428,64 @@ export default function PreviewMask() {
         };
     }
 
+    function download() {
+        let type = 'large';
+        // type = 'normal';
+        let _urls = urls;
+        downloadImage(_urls[current].replace('thumbnail', type));
+    }
+
+    function getBrowser() {
+        // 判断浏览器类型
+        let userAgent = navigator.userAgent; // 取得浏览器的 userAgent 字符串
+        let isOpera = userAgent.indexOf('Opera') > -1;
+        if (isOpera) {
+            return 'Opera'; // 判断是否 Opera 浏览器
+        }
+        if (userAgent.indexOf('Firefox') > -1) {
+            return 'FF'; // 判断是否 Firefox 浏览器
+        }
+        if (userAgent.indexOf('Chrome') > -1) {
+            return 'Chrome';
+        }
+        if (userAgent.indexOf('Safari') > -1) {
+            return 'Safari'; // 判断是否 Safari 浏览器
+        }
+        if (userAgent.indexOf('compatible') > -1 && userAgent.indexOf('MSIE') > -1 && !isOpera) {
+            return 'IE'; // 判断是否 IE 浏览器
+        }
+        if (userAgent.indexOf('Trident') > -1) {
+            return 'Edge'; // 判断是否 Edge 浏览器
+        }
+    }
+
+    // IE 浏览器图片保存 (IE 其实用的就是 window.open)
+    function SaveAs5(imgURL) {
+        let oPop = window.open(imgURL, '', 'width=1, height=1, top=5000, left=5000');
+        for (; oPop.document.readyState != 'complete'; ) {
+            if (oPop.document.readyState == 'complete') {
+                break;
+            }
+        }
+        oPop.document.execCommand('SaveAs');
+        oPop.close();
+    }
+
+    function downloadImage(imgURL) {
+        // 下载图片 (区分 IE 和非 IE 部分)
+        if (browser() === 'IE' || browser() === 'Edge') {
+            //IE 浏览器
+            SaveAs5(imgURL);
+        } else {
+            //!IE
+            let a = document.createElement('a');
+            a.href = imgURL;
+            document.body.appendChild(a); // 修复 firefox 中无法触发 click
+            a.click();
+            document.body.removeChild(a);
+        }
+    }
+
     let dom = showMask ? (
         <div
             id='preview-mask'
@@ -448,7 +506,10 @@ export default function PreviewMask() {
             <span className='progress relative'>
                 {current + 1} / {urls.length}
             </span>
-            <div className='mask-head fixed'>
+            <div className='mask-head fixed download left-0 top-0'>
+                <span className='iconfont icon-xiazai-wenjianxiazai-05' title='下载原图' onClick={download}></span>
+            </div>
+            <div className='mask-head fixed right-0 top-0'>
                 <span id='close' className='iconfont icon-24gl-delete' title='关闭' onClick={closeMask}></span>
                 <span className={fullScreenCls()} title={fullScreenTitle()} onClick={fullScreen}></span>
                 <span className='iconfont icon-fangda' title='最大化' style={scaleMax()} onClick={throttle(grow, 200)}></span>

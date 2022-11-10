@@ -17,6 +17,7 @@ export default function Img(props) {
     let [urls] = useState(props.urls);
     let [idx] = useState(props.idx);
     let imgMask = useRef(null);
+    let observerImg = useRef(null);
 
     useEffect(() => {
         PubSub.subscribe('changeStyle', (_, data) => {
@@ -29,6 +30,13 @@ export default function Img(props) {
                 imgMask.current && imgMask.current.classList.add('none');
             }
         });
+        let Observer = new IntersectionObserver(entry => {
+            if (entry[0].isIntersecting) {
+                entry[0].target.setAttribute('src', src);
+                Observer.unobserve(entry[0].target);
+            }
+        });
+        Observer.observe(observerImg.current);
         return () => {};
     }, []);
 
@@ -106,7 +114,7 @@ export default function Img(props) {
 
     return (
         <div className='img-wrap overflow-hid inline-block vertical-m relative' onClick={setShow} style={{ width, height }}>
-            <img className='yr-img' src={src} alt={alt} style={{ objectFit }} />
+            <img ref={observerImg} className='yr-img' src='' alt={alt} style={{ objectFit }} />
             <div className='img-mask absolute none' ref={imgMask}>
                 {text}
             </div>

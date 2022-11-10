@@ -6,7 +6,6 @@ import Img from '../img/img';
 let ratio = 1;
 let curIdx = 0;
 
-// 增加下载当前图片和下载本条微博全部图片
 // bug: ratio为 1, mouseup 后偶现图片位置不复原
 
 export default function PreviewMask() {

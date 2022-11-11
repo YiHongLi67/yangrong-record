@@ -461,8 +461,8 @@ export default function PreviewMask() {
     // IE 浏览器图片保存 (IE 其实用的就是 window.open)
     function SaveAs5(imgURL) {
         let oPop = window.open(imgURL, '', 'width=1, height=1, top=5000, left=5000');
-        for (; oPop.document.readyState != 'complete'; ) {
-            if (oPop.document.readyState == 'complete') {
+        for (; oPop.document.readyState !== 'complete'; ) {
+            if (oPop.document.readyState === 'complete') {
                 break;
             }
         }

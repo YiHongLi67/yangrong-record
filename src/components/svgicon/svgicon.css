@@ -1,0 +1,40 @@
+i {
+    display: inline-block;
+    position: relative;
+    width: 30px;
+    height: 30px;
+    overflow: hidden;
+}
+
+.svg {
+    display: inline-block;
+    position: absolute;
+    width: 100%;
+    height: auto;
+}
+
+i.i-vip {
+    z-index: 2;
+    width: 15px;
+    height: 15px;
+}
+
+i.i-vip svg {
+    animation: blink 1.4s 3 steps(14) backwards;
+}
+
+@keyframes blink {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(-210px);
+    }
+}
+
+i.i-svip_8 {
+    width: 18px;
+    height: 18px;
+    margin-left: 2px;
+}

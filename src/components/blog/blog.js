@@ -5,9 +5,10 @@ import avatar from '../../static/images/avatar.png';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
 import ImageGroup from '../../components/imagegroup/imagegroup';
+import SvgIcon from '../svgicon/svgicon';
 moment.locale('zh-cn');
 
-// 微博会员svg图标
+// 网站 favicon
 // 展开全文
 // 评论详情
 // live: 同时显示图片和live
@@ -76,7 +77,7 @@ export default function Blog(props) {
                         <a className='avatar'>
                             <Avatar size={50} src={avatar} draggable={false} />
                             <span className='v'>
-                                <span className='iconfont icon-renzheng'></span>
+                                <SvgIcon iconClass='vip' width='42' height='672' viewBox='0 0 42 672' />
                             </span>
                         </a>
                     </div>
@@ -84,7 +85,7 @@ export default function Blog(props) {
                         <div>
                             <div className='flex flex-col-center margin-t-4'>
                                 <a className='weight-900 gray-1 screen-name line-20 inline-block'>杨蓉</a>
-                                <span className='iconfont icon-weibohuiyuan line-20 inline-block font-24 margin-l-4'></span>
+                                <SvgIcon iconClass='svip_8' />
                             </div>
                             <p className='font-12 line-14 gray-2 margin-t-4'>
                                 {formatTime(created_at)} 来自 <span className='source'>{source}</span>

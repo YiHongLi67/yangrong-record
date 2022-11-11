@@ -18,7 +18,7 @@ export function _throttle(fn, wait, op = {}, ...args) {
     return function (e) {
         let now = Date.now();
         if (now - pre > wait) {
-            if (pre == 0 && !op.bengin) {
+            if (pre === 0 && !op.bengin) {
                 pre = now;
                 return;
             }

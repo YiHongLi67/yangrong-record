@@ -4,7 +4,6 @@ import Blog from './components/blog/blog';
 import './App.css';
 import { getblog } from './axios/api';
 import { _throttle } from './static/utils/utils';
-import SvgIcon from './components/svgicon/svgicon';
 
 const { Header, Content, Footer } = Layout;
 
@@ -90,8 +89,6 @@ export default function App() {
                 />
             </Header>
             <Content className='main' ref={main}>
-                <SvgIcon iconClass='vip' fill='red'></SvgIcon>
-                {/* <SvgIcon iconClass='svip_8'></SvgIcon> */}
                 {blogData.map(item => {
                     let { mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = item;
                     return (

@@ -2,7 +2,6 @@
 
 # dependencies
 /node_modules
-/react笔记.md
 /.pnp
 .pnp.js
 
@@ -11,7 +10,7 @@
 
 # production
 /build
-/record
+/yangrong-record
 
 # misc
 .DS_Store

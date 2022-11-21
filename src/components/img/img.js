@@ -5,7 +5,7 @@ import { judgeType } from '../../static/utils/utils';
 
 export default function Img(props) {
     // 用户传入的属性
-    let [src] = useState(getSrc(props.src));
+    let [src] = useState(props.src);
     let [width] = useState(getWidth(props.width));
     let [height] = useState(getHeight(props.height));
     let [objectFit] = useState(getObjFit(props.objectFit));
@@ -40,13 +40,13 @@ export default function Img(props) {
         return () => {};
     }, []);
 
-    function getSrc(src) {
-        if (judgeType(src) === 'string') {
-            return src;
-        } else {
-            return '';
-        }
-    }
+    // function getSrc(src) {
+    //     if (judgeType(src) === 'string') {
+    //         return src;
+    //     } else {
+    //         return '';
+    //     }
+    // }
 
     function getWidth(width) {
         if (judgeType(width) === 'number') {

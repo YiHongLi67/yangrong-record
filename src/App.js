@@ -94,6 +94,8 @@ export default function App() {
                     return (
                         <Blog
                             key={mid}
+                            mid={mid}
+                            uid='1858065064'
                             urls={urls}
                             text={text}
                             reposts_count={reposts_count}

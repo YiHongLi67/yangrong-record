@@ -488,3 +488,9 @@
 .left-0 {
     left: 0;
 }
+
+.collapse::after {
+    content: '';
+    display: block;
+    clear: both;
+}

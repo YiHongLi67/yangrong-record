@@ -1,3 +1,6 @@
+import moment from 'moment';
+import 'moment/locale/zh-cn';
+moment.locale('zh-cn');
 export function throttle(fn, wait, ...args) {
     // 节流
     let pre = 0;
@@ -60,5 +63,28 @@ export function judgeType(val) {
             return 'date';
         case '[object RegExp]':
             return 'regexp';
+        default:
+            return;
+    }
+}
+
+let pre = 0;
+export function antiShake(fn, wait, ...args) {
+    return function (e) {
+        // 事件的回调函数
+        let now = new Date();
+        if (now - pre > wait) {
+            fn.call(this, e, ...args);
+        }
+        pre = now;
+    };
+}
+
+export function formatTime(created_at) {
+    created_at = new Date(created_at);
+    if (new Date().getTime() - created_at.getTime() <= 1000 * 60 * 60 * 21) {
+        return new Date(created_at).getTime();
+    } else {
+        return moment(created_at).format('YY-M-D HH: mm');
     }
 }

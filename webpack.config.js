@@ -78,13 +78,13 @@ module.exports = {
             template: './public/index.html', // 解析生成 HTML 首页
             favicon: './public/favicon.ico'
         }),
-        new EslintWebpackPlugin({
-            context: path.resolve(__dirname, './src'), // 配置 eslint 语法检查
-            exclude: '/node_modules/',
-            cache: true,
-            // 配置 eslint 缓存
-            cacheLocation: path.resolve(__dirname, './node_modules/.cache/.eslintcache')
-        }),
+        // new EslintWebpackPlugin({
+        //     context: path.resolve(__dirname, './src'), // 配置 eslint 语法检查
+        //     exclude: '/node_modules/',
+        //     cache: true,
+        //     // 配置 eslint 缓存
+        //     cacheLocation: path.resolve(__dirname, './node_modules/.cache/.eslintcache')
+        // }),
         !isProduction && new ReactRefreshWebpackPlugin(), // 激活 js 的 HMR(热更新) 功能
         // 这里有个坑, 大家记得要搜 @pmmmwh/react-refresh-webpack-plugin 还有个不带@pmmmwh的包, 那个包会报错
         isProduction &&

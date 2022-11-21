@@ -46,7 +46,7 @@ main {
 .app .ant-layout-footer {
     line-height: 50px;
     height: 50px;
-    z-index: 1;
+    z-index: 2;
 }
 
 .app .ant-layout-footer {

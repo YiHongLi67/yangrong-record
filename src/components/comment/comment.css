@@ -1,0 +1,118 @@
+/* 每条微博内容底部的转发 评论 点赞按钮 */
+.comment>div:hover>span,
+.operate>span:hover {
+    color: var(--w-color-orange-1);
+    cursor: pointer;
+}
+
+/* 点赞后的颜色未设置:  --w-color-red */
+/* 评论下的span a */
+.comment-detail .ant-comment-content span,
+.comment-detail .ant-comment-content a {
+    line-height: 20px;
+    height: 20px;
+    font-size: 12px;
+}
+
+/* 一级评论用户头像 */
+.ant-comment-avatar {
+    margin-right: 10px;
+}
+
+/* 评论用户昵称 */
+.comment-user-name a,
+.comment-user-name a:hover,
+/* 折叠评论 */
+.ant-comment-actions>li>span.fold-comments {
+    color: var(--w-color-orange-3);
+}
+
+/* 评论的文本 */
+.comment-text {
+    color: var(--w-color-gray-1);
+}
+
+/* 评论文本中的表情 */
+.comment-text img {
+    width: 16px !important;
+    height: 16px !important;
+    vertical-align: sub !important;
+    margin: 0 2px;
+}
+
+/* 发布时间、地区 */
+.comments-msg {
+    color: var(--w-color-gray-2);
+    line-height: 20px;
+    height: 20px;
+}
+
+/* 每条回复的转发按钮 */
+.comment-detail .ant-comment-content .operate .icon-zhuanfa {
+    font-size: 13px;
+}
+
+/* 每条回复的评论、点赞按钮 */
+.comment-detail .ant-comment-content .operate .icon-pinglun,
+.comment-detail .ant-comment-content .operate .icon-dianzan {
+    font-size: 16px;
+}
+
+.operate .iconfont {
+    color: var(--w-color-gray-3);
+    margin-right: 16px;
+}
+
+/* 二级评论 */
+.ant-comment-content ul {
+    margin: 0;
+    margin-top: 2px;
+}
+
+.ant-comment-actions>li {
+    display: block;
+}
+
+.ant-comment .ant-comment-inner {
+    padding: 6px 0;
+}
+
+.reply-inner .ant-comment-inner {
+    padding: 0 0 0px 10px;
+}
+
+.reply-inner .operate {
+    opacity: 0;
+    transition: opacity .2s;
+}
+
+.ant-comment-content-detail:hover .operate {
+    opacity: 1;
+}
+
+.reply-inner:before {
+    content: "";
+    position: absolute;
+    height: 100%;
+    left: 0;
+    border-left: 2px solid var(--w-card-border);
+}
+
+/* 折叠评论 */
+span.fold-comments>span {
+    margin-right: 2px;
+}
+
+span.fold-comments>span.icon-zhankai1 {
+    transform: scale(0.8, 0.8);
+}
+
+/* 模态框评论 */
+.ant-modal-header {
+    padding: 10px 20px;
+}
+
+.modal-comment .ant-comment-content span.comment-text,
+.modal-comment .ant-comment-content span.comment-user-name a {
+    font-size: 14px;
+}

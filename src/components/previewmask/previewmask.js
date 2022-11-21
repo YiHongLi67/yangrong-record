@@ -7,6 +7,7 @@ let ratio = 1;
 let curIdx = 0;
 
 // bug: ratio为 1, mouseup 后偶现图片位置不复原
+// 下载按钮防抖
 
 export default function PreviewMask() {
     let [showMask, setShowMask] = useState(false);
@@ -498,7 +499,7 @@ export default function PreviewMask() {
                 ref={previewImg}
                 className='preview-img absolute absolute-center pointer'
                 src={src}
-                alt='translate3d(${moveX}px, ${moveY}px, 0)'
+                alt='加载失败'
                 onMouseDown={mousedown}
                 style={imgStyle()}
             />

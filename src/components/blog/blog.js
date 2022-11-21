@@ -4,9 +4,11 @@ import './blog.css';
 import avatar from '../../static/images/avatar.png';
 import moment from 'moment';
 import 'moment/locale/zh-cn';
+moment.locale('zh-cn');
 import ImageGroup from '../../components/imagegroup/imagegroup';
 import SvgIcon from '../svgicon/svgicon';
-moment.locale('zh-cn');
+import YrComment from '../comment/comment';
+import { formatTime } from '../../static/utils/utils';
 
 // 网站 favicon
 // 展开全文
@@ -14,6 +16,8 @@ moment.locale('zh-cn');
 // live: 同时显示图片和live
 
 export default function Blog(props) {
+    const [uid] = useState(props.uid);
+    const [mid] = useState(props.mid);
     const [urls] = useState(props.urls);
     const [text] = useState(props.text);
     const [reposts_count] = useState(props.reposts_count);
@@ -28,15 +32,6 @@ export default function Blog(props) {
     const width = picWidth();
     const [pic_wrap_width] = useState(width && width.pic_wrap_width);
     const [pics_wrap_width] = useState(width && width.pics_wrap_width);
-
-    function formatTime(created_at) {
-        created_at = new Date(created_at);
-        if (new Date().getTime() - created_at.getTime() <= 1000 * 60 * 60 * 21) {
-            return new Date(created_at).getTime();
-        } else {
-            return moment(created_at).format('YY-M-D HH: mm');
-        }
-    }
 
     function picWidth() {
         let width = {
@@ -117,20 +112,13 @@ export default function Blog(props) {
                         <></>
                     )}
                 </div>
-                <div className='blog-foot flex line-38'>
-                    <div className='flex flex-1 flex-row-center flex-col-center pointer'>
-                        <span className='iconfont icon-zhuanfa margin-r-8'></span>
-                        <span>{reposts_count}</span>
-                    </div>
-                    <div className='flex flex-1 flex-row-center flex-col-center pointer'>
-                        <span className='iconfont icon-pinglun font-20 margin-r-8'></span>
-                        <span>{comments_count}</span>
-                    </div>
-                    <div className='flex flex-1 flex-row-center flex-col-center pointer'>
-                        <span className='iconfont icon-dianzan font-20 margin-r-8'></span>
-                        <span>{attitudes_count}</span>
-                    </div>
-                </div>
+                <YrComment
+                    reposts_count={reposts_count}
+                    comments_count={comments_count}
+                    attitudes_count={attitudes_count}
+                    mid={mid}
+                    avatar_uid={uid}
+                ></YrComment>
             </div>
         </div>
     );

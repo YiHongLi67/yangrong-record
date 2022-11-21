@@ -1,0 +1,13 @@
+/* 每条微博内容底部的转发 评论 点赞按钮 */
+.comment>div:hover>span,
+.operate>span:hover {
+    color: var(--w-color-orange-1);
+    cursor: pointer;
+}
+
+/* 点赞后的颜色未设置:  --w-color-red */
+
+/* 模态框 */
+.ant-modal-header {
+    padding: 10px 20px;
+}

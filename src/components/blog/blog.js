@@ -7,7 +7,7 @@ import 'moment/locale/zh-cn';
 moment.locale('zh-cn');
 import ImageGroup from '../../components/imagegroup/imagegroup';
 import SvgIcon from '../svgicon/svgicon';
-import YrComment from '../comment/comment';
+import BlogFoot from './blogfoot/blogfoot';
 import { formatTime } from '../../static/utils/utils';
 
 // 网站 favicon
@@ -112,13 +112,13 @@ export default function Blog(props) {
                         <></>
                     )}
                 </div>
-                <YrComment
+                <BlogFoot
                     reposts_count={reposts_count}
                     comments_count={comments_count}
                     attitudes_count={attitudes_count}
                     mid={mid}
                     avatar_uid={uid}
-                ></YrComment>
+                ></BlogFoot>
             </div>
         </div>
     );

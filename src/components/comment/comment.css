@@ -1,17 +1,20 @@
-/* 每条微博内容底部的转发 评论 点赞按钮 */
-.comment>div:hover>span,
-.operate>span:hover {
-    color: var(--w-color-orange-1);
-    cursor: pointer;
-}
-
-/* 点赞后的颜色未设置:  --w-color-red */
 /* 评论下的span a */
-.comment-detail .ant-comment-content span,
-.comment-detail .ant-comment-content a {
+.ant-comment-content span,
+.ant-comment-content a {
     line-height: 20px;
     height: 20px;
     font-size: 12px;
+}
+
+/* 评论下的span a */
+.ant-comment-content-detail>div:first-child {
+    line-height: 20px;
+}
+
+/* 折叠评论 */
+.ant-comment-actions ul li {
+    height: 20px;
+    line-height: 20px;
 }
 
 /* 一级评论用户头像 */
@@ -48,13 +51,13 @@
 }
 
 /* 每条回复的转发按钮 */
-.comment-detail .ant-comment-content .operate .icon-zhuanfa {
+.ant-comment-content .operate .icon-zhuanfa {
     font-size: 13px;
 }
 
 /* 每条回复的评论、点赞按钮 */
-.comment-detail .ant-comment-content .operate .icon-pinglun,
-.comment-detail .ant-comment-content .operate .icon-dianzan {
+.ant-comment-content .operate .icon-pinglun,
+.ant-comment-content .operate .icon-dianzan {
     font-size: 16px;
 }
 
@@ -108,11 +111,13 @@ span.fold-comments>span.icon-zhankai1 {
 }
 
 /* 模态框评论 */
-.ant-modal-header {
-    padding: 10px 20px;
-}
-
 .modal-comment .ant-comment-content span.comment-text,
+.modal-comment .ant-comment-content span.comment-text a,
 .modal-comment .ant-comment-content span.comment-user-name a {
     font-size: 14px;
+}
+
+/* 模态框评论下的span a */
+.modal-comment .ant-comment-content-detail>div:first-child {
+    line-height: 22px;
 }

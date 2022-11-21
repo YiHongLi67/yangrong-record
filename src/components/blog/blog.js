@@ -1,5 +1,5 @@
 import { Avatar } from 'antd';
-import React, { useState } from 'react';
+import React, { useState, createContext } from 'react';
 import './blog.css';
 import avatar from '../../static/images/avatar.png';
 import moment from 'moment';
@@ -16,16 +16,7 @@ import { formatTime } from '../../static/utils/utils';
 // live: 同时显示图片和live
 
 export default function Blog(props) {
-    const [uid] = useState(props.uid);
-    const [mid] = useState(props.mid);
-    const [urls] = useState(props.urls);
-    const [text] = useState(props.text);
-    const [reposts_count] = useState(props.reposts_count);
-    const [comments_count] = useState(props.comments_count);
-    const [attitudes_count] = useState(props.attitudes_count);
-    const [source] = useState(props.source);
-    const [created_at] = useState(props.created_at);
-    const [region_name] = useState(props.region_name);
+    const { uid, mid, urls, text, source, created_at, region_name } = props;
     const [showImgs] = useState(urls.length ? true : false);
     const [showRegion] = useState(region_name ? true : false);
     const textHTML = { __html: text };
@@ -112,13 +103,7 @@ export default function Blog(props) {
                         <></>
                     )}
                 </div>
-                <BlogFoot
-                    reposts_count={reposts_count}
-                    comments_count={comments_count}
-                    attitudes_count={attitudes_count}
-                    mid={mid}
-                    avatar_uid={uid}
-                ></BlogFoot>
+                <BlogFoot blogData={props} mid={mid} avatar_uid={uid}></BlogFoot>
             </div>
         </div>
     );

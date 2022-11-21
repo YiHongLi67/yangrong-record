@@ -11,3 +11,12 @@
 .ant-modal-header {
     padding: 10px 20px;
 }
+
+.all-comment:hover {
+    color: var(--w-color-orange-3);
+    cursor: pointer;
+}
+
+.all-comment {
+    transition: color .1s;
+}

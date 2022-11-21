@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, Route, Router, useNavigate } from 'react-router-dom';
 import './blogfoot.css';
 import { antiShake, _throttle } from '../../../static/utils/utils';
 import { useEffect } from 'react';
@@ -6,14 +7,17 @@ import { getComment } from '../../../axios/api';
 import { Modal } from 'antd';
 import BlogComment from '../../comment/comment';
 import { subscribe, unsubscribe } from 'pubsub-js';
+import AllComment from '../../comment/allcomment/allcomment';
 
 export default function BlogFoot(props) {
-    const { reposts_count, comments_count, attitudes_count, mid, avatar_uid } = props;
+    const { blogData, mid, avatar_uid } = props;
+    const { reposts_count, comments_count, attitudes_count } = blogData;
     let [display, setDisplay] = useState('none');
     let [comment, setComment] = useState([]);
     let [modalOpen, setModalOpen] = useState(false);
     let [curCommt, setCurCommt] = useState({});
     let [replyDetail, setReplyDetail] = useState([]);
+    const navigate = useNavigate();
 
     async function fetchComment() {
         if (display === 'none') {
@@ -34,6 +38,10 @@ export default function BlogFoot(props) {
         }
     }
 
+    function viewComment() {
+        navigate('/comment', { state: blogData });
+    }
+
     useEffect(() => {
         subscribe('fetchReply', (_, data) => {
             fetchReply(data.e, data.commtData);
@@ -41,7 +49,7 @@ export default function BlogFoot(props) {
         return () => {
             unsubscribe('fetchReply');
         };
-    });
+    }, []);
 
     return (
         <div className='blog-foot'>
@@ -81,6 +89,10 @@ export default function BlogFoot(props) {
                 {comment.map(item => {
                     return <BlogComment key={item.id} avatar_uid={avatar_uid} commtData={item}></BlogComment>;
                 })}
+                <div className='align-center all-comment line-25' onClick={viewComment}>
+                    <span className='margin-r-2'>查看全部{comments_count}条评论</span>
+                    <span className='iconfont icon-arrow-right-bold font-12'></span>
+                </div>
             </div>
         </div>
     );

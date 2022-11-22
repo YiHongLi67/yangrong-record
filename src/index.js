@@ -6,7 +6,7 @@ import './static/layout/theme.css';
 import './static/layout/basic.css';
 import './static/icon/svg.js';
 import App from './App';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, HashRouter } from 'react-router-dom';
 
 const yangrong = ReactDOM.createRoot(document.getElementById('yangrong-record'));
 yangrong.render(

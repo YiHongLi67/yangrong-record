@@ -4,7 +4,7 @@ import Blog from './components/blog/blog';
 import './App.css';
 import { getblog } from './axios/api';
 import { _throttle } from './static/utils/utils';
-import { Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import AllComment from './components/comment/allcomment/allcomment';
 
 const { Header, Content, Footer } = Layout;
@@ -40,11 +40,11 @@ export default function App() {
 
     function getWidth() {
         setTimeout(() => {
-            // if (main.current.clientHeight < main.current.scrollHeight) {
-            //     setWidth('calc(100vw - 17px)');
-            // } else {
-            //     setWidth('100vw');
-            // }
+            if (main.current.clientHeight < main.current.scrollHeight) {
+                setWidth('calc(100vw - 17px)');
+            } else {
+                setWidth('100vw');
+            }
         }, 0);
     }
 
@@ -90,26 +90,6 @@ export default function App() {
                     })}
                 />
             </Header>
-            {/* <Content className='main' ref={main}>
-                {blogData.map(item => {
-                    let { mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = item;
-                    return (
-                        <Blog
-                            key={mid}
-                            mid={mid}
-                            uid='1858065064'
-                            urls={urls}
-                            text={text}
-                            reposts_count={reposts_count}
-                            comments_count={comments_count}
-                            attitudes_count={attitudes_count}
-                            source={source}
-                            created_at={created_at}
-                            region_name={region_name}
-                        ></Blog>
-                    );
-                })}
-            </Content> */}
             <Routes>
                 <Route
                     path='/'

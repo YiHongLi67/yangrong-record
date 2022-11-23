@@ -494,3 +494,7 @@
     display: block;
     clear: both;
 }
+
+.w-sub {
+    color: var(--w-sub);
+}

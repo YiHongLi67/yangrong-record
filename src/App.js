@@ -90,41 +90,32 @@ export default function App() {
                     })}
                 />
             </Header>
-            <Routes>
-                <Route
-                    path='/'
-                    element={
-                        <Content className='main' ref={main}>
-                            {blogData.map(item => {
-                                let { mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = item;
-                                return (
-                                    <Blog
-                                        key={mid}
-                                        mid={mid}
-                                        uid='1858065064'
-                                        urls={urls}
-                                        text={text}
-                                        reposts_count={reposts_count}
-                                        comments_count={comments_count}
-                                        attitudes_count={attitudes_count}
-                                        source={source}
-                                        created_at={created_at}
-                                        region_name={region_name}
-                                    ></Blog>
-                                );
-                            })}
-                        </Content>
-                    }
-                ></Route>
-                <Route
-                    path='/comment'
-                    element={
-                        <Content className='main' ref={main}>
-                            <AllComment></AllComment>
-                        </Content>
-                    }
-                ></Route>
-            </Routes>
+            <Content className='main' ref={main}>
+                <Routes>
+                    <Route
+                        path='/'
+                        element={blogData.map(item => {
+                            let { mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = item;
+                            return (
+                                <Blog
+                                    key={mid}
+                                    mid={mid}
+                                    uid='1858065064'
+                                    urls={urls}
+                                    text={text}
+                                    reposts_count={reposts_count}
+                                    comments_count={comments_count}
+                                    attitudes_count={attitudes_count}
+                                    source={source}
+                                    created_at={created_at}
+                                    region_name={region_name}
+                                ></Blog>
+                            );
+                        })}
+                    ></Route>
+                    <Route path='/comment' element={<AllComment></AllComment>}></Route>
+                </Routes>
+            </Content>
             <Footer className='fixed bottom-0 ie-box align-center' style={{ width }}>
                 ©copyRight yhl
             </Footer>

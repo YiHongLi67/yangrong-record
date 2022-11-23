@@ -37,7 +37,7 @@ export function getComment(uid, mid, page, rootid) {
                 url,
                 method: 'get'
             });
-            resolve(res.data.err || res.data.data);
+            resolve(res.data.err || res.data);
         } catch (e) {
             reject(e.message);
         }

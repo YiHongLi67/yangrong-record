@@ -8,14 +8,20 @@ import { Modal } from 'antd';
 import BlogComment from '../../comment/comment';
 import { subscribe, unsubscribe } from 'pubsub-js';
 
+let curPage = 1;
+let prePage = 0;
+let curCommt = {};
+
 export default function BlogFoot(props) {
     const { blogData, mid, avatar_uid, isAllCommt, allCommtData } = props;
     const { reposts_count, comments_count, attitudes_count } = blogData;
     let [display, setDisplay] = useState(isAllCommt ? 'block' : 'none');
     let [comment, setComment] = useState([]);
     let [modalOpen, setModalOpen] = useState(false);
-    let [curCommt, setCurCommt] = useState({});
     let [replyDetail, setReplyDetail] = useState([]);
+    let [beforeTop, setBeforeTop] = useState(0);
+    let [fetchDone, setFetchDone] = useState(true);
+    let [showEnd, setShowEnd] = useState('none');
     const navigate = useNavigate();
 
     async function fetchComment() {
@@ -23,8 +29,8 @@ export default function BlogFoot(props) {
         if (isAllCommt) {
             return;
         }
-        let comment = await getComment(avatar_uid, mid);
-        setComment(comment);
+        let response = await getComment(avatar_uid, mid);
+        setComment(response.data);
         if (display === 'none') {
             setDisplay('block');
         } else {
@@ -32,13 +38,50 @@ export default function BlogFoot(props) {
         }
     }
 
-    async function fetchReply(e, item) {
+    function modalBodyScroll(e) {
+        let currentTop = e.target.scrollTop;
+        if (currentTop <= beforeTop) {
+            // 向上滚动
+            setBeforeTop(currentTop);
+            return;
+        }
+        setBeforeTop(currentTop);
+        if (e.target.scrollHeight - currentTop <= e.target.clientHeight + 400 && fetchDone && curPage !== prePage) {
+            fetchReply(curPage, curCommt.rootid);
+        }
+    }
+
+    async function fetchReply(page, rootid) {
         // 获取二级评论
-        if (item.mid === mid) {
-            setCurCommt(item);
-            let reply = await getComment(avatar_uid, mid, 1, item.rootid);
-            setReplyDetail(reply);
-            setModalOpen(true);
+        let response = await getComment(avatar_uid, mid, page, rootid);
+        setFetchDone(true);
+        prePage = page;
+        if (response.data.length > 0) {
+            setReplyDetail(replyDetail => {
+                return [...replyDetail, ...response.data];
+            });
+        }
+        if (response.isEnd) {
+            setShowEnd('block');
+            return;
+        }
+        curPage = page + 1;
+    }
+
+    function openModal() {
+        setModalOpen(true);
+        setReplyDetail([]);
+        setShowEnd('none');
+        setTimeout(() => {
+            document.querySelector('.ant-modal-body').addEventListener('scroll', _throttle(modalBodyScroll, 200));
+        }, 0);
+    }
+
+    function spreadReply(e, rootCommt, page) {
+        if (rootCommt.mid === mid) {
+            openModal();
+            curCommt = rootCommt;
+            fetchReply(page, rootCommt.rootid);
         }
     }
 
@@ -46,9 +89,14 @@ export default function BlogFoot(props) {
         navigate(`/comment?mid=${mid}`, { state: blogData });
     }
 
+    function closeModal() {
+        curPage = 1;
+        prePage = 0;
+    }
+
     useEffect(() => {
         subscribe('fetchReply', (_, data) => {
-            fetchReply(data.e, data.commtData);
+            spreadReply(data.e, data.commtData, 1);
         });
         return () => {
             unsubscribe('fetchReply');
@@ -83,9 +131,13 @@ export default function BlogFoot(props) {
                         onOk={() => setModalOpen(false)}
                         onCancel={() => setModalOpen(false)}
                         footer={null}
+                        afterClose={closeModal}
                         closeIcon={<span className='iconfont icon-guanbi'></span>}
                     >
                         <BlogComment avatar_uid={avatar_uid} commtData={curCommt} replyDetail={replyDetail} isModal></BlogComment>
+                        <div className='align-center font-12 padding-t-6 padding-b-6 margin-t-4 margin-b-4 w-sub' style={{ display: showEnd }}>
+                            <span>没有更多回复了~</span>
+                        </div>
                     </Modal>
                 ) : (
                     <></>

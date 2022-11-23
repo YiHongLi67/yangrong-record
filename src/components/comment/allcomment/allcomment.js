@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Blog from '../../blog/blog';
 import { getComment } from '../../../axios/api';
+import { _throttle } from '../../../static/utils/utils';
+import './allcomment.css';
+
 let curPage = 1;
 let prePage = 0;
 let fetchDone = true;
@@ -13,22 +16,26 @@ export default function AllComment() {
     let [winHeight] = useState(window.innerHeight);
     let [comment, setComment] = useState([]);
     let [beforeTop, setBeforeTop] = useState(0);
+    let [display, setDisplay] = useState('none');
 
     async function fetchComment(page) {
+        // comment页面获取一级评论
         const response = await getComment(uid, mid, page);
         fetchDone = true;
         prePage = page;
-        if (response.length === 0) {
+        if (response.data.length > 0) {
+            setComment(comment => {
+                return [...comment, ...response.data];
+            });
+        }
+        if (response.isEnd) {
+            setDisplay('block');
             return;
         }
         curPage = page + 1;
-        setComment(comment => {
-            return [...comment, ...response];
-        });
-        // getWidth();
     }
 
-    function callback(e) {
+    function appScroll(e) {
         let currentTop = e.target.scrollTop;
         if (currentTop <= beforeTop) {
             // 向上滚动
@@ -44,13 +51,12 @@ export default function AllComment() {
 
     useEffect(() => {
         fetchComment(curPage);
-        document.querySelector('.app').addEventListener('scroll', callback);
+        document.querySelector('.app').addEventListener('scroll', _throttle(appScroll, 200));
         return () => {};
     }, []);
 
     return (
         <>
-            {curPage}
             <Blog
                 key={mid}
                 mid={mid}
@@ -66,6 +72,9 @@ export default function AllComment() {
                 isAllCommt
                 allCommtData={comment}
             ></Blog>
+            <div className='end align-center font-12 padding-t-6 padding-b-6 margin-t-4 margin-b-4 w-sub' style={{ display }}>
+                <span>评论已经到底了~</span>
+            </div>
         </>
     );
 }

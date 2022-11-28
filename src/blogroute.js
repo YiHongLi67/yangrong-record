@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import Blog from './components/blog/blog';
 
 export default function BlogRoute(props) {
-    const { blogData } = props;
+    const { blogData, pathName } = props;
 
     useEffect(() => {
         return () => {};
@@ -26,6 +26,7 @@ export default function BlogRoute(props) {
                         source={source}
                         created_at={created_at}
                         region_name={region_name}
+                        pathName={pathName}
                     ></Blog>
                 );
             })}

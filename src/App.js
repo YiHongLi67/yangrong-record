@@ -97,8 +97,8 @@ export default function App() {
             <Content>
                 <Routes>
                     <Route path='/' element={<MemoComponents />}>
-                        <Route path='/' element={<BlogRoute blogData={blogData} />}></Route>
-                        <Route path='/comment' element={<AllComment />}></Route>
+                        <Route path='/' element={<BlogRoute blogData={blogData} pathName='/' />}></Route>
+                        <Route path='/comment' element={<AllComment pathName='/comment' />}></Route>
                     </Route>
                 </Routes>
             </Content>

@@ -4,7 +4,7 @@ import Blog from '../../blog/blog';
 import { getComment } from '../../../axios/api';
 import { _throttle } from '../../../static/utils/utils';
 import './allcomment.css';
-import { publish } from 'pubsub-js';
+import { publish, subscribe } from 'pubsub-js';
 
 let curPage = 1;
 let prePage = 0;
@@ -13,6 +13,7 @@ let beforeTop = 0;
 const winHeight = window.innerHeight;
 
 export default function AllComment(props) {
+    const { pathName } = props;
     const {
         state: {
             blogData: { uid, mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name },
@@ -71,7 +72,9 @@ export default function AllComment(props) {
         if (e.target.className.indexOf('back') !== -1) {
             return;
         }
-        navigate(`/`, { state: {} });
+        navigate(`/`, {
+            state: {}
+        });
     }
 
     return (
@@ -82,6 +85,7 @@ export default function AllComment(props) {
             </div>
             <Blog
                 className='all-comment'
+                pathName={pathName}
                 key={mid}
                 mid={mid}
                 uid='1858065064'

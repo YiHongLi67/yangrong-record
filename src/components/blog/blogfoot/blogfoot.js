@@ -6,23 +6,36 @@ import { useEffect } from 'react';
 import { getComment } from '../../../axios/api';
 import { Modal } from 'antd';
 import BlogComment from '../../comment/comment';
-import { subscribe } from 'pubsub-js';
+import { subscribe, unsubscribe } from 'pubsub-js';
 
 let curPage = 1;
 let prePage = 0;
+let beforeTop = 0;
+let fetchDone = true;
 let curCommt = {};
 
 export default function BlogFoot(props) {
-    const { blogData, mid, avatar_uid, isAllCommt, allCommtData } = props;
+    console.log('blogfoot render')
+    const { blogData, mid, avatar_uid, isAllCommt, allCommtData, pathName } = props;
     const { reposts_count, comments_count, attitudes_count } = blogData;
     let [display, setDisplay] = useState(isAllCommt ? 'block' : 'none');
     let [comment, setComment] = useState([]);
     let [modalOpen, setModalOpen] = useState(false);
     let [replyDetail, setReplyDetail] = useState([]);
-    let [beforeTop, setBeforeTop] = useState(0);
-    let [fetchDone, setFetchDone] = useState(true);
     let [showEnd, setShowEnd] = useState('none');
     const navigate = useNavigate();
+
+    useEffect(() => {
+        subscribe('fetchReply', (_, data) => {
+            spreadReply(data.e, data.commtData);
+        });
+        subscribe('fetchReplyCommt', (_, data) => {
+            spreadReply(data.e, data.commtData);
+        });
+        return () => {
+            unsubscribe('fetchReplyCommt');
+        };
+    }, []);
 
     async function fetchComment() {
         // 获取一级评论
@@ -42,11 +55,12 @@ export default function BlogFoot(props) {
         let currentTop = e.target.scrollTop;
         if (currentTop <= beforeTop) {
             // 向上滚动
-            setBeforeTop(currentTop);
+            beforeTop = currentTop;
             return;
         }
-        setBeforeTop(currentTop);
+        beforeTop = currentTop;
         if (e.target.scrollHeight - currentTop <= e.target.clientHeight + 400 && fetchDone && curPage !== prePage) {
+            fetchDone = false;
             fetchReply(curPage, curCommt.rootid);
         }
     }
@@ -54,7 +68,7 @@ export default function BlogFoot(props) {
     async function fetchReply(page, rootid) {
         // 获取二级评论
         let response = await getComment(avatar_uid, mid, page, rootid);
-        setFetchDone(true);
+        fetchDone = true;
         prePage = page;
         if (response.data.length > 0) {
             setReplyDetail(replyDetail => {
@@ -73,15 +87,18 @@ export default function BlogFoot(props) {
         setReplyDetail([]);
         setShowEnd('none');
         setTimeout(() => {
-            document.querySelector('.ant-modal-body').addEventListener('scroll', _throttle(modalBodyScroll, 200));
-        }, 0);
+            document.querySelectorAll('.ant-modal-body').onscroll = null;
+            document.querySelector('.ant-modal-body').onscroll = _throttle(modalBodyScroll, 200);
+        }, 50);
     }
 
-    function spreadReply(e, rootCommt, page) {
-        if (rootCommt.mid === mid) {
+    function spreadReply(e, rootCommt) {
+        if (rootCommt.mid === mid && pathName === window.location.pathname) {
+            curPage = 1;
+            prePage = 0;
             openModal();
             curCommt = rootCommt;
-            fetchReply(page, rootCommt.rootid);
+            fetchReply(curPage, rootCommt.rootid);
         }
     }
 
@@ -93,13 +110,6 @@ export default function BlogFoot(props) {
         curPage = 1;
         prePage = 0;
     }
-
-    useEffect(() => {
-        subscribe('fetchReply', (_, data) => {
-            spreadReply(data.e, data.commtData, 1);
-        });
-        return () => {};
-    }, []);
 
     return (
         <div className='blog-foot'>

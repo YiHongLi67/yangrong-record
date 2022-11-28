@@ -16,7 +16,7 @@ import { formatTime } from '../../static/utils/utils';
 // live: 同时显示图片和live
 
 export default function Blog(props) {
-    const { uid, mid, urls, text, source, created_at, region_name, isAllCommt, allCommtData } = props;
+    const { uid, mid, urls, text, source, created_at, region_name, isAllCommt, allCommtData, className } = props;
     const [showImgs] = useState(urls.length ? true : false);
     const [showRegion] = useState(region_name ? true : false);
     const textHTML = { __html: text };
@@ -56,7 +56,7 @@ export default function Blog(props) {
     }
 
     return (
-        <div className='blog-wrap'>
+        <div className={className ? className + ' blog-wrap' : 'blog-wrap'}>
             <div className='blog padding-20 padding-b-0 ie-box'>
                 <div className='blog-head flex'>
                     <div>

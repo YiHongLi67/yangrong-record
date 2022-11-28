@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { getComment } from '../../../axios/api';
 import { Modal } from 'antd';
 import BlogComment from '../../comment/comment';
-import { subscribe, unsubscribe } from 'pubsub-js';
+import { subscribe } from 'pubsub-js';
 
 let curPage = 1;
 let prePage = 0;
@@ -29,13 +29,13 @@ export default function BlogFoot(props) {
         if (isAllCommt) {
             return;
         }
+        if (display === 'block') {
+            setDisplay('none');
+            return;
+        }
         let response = await getComment(avatar_uid, mid);
         setComment(response.data);
-        if (display === 'none') {
-            setDisplay('block');
-        } else {
-            setDisplay('none');
-        }
+        setDisplay('block');
     }
 
     function modalBodyScroll(e) {
@@ -86,7 +86,7 @@ export default function BlogFoot(props) {
     }
 
     function viewComment() {
-        navigate(`/comment?mid=${mid}`, { state: blogData });
+        navigate(`/comment?mid=${mid}`, { state: { blogData, scrollTop: document.documentElement.scrollTop } });
     }
 
     function closeModal() {
@@ -98,9 +98,7 @@ export default function BlogFoot(props) {
         subscribe('fetchReply', (_, data) => {
             spreadReply(data.e, data.commtData, 1);
         });
-        return () => {
-            unsubscribe('fetchReply');
-        };
+        return () => {};
     }, []);
 
     return (
@@ -150,7 +148,7 @@ export default function BlogFoot(props) {
                           return <BlogComment key={item.id} avatar_uid={avatar_uid} commtData={item}></BlogComment>;
                       })}
                 {!isAllCommt ? (
-                    <div className='align-center all-comment line-25' onClick={viewComment}>
+                    <div className='align-center show-all line-25' onClick={viewComment}>
                         <span className='margin-r-2'>查看全部{comments_count}条评论</span>
                         <span className='iconfont icon-arrow-right-bold font-12'></span>
                     </div>

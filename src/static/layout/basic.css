@@ -239,6 +239,10 @@
     font-size: 16px;
 }
 
+.font-18 {
+    font-size: 18px;
+}
+
 .font-20 {
     font-size: 20px;
 }
@@ -497,4 +501,8 @@
 
 .w-sub {
     color: var(--w-sub);
+}
+
+.w-main {
+    color: var(--w-main);
 }

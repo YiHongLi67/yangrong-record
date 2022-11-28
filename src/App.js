@@ -1,72 +1,76 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Menu } from 'antd';
-import Blog from './components/blog/blog';
 import './App.css';
 import { getblog } from './axios/api';
 import { _throttle } from './static/utils/utils';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import AllComment from './components/comment/allcomment/allcomment';
+import { subscribe } from 'pubsub-js';
+import BlogRoute from './blogroute';
+import KeepAliveLayout, { useKeepOutlets, KeepAliveContext } from '@chanjs/keepalive';
 
 const { Header, Content, Footer } = Layout;
+let beforeTop = 0;
+let fetchDone = true;
+let sinceId = '';
+let preId = null;
+const winHeight = window.innerHeight;
 
 export default function App() {
     let [blogData, setBlogData] = useState([]);
-    let [winHeight] = useState(window.innerHeight);
-    let [beforeTop, setBeforeTop] = useState(0);
-    let [fetchDone, setFetchDone] = useState(true);
-    let [sinceId, setSinceId] = useState('');
-    let [preId, setPreId] = useState(null);
-    let main = useRef(null);
-    let [width, setWidth] = useState('100vw');
+    // const navigate = useNavigate();
 
     useEffect(() => {
-        fetchBlog(sinceId);
+        subscribe('reloadBlog', (_, data) => {
+            document.onscroll = null;
+            document.onscroll = _throttle(blogScroll, 200, { begin: true, end: true });
+            document.documentElement.scrollTop = data.scrollTop;
+        });
+        if (window.location.pathname === '/') {
+            fetchBlog(sinceId);
+            document.onscroll = null;
+            document.onscroll = _throttle(blogScroll, 200, { begin: true, end: true });
+        }
         return () => {};
     }, []);
 
-    async function fetchBlog(sinceId) {
-        let response = await getblog(sinceId);
-        setFetchDone((fetchDone = true));
-        setPreId(sinceId);
+    async function fetchBlog(since_id) {
+        let response = await getblog(since_id);
+        fetchDone = true;
+        preId = since_id;
         if (response.length === 0) {
             return;
         }
-        setSinceId(response[response.length - 1].mid);
         setBlogData(blogData => {
             return [...blogData, ...response];
         });
-        getWidth();
+        sinceId = response[response.length - 1].mid;
     }
 
-    function getWidth() {
-        setTimeout(() => {
-            if (main.current.clientHeight < main.current.scrollHeight) {
-                setWidth('calc(100vw - 17px)');
-            } else {
-                setWidth('100vw');
-            }
-        }, 0);
-    }
-
-    function scroll(e) {
-        let currentTop = e.target.scrollTop;
+    function blogScroll(e) {
+        let currentTop = e.target.documentElement.scrollTop;
         if (currentTop <= beforeTop) {
             // 向上滚动
-            setBeforeTop((beforeTop = currentTop));
+            beforeTop = currentTop;
             return;
         }
-        setBeforeTop((beforeTop = currentTop));
-        if (e.target.scrollHeight - currentTop <= winHeight + 1000 && fetchDone && sinceId !== preId) {
-            setFetchDone((fetchDone = false));
+        beforeTop = currentTop;
+        if (e.target.documentElement.scrollHeight - currentTop <= winHeight + 500 && fetchDone && sinceId !== preId) {
+            fetchDone = false;
             fetchBlog(sinceId);
         }
     }
 
     let icon = [<span className='iconfont icon-shouye'></span>];
+    const MemoComponents = () => {
+        // 使用 useKeepOutlets 代替 useOutlet
+        const child = useKeepOutlets();
+        return <>{child}</>;
+    };
 
     return (
-        <div className='app' onScroll={_throttle(scroll, 200, { begin: true, end: true })}>
-            <Header theme='white' className='fixed top-0 ie-box' style={{ width }}>
+        <KeepAliveLayout keepalive={['/']}>
+            <Header theme='white' className='fixed top-0 ie-box w-full'>
                 <div className='logo'></div>
                 <Menu
                     theme='white'
@@ -75,10 +79,10 @@ export default function App() {
                     onClick={function (data) {
                         if (data.key === '1') {
                             setBlogData([]);
-                            setFetchDone(true);
-                            setPreId(null);
-                            setSinceId('');
-                            fetchBlog('');
+                            fetchDone = true;
+                            preId = null;
+                            sinceId = '';
+                            fetchBlog(sinceId);
                         }
                     }}
                     items={new Array(2).fill(null).map((_, index) => {
@@ -90,35 +94,15 @@ export default function App() {
                     })}
                 />
             </Header>
-            <Content className='main' ref={main}>
+            <Content>
                 <Routes>
-                    <Route
-                        path='/'
-                        element={blogData.map(item => {
-                            let { mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = item;
-                            return (
-                                <Blog
-                                    key={mid}
-                                    mid={mid}
-                                    uid='1858065064'
-                                    urls={urls}
-                                    text={text}
-                                    reposts_count={reposts_count}
-                                    comments_count={comments_count}
-                                    attitudes_count={attitudes_count}
-                                    source={source}
-                                    created_at={created_at}
-                                    region_name={region_name}
-                                ></Blog>
-                            );
-                        })}
-                    ></Route>
-                    <Route path='/comment' element={<AllComment></AllComment>}></Route>
+                    <Route path='/' element={<MemoComponents />}>
+                        <Route path='/' element={<BlogRoute blogData={blogData} />}></Route>
+                        <Route path='/comment' element={<AllComment />}></Route>
+                    </Route>
                 </Routes>
             </Content>
-            <Footer className='fixed bottom-0 ie-box align-center' style={{ width }}>
-                ©copyRight yhl
-            </Footer>
-        </div>
+            <Footer className='fixed bottom-0 ie-box align-center w-full'>©copyRight yhl</Footer>
+        </KeepAliveLayout>
     );
 }

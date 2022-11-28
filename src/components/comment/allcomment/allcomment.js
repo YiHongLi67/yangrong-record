@@ -1,25 +1,43 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Blog from '../../blog/blog';
 import { getComment } from '../../../axios/api';
 import { _throttle } from '../../../static/utils/utils';
 import './allcomment.css';
+import { publish } from 'pubsub-js';
 
 let curPage = 1;
 let prePage = 0;
 let fetchDone = true;
+let beforeTop = 0;
+const winHeight = window.innerHeight;
 
-export default function AllComment() {
+export default function AllComment(props) {
     const {
-        state: { uid, mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name }
+        state: {
+            blogData: { uid, mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name },
+            scrollTop
+        }
     } = useLocation();
-    let [winHeight] = useState(window.innerHeight);
     let [comment, setComment] = useState([]);
-    let [beforeTop, setBeforeTop] = useState(0);
     let [display, setDisplay] = useState('none');
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        document.onscroll = null;
+        // allcomment 添加 scroll 事件
+        document.onscroll = _throttle(appScroll, 200);
+        fetchComment(curPage);
+        return () => {
+            // 路由切换 组件卸载 reset 参数
+            curPage = 1;
+            prePage = 0;
+            publish('reloadBlog', { scrollTop });
+        };
+    }, []);
 
     async function fetchComment(page) {
-        // comment页面获取一级评论
+        // comment 页面获取一级评论
         const response = await getComment(uid, mid, page);
         fetchDone = true;
         prePage = page;
@@ -36,28 +54,34 @@ export default function AllComment() {
     }
 
     function appScroll(e) {
-        let currentTop = e.target.scrollTop;
+        let currentTop = e.target.documentElement.scrollTop;
         if (currentTop <= beforeTop) {
             // 向上滚动
-            setBeforeTop(currentTop);
+            beforeTop = currentTop;
             return;
         }
-        setBeforeTop(currentTop);
-        if (e.target.scrollHeight - currentTop <= winHeight + 1000 && fetchDone && curPage !== prePage) {
+        beforeTop = currentTop;
+        if (e.target.documentElement.scrollHeight - currentTop <= winHeight + 500 && fetchDone && curPage !== prePage) {
             fetchDone = false;
             fetchComment(curPage);
         }
     }
 
-    useEffect(() => {
-        fetchComment(curPage);
-        document.querySelector('.app').addEventListener('scroll', _throttle(appScroll, 200));
-        return () => {};
-    }, []);
+    function toBlog(e) {
+        if (e.target.className.indexOf('back') !== -1) {
+            return;
+        }
+        navigate(`/`, { state: {} });
+    }
 
     return (
         <>
+            <div className='back font-18 w-main line-38 fixed w-full' onClick={toBlog}>
+                <span className='iconfont icon-arrow-left-bold font-20 pointer'></span>
+                <span className='pointer weight-600'>返回</span>
+            </div>
             <Blog
+                className='all-comment'
                 key={mid}
                 mid={mid}
                 uid='1858065064'

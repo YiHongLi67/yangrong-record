@@ -8,8 +8,8 @@ import './static/icon/svg.js';
 import App from './App';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 
-const yangrong = ReactDOM.createRoot(document.getElementById('yangrong-record'));
-yangrong.render(
+const app = ReactDOM.createRoot(document.getElementById('app'));
+app.render(
     <BrowserRouter>
         <App />
     </BrowserRouter>

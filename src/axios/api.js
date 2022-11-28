@@ -1,5 +1,4 @@
 import request from './axios';
-// actions={[reply.reposts_count ? <span className='fold-comments'>共11条回复</span> : <></>]}
 
 export function getblog(sinceId) {
     let url;

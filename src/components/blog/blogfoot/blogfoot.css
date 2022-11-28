@@ -12,11 +12,11 @@
     padding: 10px 20px;
 }
 
-.all-comment:hover {
+.show-all:hover {
     color: var(--w-color-orange-3);
     cursor: pointer;
 }
 
-.all-comment {
+.show-all {
     transition: color .1s;
 }

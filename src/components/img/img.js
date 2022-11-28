@@ -19,6 +19,16 @@ export default function Img(props) {
     let imgMask = useRef(null);
     let observerImg = useRef(null);
 
+    let Observer = new IntersectionObserver(entry => {
+        if (entry[0].isIntersecting) {
+            entry[0].target.setAttribute('src', src);
+            Observer.unobserve(entry[0].target);
+        }
+    });
+    setTimeout(() => {
+        Observer.observe(observerImg.current);
+    });
+
     useEffect(() => {
         PubSub.subscribe('changeStyle', (_, data) => {
             if (emitPreview) {
@@ -30,23 +40,8 @@ export default function Img(props) {
                 imgMask.current && imgMask.current.classList.add('none');
             }
         });
-        let Observer = new IntersectionObserver(entry => {
-            if (entry[0].isIntersecting) {
-                entry[0].target.setAttribute('src', src);
-                Observer.unobserve(entry[0].target);
-            }
-        });
-        Observer.observe(observerImg.current);
         return () => {};
     }, []);
-
-    // function getSrc(src) {
-    //     if (judgeType(src) === 'string') {
-    //         return src;
-    //     } else {
-    //         return '';
-    //     }
-    // }
 
     function getWidth(width) {
         if (judgeType(width) === 'number') {

@@ -60,7 +60,7 @@ module.exports = {
     },
     resolve: {
         // webpack 解析模块加载的配置选项
-        extensions: ['.jsx', '.js', '.json'] // 自动补全文件扩展名
+        extensions: ['.jsx', '.js', '.tsx', '.ts', '.json'] // 自动补全文件扩展名
     },
     optimization: {
         splitChunks: {

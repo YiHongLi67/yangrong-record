@@ -1,4 +1,17 @@
-.end {
+.end,
+.back {
     min-width: 400px;
     max-width: 640px;
+}
+
+.back {
+    top: 50px;
+    background-color: var(--w-card-background);
+    z-index: 2;
+}
+
+.blog-wrap.all-comment::before {
+    content: '';
+    display: block;
+    height: 38px;
 }

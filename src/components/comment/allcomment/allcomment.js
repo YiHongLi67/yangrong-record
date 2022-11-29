@@ -4,7 +4,7 @@ import Blog from '../../blog/blog';
 import { getComment } from '../../../axios/api';
 import { _throttle } from '../../../static/utils/utils';
 import './allcomment.css';
-import { publish, subscribe } from 'pubsub-js';
+import { publish, subscribe, unsubscribe } from 'pubsub-js';
 
 let curPage = 1;
 let prePage = 0;
@@ -29,11 +29,18 @@ export default function AllComment(props) {
         // allcomment 添加 scroll 事件
         document.onscroll = _throttle(appScroll, 200);
         fetchComment(curPage);
+        subscribe('refresh', _ => {
+            curPage = 1;
+            prePage = 0;
+            setComment([]);
+            fetchComment(curPage);
+        });
         return () => {
             // 路由切换 组件卸载 reset 参数
             curPage = 1;
             prePage = 0;
             publish('reloadBlog', { scrollTop });
+            unsubscribe('refresh');
         };
     }, []);
 

@@ -78,6 +78,7 @@ export default function App() {
                     defaultSelectedKeys={['1']}
                     onClick={function (data) {
                         if (data.key === '1') {
+                            // navigate('/');
                             setBlogData([]);
                             fetchDone = true;
                             preId = null;

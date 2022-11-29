@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { getComment } from '../../../axios/api';
 import { Modal } from 'antd';
 import BlogComment from '../../comment/comment';
-import { subscribe, unsubscribe } from 'pubsub-js';
+import { publish, subscribe, unsubscribe } from 'pubsub-js';
 
 let curPage = 1;
 let prePage = 0;
@@ -39,6 +39,7 @@ export default function BlogFoot(props) {
     async function fetchComment(e) {
         // 获取一级评论
         if (isAllCommt) {
+            publish('refresh');
             return;
         }
         let parentNode = null;

@@ -12,6 +12,7 @@ export default function Img(props) {
     let [text] = useState(getText(props.text));
     let [alt] = useState(getAlt(props.alt));
     let [emitPreview] = useState(getEmitPreview(props.emitPreview));
+    const { borderRadius } = props;
 
     // 封装组件所需的属性
     let [urls] = useState(props.urls);
@@ -19,17 +20,16 @@ export default function Img(props) {
     let imgMask = useRef(null);
     let observerImg = useRef(null);
 
-    let Observer = new IntersectionObserver(entry => {
-        if (entry[0].isIntersecting) {
-            entry[0].target.setAttribute('src', src);
-            Observer.unobserve(entry[0].target);
-        }
-    });
-    setTimeout(() => {
-        Observer.observe(observerImg.current);
-    });
-
     useEffect(() => {
+        let Observer = new IntersectionObserver(entry => {
+            if (entry[0].isIntersecting) {
+                entry[0].target.setAttribute('src', src);
+                Observer.unobserve(entry[0].target);
+            }
+        });
+        setTimeout(() => {
+            Observer.observe(observerImg.current);
+        });
         PubSub.subscribe('changeStyle', (_, data) => {
             if (emitPreview) {
                 return;
@@ -108,7 +108,7 @@ export default function Img(props) {
     }
 
     return (
-        <div className='img-wrap overflow-hid inline-block vertical-m relative' onClick={setShow} style={{ width, height }}>
+        <div className='img-wrap overflow-hid inline-block vertical-m relative' onClick={setShow} style={{ width, height, borderRadius }}>
             <img ref={observerImg} className='yr-img' src='' alt={alt} style={{ objectFit }} />
             <div className='img-mask absolute none' ref={imgMask}>
                 {text}

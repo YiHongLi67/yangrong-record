@@ -15,7 +15,6 @@ let fetchDone = true;
 let curCommt = {};
 
 export default function BlogFoot(props) {
-    console.log('blogfoot render')
     const { blogData, mid, avatar_uid, isAllCommt, allCommtData, pathName } = props;
     const { reposts_count, comments_count, attitudes_count } = blogData;
     let [display, setDisplay] = useState(isAllCommt ? 'block' : 'none');
@@ -37,18 +36,26 @@ export default function BlogFoot(props) {
         };
     }, []);
 
-    async function fetchComment() {
+    async function fetchComment(e) {
         // 获取一级评论
         if (isAllCommt) {
             return;
         }
+        let parentNode = null;
+        if (e.target.localName === 'span') {
+            parentNode = e.target.parentNode;
+        } else {
+            parentNode = e.target;
+        }
         if (display === 'block') {
             setDisplay('none');
+            parentNode.classList.remove('comment-active-color');
             return;
         }
         let response = await getComment(avatar_uid, mid);
         setComment(response.data);
         setDisplay('block');
+        parentNode.classList.add('comment-active-color');
     }
 
     function modalBodyScroll(e) {

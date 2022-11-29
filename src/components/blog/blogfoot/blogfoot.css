@@ -1,7 +1,11 @@
+.comment>div>span {
+    color: var(--w-fonticon);
+}
+
 /* 每条微博内容底部的转发 评论 点赞按钮 */
 .comment>div:hover>span,
 .operate>span:hover {
-    color: var(--w-color-orange-1);
+    color: var(--w-brand);
     cursor: pointer;
 }
 
@@ -13,10 +17,14 @@
 }
 
 .show-all:hover {
-    color: var(--w-color-orange-3);
+    color: var(--w-alink);
     cursor: pointer;
 }
 
 .show-all {
     transition: color .1s;
+}
+
+.comment .comment-active-color>span {
+    color: var(--w-brand);
 }

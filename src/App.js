@@ -61,7 +61,7 @@ export default function App() {
         }
     }
 
-    let icon = [<span className='iconfont icon-shouye'></span>];
+    let icons = [<span className='iconfont icon-shouye'></span>];
     const MemoComponents = () => {
         // 使用 useKeepOutlets 代替 useOutlet
         const child = useKeepOutlets();
@@ -85,11 +85,11 @@ export default function App() {
                             fetchBlog(sinceId);
                         }
                     }}
-                    items={new Array(2).fill(null).map((_, index) => {
+                    items={icons.map((icon, index) => {
                         const key = index + 1;
                         return {
                             key,
-                            icon: icon[index]
+                            icon
                         };
                     })}
                 />

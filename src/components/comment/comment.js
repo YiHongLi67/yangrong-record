@@ -40,7 +40,7 @@ const BlogComment = props => {
                     </div>
                     {pic_urls ? (
                         <div>
-                            <Img src={pic_urls.thumbnail} width='120px' text=''></Img>
+                            <Img src={pic_urls.thumbnail} width='120px' text='' borderRadius='8px'></Img>
                         </div>
                     ) : (
                         <></>

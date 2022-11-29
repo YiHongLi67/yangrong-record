@@ -53,6 +53,13 @@ main {
     height: 50px;
 }
 
+.ant-layout-header ul li span {
+    display: inline-block;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
 main::before,
 main::after {
     content: '';

@@ -19,6 +19,7 @@ export default function ImageGroup(props) {
     let [objectFit] = useState(props.objectFit);
     let [text] = useState(props.text);
     let [alt] = useState(props.alt);
+    const { borderRadius } = props;
 
     useEffect(() => {
         PubSub.subscribe('updateShow', (_, data) => {
@@ -83,6 +84,7 @@ export default function ImageGroup(props) {
                         objectFit={objectFit}
                         text={text}
                         alt={alt}
+                        borderRadius={borderRadius}
                     ></Img>
                 );
             })}

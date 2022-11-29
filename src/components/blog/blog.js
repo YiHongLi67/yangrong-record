@@ -97,6 +97,7 @@ export default function Blog(props) {
                                 urls={urls}
                                 groupWidth={pics_wrap_width}
                                 imgWidth={pic_wrap_width}
+                                borderRadius='8px'
                             ></ImageGroup>
                         </div>
                     ) : (

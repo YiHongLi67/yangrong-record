@@ -2,12 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import PubSub from 'pubsub-js';
 import './previewmask.css';
 import { _throttle } from '../../static/utils/utils';
+import { antiShake } from '../../static/utils/utils';
 import Img from '../img/img';
+import { getBrowser } from '../../static/utils/utils';
+
 let ratio = 1;
 let curIdx = 0;
-
-// bug: ratio为 1, mouseup 后偶现图片位置不复原
-// 下载按钮防抖
+const browser = getBrowser();
 
 export default function PreviewMask() {
     let [showMask, setShowMask] = useState(false);
@@ -23,7 +24,6 @@ export default function PreviewMask() {
     let [emitMove, setEmtitMove] = useState(false);
     let [parentNode, setParentNode] = useState(null);
     let [img] = useState(document.createElement('img'));
-    let [browser] = useState(getBrowser());
     let previewMask = useRef(null);
     let previewImg = useRef(null);
     let maskFoot = useRef(null);
@@ -435,30 +435,6 @@ export default function PreviewMask() {
         downloadImage(_urls[current].replace('thumbnail', type));
     }
 
-    function getBrowser() {
-        // 判断浏览器类型
-        let userAgent = navigator.userAgent; // 取得浏览器的 userAgent 字符串
-        let isOpera = userAgent.indexOf('Opera') > -1;
-        if (isOpera) {
-            return 'Opera'; // 判断是否 Opera 浏览器
-        }
-        if (userAgent.indexOf('Firefox') > -1) {
-            return 'FF'; // 判断是否 Firefox 浏览器
-        }
-        if (userAgent.indexOf('Chrome') > -1) {
-            return 'Chrome';
-        }
-        if (userAgent.indexOf('Safari') > -1) {
-            return 'Safari'; // 判断是否 Safari 浏览器
-        }
-        if (userAgent.indexOf('compatible') > -1 && userAgent.indexOf('MSIE') > -1 && !isOpera) {
-            return 'IE'; // 判断是否 IE 浏览器
-        }
-        if (userAgent.indexOf('Trident') > -1) {
-            return 'Edge'; // 判断是否 Edge 浏览器
-        }
-    }
-
     // IE 浏览器图片保存 (IE 其实用的就是 window.open)
     function SaveAs5(imgURL) {
         let oPop = window.open(imgURL, '', 'width=1, height=1, top=5000, left=5000');
@@ -473,7 +449,7 @@ export default function PreviewMask() {
 
     function downloadImage(imgURL) {
         // 下载图片 (区分 IE 和非 IE 部分)
-        if (browser() === 'IE' || browser() === 'Edge') {
+        if (browser === 'IE' || browser === 'Edge') {
             //IE 浏览器
             SaveAs5(imgURL);
         } else {
@@ -507,7 +483,7 @@ export default function PreviewMask() {
                 {current + 1} / {urls.length}
             </span>
             <div className='mask-head fixed download left-0 top-0'>
-                <span className='iconfont icon-xiazai-wenjianxiazai-05' title='下载原图' onClick={download}></span>
+                <span className='iconfont icon-xiazai-wenjianxiazai-05' title='下载原图' onClick={antiShake(download, 1000)}></span>
             </div>
             <div className='mask-head fixed right-0 top-0'>
                 <span id='close' className='iconfont icon-24gl-delete' title='关闭' onClick={closeMask}></span>

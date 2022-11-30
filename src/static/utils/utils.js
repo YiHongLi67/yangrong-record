@@ -88,3 +88,27 @@ export function formatTime(created_at) {
         return moment(created_at).format('YY-M-D HH: mm');
     }
 }
+
+export function getBrowser() {
+    // 判断浏览器类型
+    let userAgent = navigator.userAgent; // 取得浏览器的 userAgent 字符串
+    let isOpera = userAgent.indexOf('Opera') > -1;
+    if (isOpera) {
+        return 'Opera'; // 判断是否 Opera 浏览器
+    }
+    if (userAgent.indexOf('Firefox') > -1) {
+        return 'FF'; // 判断是否 Firefox 浏览器
+    }
+    if (userAgent.indexOf('Chrome') > -1) {
+        return 'Chrome';
+    }
+    if (userAgent.indexOf('Safari') > -1) {
+        return 'Safari'; // 判断是否 Safari 浏览器
+    }
+    if (userAgent.indexOf('compatible') > -1 && userAgent.indexOf('MSIE') > -1 && !isOpera) {
+        return 'IE'; // 判断是否 IE 浏览器
+    }
+    if (userAgent.indexOf('Trident') > -1) {
+        return 'Edge'; // 判断是否 Edge 浏览器
+    }
+}

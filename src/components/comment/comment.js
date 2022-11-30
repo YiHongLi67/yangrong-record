@@ -7,7 +7,7 @@ import Img from '../img/img';
 import { antiShake, _throttle } from '../../static/utils/utils';
 import { publish } from 'pubsub-js';
 
-const Comment = props => {
+function Comment(props) {
     const { avatar_uid, commtData, replyDetail, isModal } = props;
     const { uid, text, user_avatar, user_name, created_at, like_counts, pic_urls, reply, source } = commtData;
     let replyCommt;
@@ -115,13 +115,12 @@ const Comment = props => {
             }
         ></AntdComment>
     );
-};
+}
 Comment.propTypes = {
     isModal: PropTypes.bool,
     replyDetail: PropTypes.array
 };
 Comment.defaultProps = {
-    isModal: false,
-    replyDetail: []
+    isModal: false
 };
 export default Comment;

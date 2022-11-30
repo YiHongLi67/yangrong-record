@@ -18,9 +18,7 @@ export default function Header() {
                 defaultSelectedKeys={['1']}
                 onClick={function (data) {
                     if (data.key === '1') {
-                        navigate(`/`, {
-                            state: {}
-                        });
+                        navigate(`/`);
                         publish('blogsRefresh');
                     }
                 }}

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './svgicon.css';
-const SvgIcon = props => {
+function SvgIcon(props) {
     const { iconClass, fill, width, height, viewBox } = props;
     return (
         <i aria-hidden='true' className={'i-' + iconClass}>
@@ -10,7 +10,7 @@ const SvgIcon = props => {
             </svg>
         </i>
     );
-};
+}
 SvgIcon.propTypes = {
     // svg名字
     iconClass: PropTypes.string.isRequired,

@@ -1,8 +1,9 @@
 import React from 'react';
 import { useEffect } from 'react';
 import Blog from '../../components/blog/blog';
+import { PropTypes } from 'prop-types';
 
-export default function Blogs(props) {
+function Blogs(props) {
     const { blogsData, pathName } = props;
 
     useEffect(() => {
@@ -12,7 +13,7 @@ export default function Blogs(props) {
     return (
         <>
             {blogsData.map(blogData => {
-                let { mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = blogData;
+                const { mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = blogData;
                 return (
                     <Blog
                         key={mid}
@@ -33,3 +34,8 @@ export default function Blogs(props) {
         </>
     );
 }
+Blogs.propTypes = {
+    blogsData: PropTypes.array.isRequired,
+    pathName: PropTypes.string.isRequired
+};
+export default Blogs;

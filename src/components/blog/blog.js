@@ -8,11 +8,12 @@ moment.locale('zh-cn');
 import ImageGroup from '../../components/imagegroup/imagegroup';
 import SvgIcon from '../svgicon/svgicon';
 import BlogFoot from './blogfoot/blogfoot';
-import { formatTime } from '../../static/utils/utils';
+import { formatTime, getCls } from '../../static/utils/utils';
 import { PropTypes } from 'prop-types';
 
 function Blog(props) {
-    const { uid, mid, urls, text, source, created_at, region_name, isAllCommt, allCommt, className, pathName } = props;
+    const { uid, mid, urls, text, source, created_at, region_name, isAllCommt, allCommt, pathName } = props;
+    const className = getCls(props.className, 'blog-wrap');
     const width = picWidth();
     const pic_wrap_width = width && width.pic_wrap_width;
     const pics_wrap_width = width && width.pics_wrap_width;
@@ -49,7 +50,7 @@ function Blog(props) {
     }
 
     return (
-        <div className={className ? className + ' blog-wrap' : 'blog-wrap'}>
+        <div className={className}>
             <div className='blog padding-20 padding-b-0 ie-box'>
                 <div className='blog-head flex'>
                     <div>
@@ -117,6 +118,7 @@ Blog.propTypes = {
 };
 Blog.defaultProps = {
     region_name: null,
-    isAllCommt: false
+    isAllCommt: false,
+    className: ''
 };
 export default Blog;

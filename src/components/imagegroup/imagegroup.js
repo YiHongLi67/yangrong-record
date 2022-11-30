@@ -3,28 +3,27 @@ import Img from '../img/img';
 import './imagegroup.css';
 import PreviewMask from '../previewmask/previewmask';
 import { publish, subscribe, unsubscribe } from 'pubsub-js';
-import { judgeType } from '../../static/utils/utils';
+import { judgeType, getCls } from '../../static/utils/utils';
+import { PropTypes } from 'prop-types';
 
 let updateShowId;
 
-export default function ImageGroup(props) {
-    let [urls] = useState(getUrls(props.urls));
-    let imggroup = useRef(null);
-    let [show, setShow] = useState(getShow());
-    let [className] = useState(getCls(props.className));
-    let [groupWidth] = useState(getSize(props.groupWidth));
-    let [groupHeight] = useState(getSize(props.groupHeight));
-    let [imgWidth] = useState(props.imgWidth);
-    let [imgHeight] = useState(props.imgHeight);
-    let [objectFit] = useState(props.objectFit);
-    let [text] = useState(props.text);
-    let [alt] = useState(props.alt);
-    const { borderRadius } = props;
+function ImageGroup(props) {
+    const { urls, objectFit, text, alt } = props;
+    const className = getCls(props.className, 'img-group');
+    const groupWidth = getSize(props.groupWidth);
+    const groupHeight = getSize(props.groupHeight);
+    const imgWidth = getSize(props.imgWidth);
+    const imgHeight = getSize(props.imgHeight);
+    const borderRadius = getBorderRadius(props.borderRadius);
+    const imggroup = useRef(null);
+    let [showPreview, setShowPreview] = useState(getShow());
 
     useEffect(() => {
         updateShowId = subscribe('updateShow', (_, data) => {
-            setShow((show = getShow()));
-            if (!show) {
+            const isShowPreview = getShow();
+            setShowPreview(isShowPreview);
+            if (!isShowPreview) {
                 return;
             }
             setTimeout(() => {
@@ -36,14 +35,6 @@ export default function ImageGroup(props) {
         };
     }, []);
 
-    function getUrls(urls) {
-        if (judgeType(urls) === 'array') {
-            return urls;
-        } else {
-            return [];
-        }
-    }
-
     function getShow() {
         if (!imggroup.current) {
             return '';
@@ -52,21 +43,19 @@ export default function ImageGroup(props) {
         }
     }
 
-    function getCls(className) {
-        if (judgeType(className) === 'string') {
-            return 'img-group ' + className.trim();
-        } else {
-            return 'img-group';
-        }
-    }
-
     function getSize(size) {
         if (judgeType(size) === 'number') {
             return size + 'px';
         } else if (judgeType(size) === 'string') {
             return size;
-        } else {
-            return '';
+        }
+    }
+
+    function getBorderRadius(borderRadius) {
+        if (judgeType(borderRadius) === 'string') {
+            return borderRadius;
+        } else if (judgeType(borderRadius) === 'number') {
+            return borderRadius + 'px';
         }
     }
 
@@ -88,7 +77,31 @@ export default function ImageGroup(props) {
                     ></Img>
                 );
             })}
-            {show ? <PreviewMask></PreviewMask> : <></>}
+            {showPreview ? <PreviewMask></PreviewMask> : <></>}
         </div>
     );
 }
+ImageGroup.propTypes = {
+    urls: PropTypes.array.isRequired,
+    className: PropTypes.string,
+    groupWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    groupHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    imgWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    imgHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    objectFit: PropTypes.oneOf(['contain', 'cover', 'fill', 'none', 'scale-down']),
+    text: PropTypes.string,
+    alt: PropTypes.string,
+    borderRadius: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+};
+ImageGroup.defaultProps = {
+    className: '',
+    groupWidth: '',
+    groupHeight: '',
+    imgWidth: '',
+    imgHeight: '',
+    objectFit: 'cover',
+    text: '预览',
+    alt: '加载失败',
+    borderRadius: 0
+};
+export default ImageGroup;

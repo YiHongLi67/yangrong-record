@@ -112,3 +112,21 @@ export function getBrowser() {
         return 'Edge'; // 判断是否 Edge 浏览器
     }
 }
+
+export function getCls(className, baseClass = '') {
+    if (typeof className !== 'string') {
+        throw Error('The className is a string');
+    }
+    if (typeof baseClass !== 'string') {
+        throw Error('The baseClass is a string');
+    }
+    if (className.trim().length > 0) {
+        if (baseClass.trim().length > 0) {
+            return baseClass.trim() + ' ' + className.trim();
+        } else {
+            return className.trim();
+        }
+    } else {
+        return baseClass.trim();
+    }
+}

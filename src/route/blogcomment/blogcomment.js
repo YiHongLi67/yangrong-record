@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Blog from '../../blog/blog';
-import { getComment } from '../../../axios/api';
-import { _throttle } from '../../../static/utils/utils';
-import './allcomment.css';
+import Blog from '../../components/blog/blog';
+import { getComment } from '../../axios/api';
+import { _throttle } from '../../static/utils/utils';
+import './blogcomment.css';
 import { publish, subscribe, unsubscribe } from 'pubsub-js';
 
 let curPage = 1;
@@ -12,7 +12,7 @@ let fetchDone = true;
 let beforeTop = 0;
 const winHeight = window.innerHeight;
 
-export default function AllComment(props) {
+export default function BlogComment(props) {
     const { pathName } = props;
     const {
         state: {

@@ -5,7 +5,7 @@ import { antiShake, _throttle } from '../../../static/utils/utils';
 import { useEffect } from 'react';
 import { getComment } from '../../../axios/api';
 import { Modal } from 'antd';
-import BlogComment from '../../comment/comment';
+import Comment from '../../comment/comment';
 import { publish, subscribe, unsubscribe } from 'pubsub-js';
 
 let curPage = 1;
@@ -150,7 +150,7 @@ export default function BlogFoot(props) {
                         afterClose={closeModal}
                         closeIcon={<span className='iconfont icon-guanbi'></span>}
                     >
-                        <BlogComment avatar_uid={avatar_uid} commtData={curCommt} replyDetail={replyDetail} isModal></BlogComment>
+                        <Comment avatar_uid={avatar_uid} commtData={curCommt} replyDetail={replyDetail} isModal></Comment>
                         <div className='align-center font-12 padding-t-6 padding-b-6 margin-t-4 margin-b-4 w-sub' style={{ display: showEnd }}>
                             <span>没有更多回复了~</span>
                         </div>
@@ -160,10 +160,10 @@ export default function BlogFoot(props) {
                 )}
                 {allCommtData
                     ? allCommtData.map(item => {
-                          return <BlogComment key={item.id} avatar_uid={avatar_uid} commtData={item}></BlogComment>;
+                          return <Comment key={item.id} avatar_uid={avatar_uid} commtData={item}></Comment>;
                       })
                     : comment.map(item => {
-                          return <BlogComment key={item.id} avatar_uid={avatar_uid} commtData={item}></BlogComment>;
+                          return <Comment key={item.id} avatar_uid={avatar_uid} commtData={item}></Comment>;
                       })}
                 {!isAllCommt ? (
                     <div className='align-center show-all line-25' onClick={viewComment}>

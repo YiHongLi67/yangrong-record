@@ -2,15 +2,15 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout, Menu } from 'antd';
 import { publish } from 'pubsub-js';
-const { Header } = Layout;
+const { Header: AntdHeader } = Layout;
 
 const icons = [<span className='iconfont icon-shouye'></span>];
 
-export default function YrHeader() {
+export default function Header() {
     const navigate = useNavigate();
 
     return (
-        <Header theme='white' className='fixed top-0 ie-box w-full'>
+        <AntdHeader theme='white' className='fixed top-0 ie-box w-full'>
             <div className='logo'></div>
             <Menu
                 theme='white'
@@ -32,6 +32,6 @@ export default function YrHeader() {
                     };
                 })}
             />
-        </Header>
+        </AntdHeader>
     );
 }

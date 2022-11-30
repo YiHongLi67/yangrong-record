@@ -4,11 +4,11 @@ import './App.css';
 import { getblog } from './axios/api';
 import { _throttle } from './static/utils/utils';
 import { Routes, Route } from 'react-router-dom';
-import AllComment from './components/comment/allcomment/allcomment';
+import BlogComment from './route/blogcomment/blogcomment';
 import { subscribe } from 'pubsub-js';
-import BlogRoute from './blogroute';
+import Blogs from './route/blogs/blogs';
 import KeepAliveLayout, { useKeepOutlets, KeepAliveContext } from '@chanjs/keepalive';
-import YrHeader from './components/header/header';
+import Header from './components/header/header';
 
 const { Content, Footer } = Layout;
 let beforeTop = 0;
@@ -76,12 +76,12 @@ export default function App() {
 
     return (
         <KeepAliveLayout keepalive={['/']}>
-            <YrHeader />
+            <Header />
             <Content>
                 <Routes>
                     <Route path='/' element={<MemoComponents />}>
-                        <Route path='/' element={<BlogRoute blogData={blogData} pathName='/' />}></Route>
-                        <Route path='/comment' element={<AllComment pathName='/comment' />}></Route>
+                        <Route path='/' element={<Blogs blogData={blogData} pathName='/' />}></Route>
+                        <Route path='/comment' element={<BlogComment pathName='/comment' />}></Route>
                     </Route>
                 </Routes>
             </Content>

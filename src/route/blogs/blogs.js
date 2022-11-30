@@ -1,8 +1,8 @@
 import React from 'react';
 import { useEffect } from 'react';
-import Blog from './components/blog/blog';
+import Blog from '../../components/blog/blog';
 
-export default function BlogRoute(props) {
+export default function Blogs(props) {
     const { blogData, pathName } = props;
 
     useEffect(() => {

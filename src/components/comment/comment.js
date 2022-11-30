@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Avatar, Comment } from 'antd';
+import { Avatar, Comment as AntdComment } from 'antd';
 import './comment.css';
 import { formatTime } from '../../static/utils/utils';
 import Img from '../img/img';
 import { antiShake, _throttle } from '../../static/utils/utils';
 import { publish } from 'pubsub-js';
 
-const BlogComment = props => {
+const Comment = props => {
     const { avatar_uid, commtData, replyDetail, isModal } = props;
     const { uid, text, user_avatar, user_name, created_at, like_counts, pic_urls, reply, source } = commtData;
     let replyCommt;
@@ -28,7 +28,7 @@ const BlogComment = props => {
     }
 
     return (
-        <Comment
+        <AntdComment
             avatar={<Avatar src={user_avatar} alt='头像无法访问' />}
             content={
                 <>
@@ -63,7 +63,7 @@ const BlogComment = props => {
                     ? replyCommt.map(subCommt => {
                           const { uid, text, user_name, created_at, id, like_counts, source } = subCommt;
                           return (
-                              <Comment
+                              <AntdComment
                                   key={id}
                                   className='reply-inner'
                                   content={
@@ -99,11 +99,11 @@ const BlogComment = props => {
                                           false
                                       )
                                   ].filter(Boolean)}
-                              ></Comment>
+                              ></AntdComment>
                           );
                       })
                     : [
-                          <Comment
+                          <AntdComment
                               className='reply-inner'
                               actions={[
                                   !isModal && reply.reply_count ? (
@@ -115,18 +115,18 @@ const BlogComment = props => {
                                       false
                                   )
                               ].filter(Boolean)}
-                          ></Comment>
+                          ></AntdComment>
                       ]
             }
-        ></Comment>
+        ></AntdComment>
     );
 };
-BlogComment.propTypes = {
+Comment.propTypes = {
     isModal: PropTypes.bool,
     replyDetail: PropTypes.array
 };
-BlogComment.defaultProps = {
+Comment.defaultProps = {
     isModal: false,
     replyDetail: []
 };
-export default BlogComment;
+export default Comment;

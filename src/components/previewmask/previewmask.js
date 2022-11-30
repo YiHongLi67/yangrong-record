@@ -1,14 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PubSub from 'pubsub-js';
 import './previewmask.css';
-import { _throttle } from '../../static/utils/utils';
-import { antiShake } from '../../static/utils/utils';
+import { throttle, _throttle, antiShake } from '../../static/utils/utils';
 import Img from '../img/img';
 import { getBrowser } from '../../static/utils/utils';
 
+const browser = getBrowser();
+const img = document.createElement('img');
 let ratio = 1;
 let curIdx = 0;
-const browser = getBrowser();
+let throttleMove;
+let throttleMaskMove;
+let emitUp = false;
+let emitMove = false;
 
 export default function PreviewMask() {
     let [showMask, setShowMask] = useState(false);
@@ -20,15 +24,10 @@ export default function PreviewMask() {
     let [transY, setTransY] = useState(0);
     let [rotate, setRotate] = useState(0);
     let [isFullScreen, setIsFullScreen] = useState(false);
-    let [emitUp, setEmitUp] = useState(false);
-    let [emitMove, setEmtitMove] = useState(false);
     let [parentNode, setParentNode] = useState(null);
-    let [img] = useState(document.createElement('img'));
     let previewMask = useRef(null);
     let previewImg = useRef(null);
     let maskFoot = useRef(null);
-    let throttleMove;
-    let throttleMaskMove;
 
     useEffect(() => {
         PubSub.subscribe('showMask', (_, data) => {
@@ -77,8 +76,8 @@ export default function PreviewMask() {
         setTransY((transY = 0));
         setRotate((rotate = 0));
         setIsFullScreen((isFullScreen = false));
-        setEmtitMove((emitMove = false));
-        setEmitUp((emitUp = false));
+        emitMove = false;
+        emitUp = false;
         setParentNode(parentNode.setAttribute('data-show', ''));
     }
 
@@ -199,19 +198,6 @@ export default function PreviewMask() {
         setTransY((transY = 0));
     }
 
-    // 节流
-    function throttle(fn, wait, ...args) {
-        let pre = 0;
-        return function (e) {
-            // 事件的回调函数
-            let now = new Date();
-            if (now - pre > wait) {
-                fn.call(this, e, ...args);
-                pre = now;
-            }
-        };
-    }
-
     function mousedown(e) {
         previewImg.current.classList.remove('no-trans');
         // 获取元素当前的偏移量
@@ -239,7 +225,7 @@ export default function PreviewMask() {
 
     function move(e, ...args) {
         let [t, start] = args;
-        setEmtitMove((emitMove = true));
+        emitMove = true;
         transX = t.tx + (e.clientX - start.startX) / ratio;
         transY = t.ty + (e.clientY - start.startY) / ratio;
         // getComputedStyle 获取到的是未缩放前的宽高
@@ -327,12 +313,12 @@ export default function PreviewMask() {
         previewImg.current.classList.add('no-trans');
         setShowMask((showMask = true));
         document.body.classList.add('overflow-hid');
-        setEmitUp((emitUp = true));
+        emitUp = true;
         document.removeEventListener('mousemove', throttleMove);
         document.removeEventListener('mouseup', up);
         setTimeout(function () {
-            setEmitUp((emitMove = false));
-            setEmtitMove((emitUp = false));
+            emitUp = false;
+            emitMove = false;
         }, 100);
     }
 
@@ -343,7 +329,7 @@ export default function PreviewMask() {
             if (e.clientX - startX === 0 && e.clientY - startY === 0) {
                 return;
             }
-            setEmtitMove((emitMove = true));
+            emitMove = true;
         }, 200);
         // 解决拖拽功能按钮释放鼠标后 preview-mask 会关闭的 bug
         document.addEventListener('mousemove', throttleMaskMove);
@@ -351,12 +337,12 @@ export default function PreviewMask() {
     }
 
     function maskUp() {
-        setEmitUp((emitUp = true));
+        emitUp = true;
         document.removeEventListener('mousemove', throttleMaskMove);
         document.removeEventListener('mouseup', maskUp);
         setTimeout(() => {
-            setEmitUp((emitUp = false));
-            setEmtitMove((emitMove = false));
+            emitUp = false;
+            emitMove = false;
         }, 100);
     }
 
@@ -388,6 +374,40 @@ export default function PreviewMask() {
             previewMask.current.requestFullscreen();
         }
         setIsFullScreen((isFullScreen = !FullScreen));
+    }
+
+    function download() {
+        let type = 'large';
+        // type = 'normal';
+        let _urls = urls;
+        downloadImage(_urls[current].replace('thumbnail', type));
+    }
+
+    // IE 浏览器图片保存 (IE 其实用的就是 window.open)
+    function SaveAs5(imgURL) {
+        let oPop = window.open(imgURL, '', 'width=1, height=1, top=5000, left=5000');
+        for (; oPop.document.readyState !== 'complete'; ) {
+            if (oPop.document.readyState === 'complete') {
+                break;
+            }
+        }
+        oPop.document.execCommand('SaveAs');
+        oPop.close();
+    }
+
+    function downloadImage(imgURL) {
+        // 下载图片 (区分 IE 和非 IE 部分)
+        if (browser === 'IE' || browser === 'Edge') {
+            //IE 浏览器
+            SaveAs5(imgURL);
+        } else {
+            //!IE
+            let a = document.createElement('a');
+            a.href = imgURL;
+            document.body.appendChild(a); // 修复 firefox 中无法触发 click
+            a.click();
+            document.body.removeChild(a);
+        }
     }
 
     function imgStyle() {
@@ -431,41 +451,7 @@ export default function PreviewMask() {
         };
     }
 
-    function download() {
-        let type = 'large';
-        // type = 'normal';
-        let _urls = urls;
-        downloadImage(_urls[current].replace('thumbnail', type));
-    }
-
-    // IE 浏览器图片保存 (IE 其实用的就是 window.open)
-    function SaveAs5(imgURL) {
-        let oPop = window.open(imgURL, '', 'width=1, height=1, top=5000, left=5000');
-        for (; oPop.document.readyState !== 'complete'; ) {
-            if (oPop.document.readyState === 'complete') {
-                break;
-            }
-        }
-        oPop.document.execCommand('SaveAs');
-        oPop.close();
-    }
-
-    function downloadImage(imgURL) {
-        // 下载图片 (区分 IE 和非 IE 部分)
-        if (browser === 'IE' || browser === 'Edge') {
-            //IE 浏览器
-            SaveAs5(imgURL);
-        } else {
-            //!IE
-            let a = document.createElement('a');
-            a.href = imgURL;
-            document.body.appendChild(a); // 修复 firefox 中无法触发 click
-            a.click();
-            document.body.removeChild(a);
-        }
-    }
-
-    let dom = showMask ? (
+    return showMask ? (
         <div
             id='preview-mask'
             ref={previewMask}
@@ -491,8 +477,8 @@ export default function PreviewMask() {
             <div className='mask-head fixed right-0 top-0'>
                 <span id='close' className='iconfont icon-24gl-delete' title='关闭' onClick={closeMask}></span>
                 <span className={fullScreenCls()} title={fullScreenTitle()} onClick={fullScreen}></span>
-                <span className='iconfont icon-fangda' title='最大化' style={scaleMax()} onClick={throttle(grow, 200)}></span>
-                <span className='iconfont icon-suoxiao' title='最小化' style={scaleMin()} onClick={throttle(shrink, 200)}></span>
+                <span className='iconfont icon-fangda' title='最大化' style={scaleMax()} onClick={grow}></span>
+                <span className='iconfont icon-suoxiao' title='最小化' style={scaleMin()} onClick={shrink}></span>
                 <span className='iconfont icon-rotate-right' title='右旋转' onClick={rotateRight}></span>
                 <span className='iconfont icon-rotate-left' title='左旋转' onClick={rotateLeft}></span>
             </div>
@@ -517,5 +503,4 @@ export default function PreviewMask() {
     ) : (
         <></>
     );
-    return dom;
 }

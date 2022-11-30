@@ -34,6 +34,7 @@ export default function PreviewMask() {
         PubSub.subscribe('showMask', (_, data) => {
             setParentNode(data.parentNode);
             setShowMask(true);
+            document.body.classList.add('overflow-hid');
             setUrls(data.urls);
             setSrc(data.urls[data.idx]);
             curIdx = data.idx;
@@ -70,6 +71,7 @@ export default function PreviewMask() {
 
     function resetMask() {
         setShowMask(false);
+        document.body.classList.remove('overflow-hid');
         setScaleRatio((ratio = 1));
         setTransX((transX = 0));
         setTransY((transY = 0));
@@ -324,6 +326,7 @@ export default function PreviewMask() {
         }
         previewImg.current.classList.add('no-trans');
         setShowMask((showMask = true));
+        document.body.classList.add('overflow-hid');
         setEmitUp((emitUp = true));
         document.removeEventListener('mousemove', throttleMove);
         document.removeEventListener('mouseup', up);

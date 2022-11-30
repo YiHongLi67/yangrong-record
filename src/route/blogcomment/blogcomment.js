@@ -5,6 +5,7 @@ import { getComment } from '../../axios/api';
 import { _throttle } from '../../static/utils/utils';
 import './blogcomment.css';
 import { publish, subscribe, unsubscribe } from 'pubsub-js';
+import { PropTypes } from 'prop-types';
 
 const winHeight = window.innerHeight;
 let curPage = 1;
@@ -13,7 +14,7 @@ let fetchDone = true;
 let beforeTop = 0;
 let blogCommtRefreshId;
 
-export default function BlogComment(props) {
+function BlogComment(props) {
     const { pathName } = props;
     const {
         state: {
@@ -21,7 +22,7 @@ export default function BlogComment(props) {
             scrollTop
         }
     } = useLocation();
-    let [comment, setComment] = useState([]);
+    let [allCommt, setAllCommt] = useState([]);
     let [display, setDisplay] = useState('none');
     const navigate = useNavigate();
 
@@ -33,7 +34,7 @@ export default function BlogComment(props) {
         blogCommtRefreshId = subscribe('blogCommtRefresh', _ => {
             curPage = 1;
             prePage = 0;
-            setComment([]);
+            setAllCommt([]);
             fetchComment(curPage);
         });
         return () => {
@@ -51,8 +52,8 @@ export default function BlogComment(props) {
         fetchDone = true;
         prePage = page;
         if (response.data.length > 0) {
-            setComment(comment => {
-                return [...comment, ...response.data];
+            setAllCommt(allCommt => {
+                return [...allCommt, ...response.data];
             });
         }
         if (response.isEnd) {
@@ -106,7 +107,7 @@ export default function BlogComment(props) {
                 created_at={created_at}
                 region_name={region_name}
                 isAllCommt
-                allCommtData={comment}
+                allCommt={allCommt}
             ></Blog>
             <div className='end align-center font-12 padding-t-6 padding-b-6 margin-t-4 margin-b-4 w-sub' style={{ display }}>
                 <span>评论已经到底了~</span>
@@ -114,3 +115,7 @@ export default function BlogComment(props) {
         </>
     );
 }
+BlogComment.propTypes = {
+    pathName: PropTypes.string.isRequired
+};
+export default BlogComment;

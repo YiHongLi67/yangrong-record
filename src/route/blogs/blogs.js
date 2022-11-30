@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import Blog from '../../components/blog/blog';
 
 export default function Blogs(props) {
-    const { blogData, pathName } = props;
+    const { blogsData, pathName } = props;
 
     useEffect(() => {
         return () => {};
@@ -11,8 +11,8 @@ export default function Blogs(props) {
 
     return (
         <>
-            {blogData.map(item => {
-                let { mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = item;
+            {blogsData.map(blogData => {
+                let { mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = blogData;
                 return (
                     <Blog
                         key={mid}

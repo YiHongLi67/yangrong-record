@@ -93,12 +93,10 @@ export default function Img(props) {
     function setShow(e) {
         e.stopPropagation();
         if (emitPreview) {
-            console.log(emitPreview);
             let parentNode = e.target.parentNode.parentNode;
             parentNode.setAttribute('data-show', 'true');
             publish('updateShow', { urls, idx, parentNode });
         } else {
-            console.log(emitPreview);
             publish('changeImg', { urls, idx });
         }
     }

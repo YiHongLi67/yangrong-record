@@ -20,7 +20,7 @@ let toBlogsId;
 let blogsRefreshId;
 
 export default function App() {
-    let [blogData, setBlogData] = useState([]);
+    let [blogsData, setBlogsData] = useState([]);
 
     useEffect(() => {
         toBlogsId = subscribe('toBlogs', (_, data) => {
@@ -29,7 +29,7 @@ export default function App() {
             document.documentElement.scrollTop = data.scrollTop;
         });
         blogsRefreshId = subscribe('blogsRefresh', () => {
-            setBlogData([]);
+            setBlogsData([]);
             fetchDone = true;
             preId = null;
             sinceId = '';
@@ -52,8 +52,8 @@ export default function App() {
         if (response.length === 0) {
             return;
         }
-        setBlogData(blogData => {
-            return [...blogData, ...response];
+        setBlogsData(blogsData => {
+            return [...blogsData, ...response];
         });
         sinceId = response[response.length - 1].mid;
     }
@@ -84,7 +84,7 @@ export default function App() {
             <Content>
                 <Routes>
                     <Route path='/' element={<MemoComponents />}>
-                        <Route path='/' element={<Blogs blogData={blogData} pathName='/' />}></Route>
+                        <Route path='/' element={<Blogs blogsData={blogsData} pathName='/' />}></Route>
                         <Route path='/comment' element={<BlogComment pathName='/comment' />}></Route>
                     </Route>
                 </Routes>

@@ -1,5 +1,5 @@
 import { Avatar } from 'antd';
-import React, { useState, createContext } from 'react';
+import React from 'react';
 import './blog.css';
 import avatar from '../../static/images/avatar.png';
 import moment from 'moment';
@@ -9,20 +9,13 @@ import ImageGroup from '../../components/imagegroup/imagegroup';
 import SvgIcon from '../svgicon/svgicon';
 import BlogFoot from './blogfoot/blogfoot';
 import { formatTime } from '../../static/utils/utils';
+import { PropTypes } from 'prop-types';
 
-// 网站 favicon
-// 展开全文
-// 评论详情
-// live: 同时显示图片和live
-
-export default function Blog(props) {
-    const { uid, mid, urls, text, source, created_at, region_name, isAllCommt, allCommtData, className, pathName } = props;
-    const [showImgs] = useState(urls.length ? true : false);
-    const [showRegion] = useState(region_name ? true : false);
-    const textHTML = { __html: text };
+function Blog(props) {
+    const { uid, mid, urls, text, source, created_at, region_name, isAllCommt, allCommt, className, pathName } = props;
     const width = picWidth();
-    const [pic_wrap_width] = useState(width && width.pic_wrap_width);
-    const [pics_wrap_width] = useState(width && width.pics_wrap_width);
+    const pic_wrap_width = width && width.pic_wrap_width;
+    const pics_wrap_width = width && width.pics_wrap_width;
 
     function picWidth() {
         let width = {
@@ -76,8 +69,8 @@ export default function Blog(props) {
                             <p className='font-12 line-14 gray-2 margin-t-4'>
                                 {formatTime(created_at)} 来自 <span className='source'>{source}</span>
                             </p>
-                            {showRegion ? (
-                                <p className='font-12 line-14 gray-2 margin-t-6' style={{ display: showRegion }}>
+                            {region_name ? (
+                                <p className='font-12 line-14 gray-2 margin-t-6'>
                                     <span>{region_name}</span>
                                 </p>
                             ) : (
@@ -88,9 +81,9 @@ export default function Blog(props) {
                 </div>
                 <div className='blog-content margin-t-6'>
                     <div>
-                        <p className='gray-1 text' dangerouslySetInnerHTML={textHTML}></p>
+                        <p className='gray-1 text' dangerouslySetInnerHTML={{ __html: text }}></p>
                     </div>
-                    {showImgs ? (
+                    {urls.length ? (
                         <div className='margin-t-10'>
                             <ImageGroup
                                 className='pics-wrap flex wrap'
@@ -104,15 +97,26 @@ export default function Blog(props) {
                         <></>
                     )}
                 </div>
-                <BlogFoot
-                    blogData={props}
-                    mid={mid}
-                    avatar_uid={uid}
-                    isAllCommt={isAllCommt}
-                    allCommtData={allCommtData}
-                    pathName={pathName}
-                ></BlogFoot>
+                <BlogFoot blogData={props} mid={mid} avatar_uid={uid} isAllCommt={isAllCommt} allCommt={allCommt} pathName={pathName}></BlogFoot>
             </div>
         </div>
     );
 }
+Blog.propTypes = {
+    uid: PropTypes.string.isRequired,
+    mid: PropTypes.string.isRequired,
+    urls: PropTypes.array.isRequired,
+    text: PropTypes.string.isRequired,
+    source: PropTypes.string.isRequired,
+    created_at: PropTypes.string.isRequired,
+    region_name: PropTypes.string,
+    isAllCommt: PropTypes.bool,
+    allCommt: PropTypes.array,
+    className: PropTypes.string,
+    pathName: PropTypes.string.isRequired
+};
+Blog.defaultProps = {
+    region_name: null,
+    isAllCommt: false
+};
+export default Blog;

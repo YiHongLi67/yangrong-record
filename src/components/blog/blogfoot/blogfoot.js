@@ -7,6 +7,7 @@ import { getComment } from '../../../axios/api';
 import { Modal } from 'antd';
 import Comment from '../../comment/comment';
 import { publish, subscribe, unsubscribe } from 'pubsub-js';
+import PropTypes from 'prop-types';
 
 let curPage = 1;
 let prePage = 0;
@@ -15,11 +16,11 @@ let fetchDone = true;
 let curCommt = {};
 let fetchReplyId;
 
-export default function BlogFoot(props) {
-    const { blogData, mid, avatar_uid, isAllCommt, allCommtData, pathName } = props;
+function BlogFoot(props) {
+    const { blogData, mid, avatar_uid, isAllCommt, allCommt, pathName } = props;
     const { reposts_count, comments_count, attitudes_count } = blogData;
-    let [display, setDisplay] = useState(isAllCommt ? 'block' : 'none');
-    let [comment, setComment] = useState([]);
+    let [showDetail, setShowDetail] = useState(isAllCommt ? 'block' : 'none');
+    let [partCommt, setPartCommt] = useState([]);
     let [modalOpen, setModalOpen] = useState(false);
     let [replyDetail, setReplyDetail] = useState([]);
     let [showEnd, setShowEnd] = useState('none');
@@ -46,14 +47,14 @@ export default function BlogFoot(props) {
         } else {
             parentNode = e.target;
         }
-        if (display === 'block') {
-            setDisplay('none');
+        if (showDetail === 'block') {
+            setShowDetail('none');
             parentNode.classList.remove('comment-active-color');
             return;
         }
         let response = await getComment(avatar_uid, mid);
-        setComment(response.data);
-        setDisplay('block');
+        setPartCommt(response.data);
+        setShowDetail('block');
         parentNode.classList.add('comment-active-color');
     }
 
@@ -133,7 +134,7 @@ export default function BlogFoot(props) {
                     <span>{attitudes_count}</span>
                 </div>
             </div>
-            <div className='comment-detail' style={{ display }}>
+            <div className='comment-detail' style={{ display: showDetail }}>
                 {modalOpen ? (
                     <Modal
                         className='comment-detail modal-comment'
@@ -156,11 +157,11 @@ export default function BlogFoot(props) {
                 ) : (
                     <></>
                 )}
-                {allCommtData
-                    ? allCommtData.map(item => {
+                {allCommt
+                    ? allCommt.map(item => {
                           return <Comment key={item.id} avatar_uid={avatar_uid} commtData={item}></Comment>;
                       })
-                    : comment.map(item => {
+                    : partCommt.map(item => {
                           return <Comment key={item.id} avatar_uid={avatar_uid} commtData={item}></Comment>;
                       })}
                 {!isAllCommt ? (
@@ -175,3 +176,15 @@ export default function BlogFoot(props) {
         </div>
     );
 }
+BlogFoot.propTypes = {
+    blogData: PropTypes.object.isRequired,
+    mid: PropTypes.string.isRequired,
+    avatar_uid: PropTypes.string.isRequired,
+    isAllCommt: PropTypes.bool,
+    allCommt: PropTypes.array,
+    pathName: PropTypes.string.isRequired
+};
+BlogFoot.defaultProps = {
+    isAllCommt: false
+};
+export default BlogFoot;

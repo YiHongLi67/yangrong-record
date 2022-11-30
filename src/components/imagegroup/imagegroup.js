@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import Img from '../img/img';
 import './imagegroup.css';
 import PreviewMask from '../previewmask/previewmask';
-import PubSub from 'pubsub-js';
+import { publish, subscribe, unsubscribe } from 'pubsub-js';
 import { judgeType } from '../../static/utils/utils';
 
-// previewmask 事件的回调函数
+let updateShowId;
 
 export default function ImageGroup(props) {
     let [urls] = useState(getUrls(props.urls));
@@ -22,17 +22,17 @@ export default function ImageGroup(props) {
     const { borderRadius } = props;
 
     useEffect(() => {
-        PubSub.subscribe('updateShow', (_, data) => {
+        updateShowId = subscribe('updateShow', (_, data) => {
             setShow((show = getShow()));
             if (!show) {
                 return;
             }
             setTimeout(() => {
-                PubSub.publish('showMask', data);
+                publish('showMask', data);
             }, 10);
         });
         return () => {
-            PubSub.unsubscribe('updateShow');
+            unsubscribe(updateShowId);
         };
     }, []);
 

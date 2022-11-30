@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import PubSub from 'pubsub-js';
+import { publish, subscribe, unsubscribe } from 'pubsub-js';
 import './previewmask.css';
 import { throttle, _throttle, antiShake } from '../../static/utils/utils';
 import Img from '../img/img';
@@ -13,6 +13,8 @@ let throttleMove;
 let throttleMaskMove;
 let emitUp = false;
 let emitMove = false;
+let showMaskId;
+let changeImgId;
 
 export default function PreviewMask() {
     let [showMask, setShowMask] = useState(false);
@@ -30,7 +32,7 @@ export default function PreviewMask() {
     let maskFoot = useRef(null);
 
     useEffect(() => {
-        PubSub.subscribe('showMask', (_, data) => {
+        showMaskId = subscribe('showMask', (_, data) => {
             setParentNode(data.parentNode);
             setShowMask(true);
             document.body.classList.add('overflow-hid');
@@ -39,11 +41,11 @@ export default function PreviewMask() {
             curIdx = data.idx;
             setCurrent(data.idx);
             setTimeout(() => {
-                PubSub.publish('changeStyle', { current: data.idx });
+                publish('changeStyle', { current: data.idx });
             }, 0);
             onImgLoad(data.urls[data.idx]);
         });
-        PubSub.subscribe('changeImg', (_, data) => {
+        changeImgId = subscribe('changeImg', (_, data) => {
             if (data.idx === curIdx) {
                 return;
             }
@@ -55,7 +57,7 @@ export default function PreviewMask() {
             setSrc(data.urls[data.idx]);
             curIdx = data.idx;
             setCurrent(data.idx);
-            PubSub.publish('changeStyle', { current: data.idx });
+            publish('changeStyle', { current: data.idx });
             onImgLoad(data.urls[data.idx]);
         });
         document.body.onmousedown = function () {
@@ -63,8 +65,7 @@ export default function PreviewMask() {
             return false;
         };
         return () => {
-            PubSub.unsubscribe('showMask');
-            PubSub.unsubscribe('changeImg');
+            unsubscribe(showMaskId, changeImgId);
         };
     }, []);
 
@@ -102,7 +103,7 @@ export default function PreviewMask() {
     }
 
     function toggleImg() {
-        PubSub.publish('changeStyle', { current });
+        publish('changeStyle', { current });
         curIdx = current;
         setCurrent(current);
         setSrc(urls[current]);
@@ -368,7 +369,7 @@ export default function PreviewMask() {
         if (FullScreen) {
             document.exitFullscreen();
             setTimeout(() => {
-                PubSub.publish('changeStyle', { current });
+                publish('changeStyle', { current });
             }, 0);
         } else {
             previewMask.current.requestFullscreen();

@@ -13,6 +13,7 @@ let prePage = 0;
 let beforeTop = 0;
 let fetchDone = true;
 let curCommt = {};
+let fetchReplyId;
 
 export default function BlogFoot(props) {
     const { blogData, mid, avatar_uid, isAllCommt, allCommtData, pathName } = props;
@@ -25,21 +26,18 @@ export default function BlogFoot(props) {
     const navigate = useNavigate();
 
     useEffect(() => {
-        subscribe('fetchReply', (_, data) => {
-            spreadReply(data.e, data.commtData);
-        });
-        subscribe('fetchReplyCommt', (_, data) => {
+        fetchReplyId = subscribe('fetchReply', (_, data) => {
             spreadReply(data.e, data.commtData);
         });
         return () => {
-            unsubscribe('fetchReplyCommt');
+            unsubscribe(fetchReplyId);
         };
     }, []);
 
     async function fetchComment(e) {
         // 获取一级评论
         if (isAllCommt) {
-            publish('refresh');
+            publish('blogCommtRefresh');
             return;
         }
         let parentNode = null;

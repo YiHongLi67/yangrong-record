@@ -19,12 +19,7 @@ const Comment = props => {
 
     function fetchReply(e, commtData) {
         // 向 blogfoot 发布 fetchReply
-        // publish('fetchReply', { e, commtData });
-        if (window.location.pathname === '/comment') {
-            publish('fetchReplyCommt', { e, commtData });
-        } else if (window.location.pathname === '/') {
-            publish('fetchReply', { e, commtData });
-        }
+        publish('fetchReply', { e, commtData });
     }
 
     return (

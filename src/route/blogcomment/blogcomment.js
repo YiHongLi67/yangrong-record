@@ -6,11 +6,12 @@ import { _throttle } from '../../static/utils/utils';
 import './blogcomment.css';
 import { publish, subscribe, unsubscribe } from 'pubsub-js';
 
+const winHeight = window.innerHeight;
 let curPage = 1;
 let prePage = 0;
 let fetchDone = true;
 let beforeTop = 0;
-const winHeight = window.innerHeight;
+let blogCommtRefreshId;
 
 export default function BlogComment(props) {
     const { pathName } = props;
@@ -29,7 +30,7 @@ export default function BlogComment(props) {
         // allcomment 添加 scroll 事件
         document.onscroll = _throttle(appScroll, 200);
         fetchComment(curPage);
-        subscribe('refresh', _ => {
+        blogCommtRefreshId = subscribe('blogCommtRefresh', _ => {
             curPage = 1;
             prePage = 0;
             setComment([]);
@@ -39,8 +40,8 @@ export default function BlogComment(props) {
             // 路由切换 组件卸载 reset 参数
             curPage = 1;
             prePage = 0;
-            publish('reloadBlog', { scrollTop });
-            unsubscribe('refresh');
+            publish('toBlogs', { scrollTop });
+            unsubscribe(blogCommtRefreshId);
         };
     }, []);
 
@@ -75,7 +76,7 @@ export default function BlogComment(props) {
         }
     }
 
-    function toBlog(e) {
+    function toBlogs(e) {
         if (e.target.className.indexOf('back') !== -1) {
             return;
         }
@@ -86,7 +87,7 @@ export default function BlogComment(props) {
 
     return (
         <>
-            <div className='back font-18 w-main line-38 fixed w-full' onClick={toBlog}>
+            <div className='back font-18 w-main line-38 fixed w-full' onClick={toBlogs}>
                 <span className='iconfont icon-arrow-left-bold font-20 pointer'></span>
                 <span className='pointer weight-600'>返回</span>
             </div>

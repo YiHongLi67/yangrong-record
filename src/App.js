@@ -5,7 +5,7 @@ import { getblog } from './axios/api';
 import { _throttle } from './static/utils/utils';
 import { Routes, Route } from 'react-router-dom';
 import BlogComment from './route/blogcomment/blogcomment';
-import { subscribe } from 'pubsub-js';
+import { subscribe, unsubscribe } from 'pubsub-js';
 import Blogs from './route/blogs/blogs';
 import KeepAliveLayout, { useKeepOutlets, KeepAliveContext } from '@chanjs/keepalive';
 import Header from './components/header/header';
@@ -16,17 +16,19 @@ let fetchDone = true;
 let sinceId = '';
 let preId = null;
 const winHeight = window.innerHeight;
+let toBlogsId;
+let blogsRefreshId;
 
 export default function App() {
     let [blogData, setBlogData] = useState([]);
 
     useEffect(() => {
-        subscribe('reloadBlog', (_, data) => {
+        toBlogsId = subscribe('toBlogs', (_, data) => {
             document.onscroll = null;
             document.onscroll = _throttle(blogScroll, 200, { begin: true, end: true });
             document.documentElement.scrollTop = data.scrollTop;
         });
-        subscribe('app-blog-refresh', () => {
+        blogsRefreshId = subscribe('blogsRefresh', () => {
             setBlogData([]);
             fetchDone = true;
             preId = null;
@@ -38,7 +40,9 @@ export default function App() {
             document.onscroll = null;
             document.onscroll = _throttle(blogScroll, 200, { begin: true, end: true });
         }
-        return () => {};
+        return () => {
+            unsubscribe(toBlogsId, blogsRefreshId);
+        };
     }, []);
 
     async function fetchBlog(since_id) {

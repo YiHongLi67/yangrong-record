@@ -21,7 +21,7 @@ export default function Header() {
                         navigate(`/`, {
                             state: {}
                         });
-                        publish('app-blog-refresh');
+                        publish('blogsRefresh');
                     }
                 }}
                 items={icons.map((icon, index) => {

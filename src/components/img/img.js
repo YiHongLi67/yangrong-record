@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import PubSub from 'pubsub-js';
+import { publish, subscribe, unsubscribe } from 'pubsub-js';
 import './img.css';
 import { judgeType } from '../../static/utils/utils';
+
+let changeStyleId;
 
 export default function Img(props) {
     // 用户传入的属性
@@ -21,16 +23,7 @@ export default function Img(props) {
     let observerImg = useRef(null);
 
     useEffect(() => {
-        let Observer = new IntersectionObserver(entry => {
-            if (entry[0].isIntersecting) {
-                entry[0].target.setAttribute('src', src);
-                Observer.unobserve(entry[0].target);
-            }
-        });
-        setTimeout(() => {
-            Observer.observe(observerImg.current);
-        });
-        PubSub.subscribe('changeStyle', (_, data) => {
+        changeStyleId = subscribe('changeStyle', (_, data) => {
             if (emitPreview) {
                 return;
             }
@@ -40,7 +33,16 @@ export default function Img(props) {
                 imgMask.current && imgMask.current.classList.add('none');
             }
         });
-        return () => {};
+        let Observer = new IntersectionObserver(entry => {
+            if (entry[0].isIntersecting) {
+                entry[0].target.setAttribute('src', src);
+                Observer.unobserve(entry[0].target);
+            }
+        });
+        Observer.observe(observerImg.current);
+        return () => {
+            unsubscribe(changeStyleId);
+        };
     }, []);
 
     function getWidth(width) {
@@ -91,11 +93,13 @@ export default function Img(props) {
     function setShow(e) {
         e.stopPropagation();
         if (emitPreview) {
+            console.log(emitPreview);
             let parentNode = e.target.parentNode.parentNode;
             parentNode.setAttribute('data-show', 'true');
-            PubSub.publish('updateShow', { urls, idx, parentNode });
+            publish('updateShow', { urls, idx, parentNode });
         } else {
-            PubSub.publish('changeImg', { urls, idx });
+            console.log(emitPreview);
+            publish('changeImg', { urls, idx });
         }
     }
 

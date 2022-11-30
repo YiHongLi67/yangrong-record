@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Menu } from 'antd';
+import { Layout } from 'antd';
 import './App.css';
 import { getblog } from './axios/api';
 import { _throttle } from './static/utils/utils';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import AllComment from './components/comment/allcomment/allcomment';
 import { subscribe } from 'pubsub-js';
 import BlogRoute from './blogroute';
 import KeepAliveLayout, { useKeepOutlets, KeepAliveContext } from '@chanjs/keepalive';
+import YrHeader from './components/header/header';
 
-const { Header, Content, Footer } = Layout;
+const { Content, Footer } = Layout;
 let beforeTop = 0;
 let fetchDone = true;
 let sinceId = '';
@@ -18,13 +19,19 @@ const winHeight = window.innerHeight;
 
 export default function App() {
     let [blogData, setBlogData] = useState([]);
-    // const navigate = useNavigate();
 
     useEffect(() => {
         subscribe('reloadBlog', (_, data) => {
             document.onscroll = null;
             document.onscroll = _throttle(blogScroll, 200, { begin: true, end: true });
             document.documentElement.scrollTop = data.scrollTop;
+        });
+        subscribe('app-blog-refresh', () => {
+            setBlogData([]);
+            fetchDone = true;
+            preId = null;
+            sinceId = '';
+            fetchBlog(sinceId);
         });
         if (window.location.pathname === '/') {
             fetchBlog(sinceId);
@@ -61,7 +68,6 @@ export default function App() {
         }
     }
 
-    let icons = [<span className='iconfont icon-shouye'></span>];
     const MemoComponents = () => {
         // 使用 useKeepOutlets 代替 useOutlet
         const child = useKeepOutlets();
@@ -70,31 +76,7 @@ export default function App() {
 
     return (
         <KeepAliveLayout keepalive={['/']}>
-            <Header theme='white' className='fixed top-0 ie-box w-full'>
-                <div className='logo'></div>
-                <Menu
-                    theme='white'
-                    mode='horizontal'
-                    defaultSelectedKeys={['1']}
-                    onClick={function (data) {
-                        if (data.key === '1') {
-                            // navigate('/');
-                            setBlogData([]);
-                            fetchDone = true;
-                            preId = null;
-                            sinceId = '';
-                            fetchBlog(sinceId);
-                        }
-                    }}
-                    items={icons.map((icon, index) => {
-                        const key = index + 1;
-                        return {
-                            key,
-                            icon
-                        };
-                    })}
-                />
-            </Header>
+            <YrHeader />
             <Content>
                 <Routes>
                     <Route path='/' element={<MemoComponents />}>

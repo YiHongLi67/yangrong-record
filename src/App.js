@@ -27,7 +27,6 @@ export default function App() {
             document.documentElement.scrollTop = data.scrollTop;
         });
         blogsRefreshId = subscribe('blogsRefresh', () => {
-            publish('updateBlogsData', []);
             fetchDone = true;
             preId = null;
             sinceId = '';

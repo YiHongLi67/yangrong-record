@@ -5,6 +5,7 @@ import { PropTypes } from 'prop-types';
 import { subscribe, unsubscribe } from 'pubsub-js';
 
 let updateBlogsDataId;
+let blogsRefreshId;
 
 function Blogs(props) {
     const { pathName } = props;
@@ -16,8 +17,12 @@ function Blogs(props) {
                 return [...blogsData, ...data];
             });
         });
+        blogsRefreshId = subscribe('blogsRefresh', () => {
+            setBlogsData([]);
+        });
         return () => {
             unsubscribe(updateBlogsDataId);
+            unsubscribe(blogsRefreshId);
         };
     }, []);
 

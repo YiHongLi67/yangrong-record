@@ -130,3 +130,11 @@ export function getCls(className, baseClass = '') {
         return baseClass.trim();
     }
 }
+
+export function getPropVal(propVal) {
+    if (judgeType(propVal) === 'number') {
+        return propVal + 'px';
+    } else if (judgeType(propVal) === 'string') {
+        return propVal;
+    }
+}

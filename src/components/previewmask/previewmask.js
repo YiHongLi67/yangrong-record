@@ -9,7 +9,7 @@ const browser = getBrowser();
 const img = document.createElement('img');
 let ratio = 1;
 let curIdx = 0;
-let throttleMove;
+let throttleImgMove;
 let throttleMaskMove;
 let emitUp = false;
 let emitMove = false;
@@ -50,9 +50,9 @@ export default function PreviewMask() {
                 return;
             }
             setScaleRatio((ratio = 1));
-            setTransX((transX = 0));
-            setTransY((transY = 0));
-            setRotate((rotate = 0));
+            setTransX(0);
+            setTransY(0);
+            setRotate(0);
             previewImg.current && previewImg.current.classList.add('no-trans');
             setSrc(data.urls[data.idx]);
             curIdx = data.idx;
@@ -65,7 +65,8 @@ export default function PreviewMask() {
             return false;
         };
         return () => {
-            unsubscribe(showMaskId, changeImgId);
+            unsubscribe(showMaskId);
+            unsubscribe(changeImgId);
         };
     }, []);
 
@@ -73,10 +74,10 @@ export default function PreviewMask() {
         setShowMask(false);
         document.body.classList.remove('overflow-hid');
         setScaleRatio((ratio = 1));
-        setTransX((transX = 0));
-        setTransY((transY = 0));
-        setRotate((rotate = 0));
-        setIsFullScreen((isFullScreen = false));
+        setTransX(0);
+        setTransY(0);
+        setRotate(0);
+        setIsFullScreen(false);
         emitMove = false;
         emitUp = false;
         setParentNode(parentNode.setAttribute('data-show', ''));
@@ -107,10 +108,10 @@ export default function PreviewMask() {
         curIdx = current;
         setCurrent(current);
         setSrc(urls[current]);
-        setTransX((transX = 0));
-        setTransY((transY = 0));
+        setTransX(0);
+        setTransY(0);
         setScaleRatio((ratio = 1));
-        setRotate((rotate = 0));
+        setRotate(0);
         previewImg.current.classList.add('no-trans');
         onImgLoad(urls[current]);
     }
@@ -156,6 +157,9 @@ export default function PreviewMask() {
                 ratio += 0;
             } else if (ratio >= 28) {
                 ratio += 8;
+                if (ratio >= 50) {
+                    ratio = 50;
+                }
             } else if (ratio >= 16) {
                 ratio += 6;
             } else if (ratio >= 8) {
@@ -180,8 +184,8 @@ export default function PreviewMask() {
                 ratio -= 8;
             }
             if (ratio === 1) {
-                setTransX((transX = 0));
-                setTransY((transY = 0));
+                setTransX(0);
+                setTransY(0);
             }
         }
         setScaleRatio(ratio);
@@ -195,11 +199,11 @@ export default function PreviewMask() {
     function shrink() {
         previewImg.current.classList.remove('no-trans');
         setScaleRatio((ratio = 1));
-        setTransX((transX = 0));
-        setTransY((transY = 0));
+        setTransX(0);
+        setTransY(0);
     }
 
-    function mousedown(e) {
+    function imgDown(e) {
         previewImg.current.classList.remove('no-trans');
         // 获取元素当前的偏移量
         let t = {
@@ -211,9 +215,9 @@ export default function PreviewMask() {
             startX: e.clientX,
             startY: e.clientY
         };
-        throttleMove = _throttle(move, 100, { begin: true, end: true }, t, start);
-        document.addEventListener('mousemove', throttleMove);
-        document.addEventListener('mouseup', up);
+        throttleImgMove = _throttle(imgMove, 100, { begin: true, end: true }, t, start);
+        document.addEventListener('mousemove', throttleImgMove);
+        document.addEventListener('mouseup', imgUp);
         e.preventDefault();
     }
 
@@ -224,7 +228,7 @@ export default function PreviewMask() {
         start.startY = e.clientY;
     }
 
-    function move(e, ...args) {
+    function imgMove(e, ...args) {
         let [t, start] = args;
         emitMove = true;
         transX = t.tx + (e.clientX - start.startX) / ratio;
@@ -305,18 +309,18 @@ export default function PreviewMask() {
         setTransY(transY);
     }
 
-    function up() {
+    function imgUp() {
         if (ratio === 1) {
             // 如果缩放比例等于 1, 在 mouseup 的时候设置边界值为 0
-            setTransX((transX = 0));
-            setTransY((transY = 0));
+            setTransX(0);
+            setTransY(0);
         }
         previewImg.current.classList.add('no-trans');
-        setShowMask((showMask = true));
+        setShowMask(true);
         document.body.classList.add('overflow-hid');
         emitUp = true;
-        document.removeEventListener('mousemove', throttleMove);
-        document.removeEventListener('mouseup', up);
+        document.removeEventListener('mousemove', throttleImgMove);
+        document.removeEventListener('mouseup', imgUp);
         setTimeout(function () {
             emitUp = false;
             emitMove = false;
@@ -374,7 +378,9 @@ export default function PreviewMask() {
         } else {
             previewMask.current.requestFullscreen();
         }
-        setIsFullScreen((isFullScreen = !FullScreen));
+        setIsFullScreen(isFullScreen => {
+            return !isFullScreen;
+        });
     }
 
     function download() {
@@ -466,7 +472,7 @@ export default function PreviewMask() {
                 className='preview-img absolute absolute-center pointer'
                 src={src}
                 alt='加载失败'
-                onMouseDown={mousedown}
+                onMouseDown={imgDown}
                 style={imgStyle()}
             />
             <span className='progress relative'>
@@ -495,7 +501,7 @@ export default function PreviewMask() {
                 <div className='mask-foot fixed w-v-full' ref={maskFoot}>
                     <div className='flex-center padding-t-6 padding-b-6 ie-box'>
                         {urls.map((src, idx) => {
-                            return <Img key={src + idx} idx={idx} urls={urls} src={src} width='50px' text='' emitPreview={false}></Img>;
+                            return <Img key={src + idx} idx={idx} urls={urls} src={src} width='50px' text=''></Img>;
                         })}
                     </div>
                 </div>

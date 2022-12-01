@@ -1,39 +1,30 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { publish, subscribe, unsubscribe } from 'pubsub-js';
 import './img.css';
-import { judgeType } from '../../static/utils/utils';
+import { getPropVal } from '../../static/utils/utils';
+import { PropTypes } from 'prop-types';
 
 let changeStyleId;
 
-export default function Img(props) {
-    // 用户传入的属性
-    let [src] = useState(props.src);
-    let [width] = useState(getWidth(props.width));
-    let [height] = useState(getHeight(props.height));
-    let [objectFit] = useState(getObjFit(props.objectFit));
-    let [text] = useState(getText(props.text));
-    let [alt] = useState(getAlt(props.alt));
-    let [emitPreview] = useState(getEmitPreview(props.emitPreview));
-    const { borderRadius } = props;
-
-    // 封装组件所需的属性
-    let [urls] = useState(props.urls);
-    let [idx] = useState(props.idx);
-    let imgMask = useRef(null);
-    let observerImg = useRef(null);
+function Img(props) {
+    const width = getPropVal(props.width);
+    const height = getPropVal(props.height);
+    const { urls, idx, src, text, alt, objectFit, emitPreview, borderRadius, onClick } = props;
+    const imgMask = useRef(null);
+    const observerImg = useRef(null);
 
     useEffect(() => {
-        changeStyleId = subscribe('changeStyle', (_, data) => {
-            if (emitPreview) {
-                return;
-            }
-            if (data.current === idx) {
-                imgMask.current && imgMask.current.classList.remove('none');
-            } else {
-                imgMask.current && imgMask.current.classList.add('none');
-            }
-        });
-        let Observer = new IntersectionObserver(entry => {
+        if (!emitPreview) {
+            // 不触发 preview 模态框, 即 preview->foot 下的缩略图, 激活当前预览图片对应的样式
+            changeStyleId = subscribe('changeStyle', (_, data) => {
+                if (data.current === idx) {
+                    imgMask.current && imgMask.current.classList.remove('none');
+                } else {
+                    imgMask.current && imgMask.current.classList.add('none');
+                }
+            });
+        }
+        const Observer = new IntersectionObserver(entry => {
             if (entry[0].isIntersecting) {
                 entry[0].target.setAttribute('src', src);
                 Observer.unobserve(entry[0].target);
@@ -45,67 +36,18 @@ export default function Img(props) {
         };
     }, []);
 
-    function getWidth(width) {
-        if (judgeType(width) === 'number') {
-            return width + 'px';
-        } else if (judgeType(width) === 'string') {
-            return width;
-        } else {
-            return '150px';
-        }
-    }
-
-    function getHeight(height) {
-        if (judgeType(height) === 'number') {
-            return height + 'px';
-        } else if (judgeType(height) === 'string') {
-            return height;
-        } else {
-            return '';
-        }
-    }
-
-    function getObjFit(objFit) {
-        let objFits = ['contain', 'cover', 'fill', 'none', 'scale-down'];
-        if (objFits.indexOf(objFit) !== -1) {
-            return objFit;
-        } else {
-            return 'cover';
-        }
-    }
-
-    function getText(text) {
-        if (judgeType(text) === 'string') {
-            return text;
-        } else {
-            return '预览';
-        }
-    }
-
-    function getAlt(alt) {
-        if (judgeType(alt) === 'string') {
-            return alt;
-        } else {
-            return '加载失败';
-        }
-    }
-
     function setShow(e) {
         e.stopPropagation();
         if (emitPreview) {
             let parentNode = e.target.parentNode.parentNode;
             parentNode.setAttribute('data-show', 'true');
             publish('updateShow', { urls, idx, parentNode });
-        } else {
+            onClick && onClick(e, idx);
+        } else if (urls) {
             publish('changeImg', { urls, idx });
-        }
-    }
-
-    function getEmitPreview(emitPreview) {
-        if (judgeType(emitPreview) === 'boolean') {
-            return emitPreview;
+            onClick && onClick(e, idx);
         } else {
-            return true;
+            onClick && onClick(e);
         }
     }
 
@@ -118,3 +60,33 @@ export default function Img(props) {
         </div>
     );
 }
+
+Img.propTypes = {
+    // imagegroup 所需
+    urls: PropTypes.array,
+    idx: PropTypes.number,
+    // img 所需
+    src: PropTypes.string.isRequired,
+    width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    objectFit: PropTypes.oneOf(['contain', 'cover', 'fill', 'none', 'scale-down']),
+    text: PropTypes.string,
+    alt: PropTypes.string,
+    emitPreview: PropTypes.bool, // 点击图片是否触发预览模态框
+    borderRadius: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    onclick: PropTypes.func
+};
+
+Img.defaultProps = {
+    urls: null,
+    idx: -1,
+    iwidth: '150px',
+    height: '',
+    objectFit: 'cover',
+    text: '预览',
+    alt: '加载失败',
+    emitPreview: false,
+    borderRadius: 0
+};
+
+export default Img;

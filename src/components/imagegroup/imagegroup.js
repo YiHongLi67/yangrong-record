@@ -3,19 +3,19 @@ import Img from '../img/img';
 import './imagegroup.css';
 import PreviewMask from '../previewmask/previewmask';
 import { publish, subscribe, unsubscribe } from 'pubsub-js';
-import { judgeType, getCls } from '../../static/utils/utils';
+import { getCls, getPropVal } from '../../static/utils/utils';
 import { PropTypes } from 'prop-types';
 
 let updateShowId;
 
 function ImageGroup(props) {
-    const { urls, objectFit, text, alt } = props;
+    const { urls, objectFit, text, alt, emitPreview } = props;
     const className = getCls(props.className, 'img-group');
-    const groupWidth = getSize(props.groupWidth);
-    const groupHeight = getSize(props.groupHeight);
-    const imgWidth = getSize(props.imgWidth);
-    const imgHeight = getSize(props.imgHeight);
-    const borderRadius = getBorderRadius(props.borderRadius);
+    const groupWidth = getPropVal(props.groupWidth);
+    const groupHeight = getPropVal(props.groupHeight);
+    const imgWidth = getPropVal(props.imgWidth);
+    const imgHeight = getPropVal(props.imgHeight);
+    const borderRadius = getPropVal(props.borderRadius);
     const imggroup = useRef(null);
     let [showPreview, setShowPreview] = useState(getShow());
 
@@ -43,22 +43,6 @@ function ImageGroup(props) {
         }
     }
 
-    function getSize(size) {
-        if (judgeType(size) === 'number') {
-            return size + 'px';
-        } else if (judgeType(size) === 'string') {
-            return size;
-        }
-    }
-
-    function getBorderRadius(borderRadius) {
-        if (judgeType(borderRadius) === 'string') {
-            return borderRadius;
-        } else if (judgeType(borderRadius) === 'number') {
-            return borderRadius + 'px';
-        }
-    }
-
     return (
         <div ref={imggroup} className={className} style={{ width: groupWidth, height: groupHeight }}>
             {urls.map((url, idx) => {
@@ -74,6 +58,7 @@ function ImageGroup(props) {
                         text={text}
                         alt={alt}
                         borderRadius={borderRadius}
+                        emitPreview={emitPreview}
                     ></Img>
                 );
             })}
@@ -81,6 +66,7 @@ function ImageGroup(props) {
         </div>
     );
 }
+
 ImageGroup.propTypes = {
     urls: PropTypes.array.isRequired,
     className: PropTypes.string,
@@ -91,8 +77,10 @@ ImageGroup.propTypes = {
     objectFit: PropTypes.oneOf(['contain', 'cover', 'fill', 'none', 'scale-down']),
     text: PropTypes.string,
     alt: PropTypes.string,
-    borderRadius: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
+    borderRadius: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    emitPreview: PropTypes.bool
 };
+
 ImageGroup.defaultProps = {
     className: '',
     groupWidth: '',
@@ -102,6 +90,8 @@ ImageGroup.defaultProps = {
     objectFit: 'cover',
     text: '预览',
     alt: '加载失败',
-    borderRadius: 0
+    borderRadius: 0,
+    emitPreview: true
 };
+
 export default ImageGroup;

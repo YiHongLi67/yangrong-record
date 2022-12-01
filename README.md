@@ -4,7 +4,7 @@
 
 ### 优化
 
-* blogs->blogcomment->blogs: preview无法打开
+* 首页向下滚动图片闪现刷新
 * 首页滚动加载新数据后之前的状态丢失
 * 首页滚动加载当滚动条滚到最底部请求连续触发
 * previewmask ratio 为 1, mouseup 后偶现图片位置不复原

@@ -1,15 +1,15 @@
 import { Avatar } from 'antd';
 import React from 'react';
-import './blog.css';
 import avatar from '../../static/images/avatar.png';
 import moment from 'moment';
-import 'moment/locale/zh-cn';
-moment.locale('zh-cn');
 import ImageGroup from '../../components/imagegroup/imagegroup';
 import SvgIcon from '../svgicon/svgicon';
 import BlogFoot from './blogfoot/blogfoot';
 import { formatTime, getCls } from '../../static/utils/utils';
 import { PropTypes } from 'prop-types';
+import './blog.css';
+import 'moment/locale/zh-cn';
+moment.locale('zh-cn');
 
 function Blog(props) {
     const { uid, mid, urls, text, source, created_at, region_name, isAllCommt, allCommt, pathName } = props;
@@ -24,19 +24,6 @@ function Blog(props) {
             pics_wrap_width: '100%'
         };
         switch (urls.length) {
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 7:
-            case 8:
-            case 10:
-            case 11:
-            case 12:
-            case 13:
-            case 14:
-            case 16:
-                return width;
             case 5:
             case 6:
             case 9:
@@ -45,6 +32,8 @@ function Blog(props) {
             case 18:
                 width.pic_wrap_width = 'calc((100% - 12px) / 3)';
                 width.pics_wrap_width = '75%';
+                return width;
+            default:
                 return width;
         }
     }

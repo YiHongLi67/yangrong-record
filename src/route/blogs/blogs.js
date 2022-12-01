@@ -1,13 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useEffect } from 'react';
 import Blog from '../../components/blog/blog';
 import { PropTypes } from 'prop-types';
+import { subscribe, unsubscribe } from 'pubsub-js';
+
+let updateBlogsDataId;
 
 function Blogs(props) {
-    const { blogsData, pathName } = props;
+    const { pathName } = props;
+    let [blogsData, setBlogsData] = useState([]);
 
     useEffect(() => {
-        return () => {};
+        updateBlogsDataId = subscribe('updateBlogsData', (_, data) => {
+            setBlogsData(blogsData => {
+                return [...blogsData, ...data];
+            });
+        });
+        return () => {
+            unsubscribe(updateBlogsDataId);
+        };
     }, []);
 
     return (
@@ -35,7 +46,6 @@ function Blogs(props) {
     );
 }
 Blogs.propTypes = {
-    blogsData: PropTypes.array.isRequired,
     pathName: PropTypes.string.isRequired
 };
 export default Blogs;

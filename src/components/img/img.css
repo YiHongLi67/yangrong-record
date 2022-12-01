@@ -29,8 +29,7 @@
     align-items: center;
     justify-content: center;
     color: white;
-    background-color: rgba(0, 0, 0, 0.35);
-    animation: mask .3s;
+    animation: mask .3s forwards;
 }
 
 @keyframes mask {

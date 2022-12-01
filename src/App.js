@@ -5,10 +5,9 @@ import { getblog } from './axios/api';
 import { _throttle } from './static/utils/utils';
 import { Routes, Route } from 'react-router-dom';
 import BlogComment from './route/blogcomment/blogcomment';
-import { subscribe, unsubscribe } from 'pubsub-js';
+import { publish, subscribe, unsubscribe } from 'pubsub-js';
 import Blogs from './route/blogs/blogs';
-import KeepAliveLayout, { useKeepOutlets } from '@chanjs/keepalive';
-// KeepAliveContext;
+import KeepAliveLayout, { useKeepOutlets, KeepAliveContext } from '@chanjs/keepalive';
 import Header from './components/header/header';
 
 const { Content, Footer } = Layout;
@@ -21,8 +20,6 @@ let toBlogsId;
 let blogsRefreshId;
 
 export default function App() {
-    let [blogsData, setBlogsData] = useState([]);
-
     useEffect(() => {
         toBlogsId = subscribe('toBlogs', (_, data) => {
             document.onscroll = null;
@@ -30,7 +27,7 @@ export default function App() {
             document.documentElement.scrollTop = data.scrollTop;
         });
         blogsRefreshId = subscribe('blogsRefresh', () => {
-            setBlogsData([]);
+            publish('updateBlogsData', []);
             fetchDone = true;
             preId = null;
             sinceId = '';
@@ -53,9 +50,7 @@ export default function App() {
         if (response.length === 0) {
             return;
         }
-        setBlogsData(blogsData => {
-            return [...blogsData, ...response];
-        });
+        publish('updateBlogsData', response);
         sinceId = response[response.length - 1].mid;
     }
 
@@ -85,7 +80,7 @@ export default function App() {
             <Content>
                 <Routes>
                     <Route path='/' element={<MemoComponents />}>
-                        <Route path='/' element={<Blogs blogsData={blogsData} pathName='/' />}></Route>
+                        <Route path='/' element={<Blogs pathName='/' />}></Route>
                         <Route path='/comment' element={<BlogComment pathName='/comment' />}></Route>
                     </Route>
                 </Routes>

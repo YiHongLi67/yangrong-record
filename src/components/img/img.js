@@ -24,9 +24,10 @@ function Img(props) {
         return () => {};
     }, []);
 
-    function setShow(e) {
+    function clickEvent(e) {
         e.stopPropagation();
         if (emitPreview) {
+            // setShow
             let parentNode = e.target.parentNode.parentNode;
             parentNode.setAttribute('data-show', 'true');
             publish('updateShow', { urls, idx, parentNode });
@@ -39,7 +40,7 @@ function Img(props) {
     }
 
     return (
-        <div className='img-wrap overflow-hid inline-block vertical-m relative' onClick={setShow} style={{ width, height, borderRadius }}>
+        <div className='img-wrap overflow-hid inline-block vertical-m relative' onClick={clickEvent} style={{ width, height, borderRadius }}>
             <img ref={observerImg} className='yr-img' src={lazy ? '' : src} alt={alt} style={{ objectFit }} />
             <div className='img-mask absolute none' ref={imgMask} style={{ display: idx === curIdx ? 'flex' : null }}>
                 {text}

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { publish, subscribe, unsubscribe } from 'pubsub-js';
+import { subscribe, unsubscribe } from 'pubsub-js';
 import './previewmask.css';
 import { throttle, _throttle, antiShake } from '../../static/utils/utils';
 import Img from '../img/img';

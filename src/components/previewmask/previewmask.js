@@ -4,22 +4,21 @@ import './previewmask.css';
 import { throttle, _throttle, antiShake } from '../../static/utils/utils';
 import Img from '../img/img';
 import { getBrowser } from '../../static/utils/utils';
+import { PropTypes } from 'prop-types';
 
 const browser = getBrowser();
 const img = document.createElement('img');
 let ratio = 1;
-let curIdx = 0;
 let throttleImgMove;
 let throttleMaskMove;
 let emitUp = false;
 let emitMove = false;
 let showMaskId;
-let changeImgId;
 
-export default function PreviewMask() {
+function PreviewMask(props) {
+    const { urls } = props;
     let [showMask, setShowMask] = useState(false);
-    let [current, setCurrent] = useState(0);
-    let [urls, setUrls] = useState([]);
+    let [curIdx, setCurIdx] = useState(0);
     let [src, setSrc] = useState('');
     let [scaleRatio, setScaleRatio] = useState(1);
     let [transX, setTransX] = useState(0);
@@ -36,28 +35,9 @@ export default function PreviewMask() {
             setParentNode(data.parentNode);
             setShowMask(true);
             document.body.classList.add('overflow-hid');
-            setUrls(data.urls);
             setSrc(data.urls[data.idx]);
-            curIdx = data.idx;
-            setCurrent(data.idx);
-            setTimeout(() => {
-                publish('changeStyle', { current: data.idx });
-            }, 0);
-            onImgLoad(data.urls[data.idx]);
-        });
-        changeImgId = subscribe('changeImg', (_, data) => {
-            if (data.idx === curIdx) {
-                return;
-            }
-            setScaleRatio((ratio = 1));
-            setTransX(0);
-            setTransY(0);
-            setRotate(0);
-            previewImg.current && previewImg.current.classList.add('no-trans');
-            setSrc(data.urls[data.idx]);
-            curIdx = data.idx;
-            setCurrent(data.idx);
-            publish('changeStyle', { current: data.idx });
+            setCurIdx(data.idx);
+            setTimeout(() => {}, 0);
             onImgLoad(data.urls[data.idx]);
         });
         document.body.onmousedown = function () {
@@ -66,7 +46,6 @@ export default function PreviewMask() {
         };
         return () => {
             unsubscribe(showMaskId);
-            unsubscribe(changeImgId);
         };
     }, []);
 
@@ -103,17 +82,22 @@ export default function PreviewMask() {
         }
     }
 
-    function toggleImg() {
-        publish('changeStyle', { current });
-        curIdx = current;
-        setCurrent(current);
-        setSrc(urls[current]);
+    function changeImg(e, idx) {
+        if (idx === curIdx) {
+            return;
+        }
+        setCurIdx(idx);
+        toggleImg(urls[idx]);
+    }
+
+    function toggleImg(src) {
+        setSrc(src);
         setTransX(0);
         setTransY(0);
         setScaleRatio((ratio = 1));
         setRotate(0);
         previewImg.current.classList.add('no-trans');
-        onImgLoad(urls[current]);
+        onImgLoad(src);
     }
 
     function onImgLoad(src) {
@@ -131,23 +115,23 @@ export default function PreviewMask() {
     }
 
     function preImg() {
-        if (current === 0) {
-            curIdx = current;
-            setCurrent(current);
+        if (curIdx === 0) {
             return;
         }
-        current--;
-        toggleImg();
+        setCurIdx(curIdx => {
+            return curIdx - 1;
+        });
+        toggleImg(urls[curIdx - 1]);
     }
 
     function nextImg() {
-        if (current === urls.length - 1) {
-            curIdx = current;
-            setCurrent(current);
+        if (curIdx === urls.length - 1) {
             return;
         }
-        current++;
-        toggleImg();
+        setCurIdx(curIdx => {
+            return curIdx + 1;
+        });
+        toggleImg(urls[curIdx + 1]);
     }
 
     function scaleImg(e) {
@@ -372,9 +356,7 @@ export default function PreviewMask() {
         let FullScreen = document.webkitIsFullScreen || document.mozFullScreen || false;
         if (FullScreen) {
             document.exitFullscreen();
-            setTimeout(() => {
-                publish('changeStyle', { current });
-            }, 0);
+            setTimeout(() => {}, 0);
         } else {
             previewMask.current.requestFullscreen();
         }
@@ -387,7 +369,7 @@ export default function PreviewMask() {
         let type = 'large';
         // type = 'normal';
         let _urls = urls;
-        downloadImage(_urls[current].replace('thumbnail', type));
+        downloadImage(_urls[curIdx].replace('thumbnail', type));
     }
 
     // IE 浏览器图片保存 (IE 其实用的就是 window.open)
@@ -434,14 +416,14 @@ export default function PreviewMask() {
 
     function leftBtnStyle() {
         return {
-            cursor: current === 0 ? 'no-drop' : 'pointer',
-            color: current === 0 ? 'rgba(204, 204, 204, 0.5)' : 'var(--w-color-gray-7)'
+            cursor: curIdx === 0 ? 'no-drop' : 'pointer',
+            color: curIdx === 0 ? 'rgba(204, 204, 204, 0.5)' : 'var(--w-color-gray-7)'
         };
     }
     function rightBtnStyle() {
         return {
-            cursor: current === urls.length - 1 ? 'no-drop' : 'pointer',
-            color: current === urls.length - 1 ? 'rgba(204, 204, 204, 0.5)' : 'var(--w-color-gray-7)'
+            cursor: curIdx === urls.length - 1 ? 'no-drop' : 'pointer',
+            color: curIdx === urls.length - 1 ? 'rgba(204, 204, 204, 0.5)' : 'var(--w-color-gray-7)'
         };
     }
 
@@ -476,7 +458,7 @@ export default function PreviewMask() {
                 style={imgStyle()}
             />
             <span className='progress relative'>
-                {current + 1} / {urls.length}
+                {curIdx + 1} / {urls.length}
             </span>
             <div className='mask-head fixed download left-0 top-0'>
                 <span className='iconfont icon-xiazai-wenjianxiazai-05' title='下载原图' onClick={antiShake(download, 1000)}></span>
@@ -501,7 +483,19 @@ export default function PreviewMask() {
                 <div className='mask-foot fixed w-v-full' ref={maskFoot}>
                     <div className='flex-center padding-t-6 padding-b-6 ie-box'>
                         {urls.map((src, idx) => {
-                            return <Img key={src + idx} idx={idx} urls={urls} src={src} width='50px' text=''></Img>;
+                            return (
+                                <Img
+                                    key={src + idx}
+                                    idx={idx}
+                                    curIdx={curIdx}
+                                    urls={urls}
+                                    src={src}
+                                    width='50px'
+                                    text=''
+                                    lazy={false}
+                                    onClick={changeImg}
+                                ></Img>
+                            );
                         })}
                     </div>
                 </div>
@@ -511,3 +505,8 @@ export default function PreviewMask() {
         <></>
     );
 }
+PreviewMask.propTypes = {
+    urls: PropTypes.array.isRequired
+};
+PreviewMask.defaultProps = {};
+export default PreviewMask;

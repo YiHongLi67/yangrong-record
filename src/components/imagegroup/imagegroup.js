@@ -62,7 +62,7 @@ function ImageGroup(props) {
                     ></Img>
                 );
             })}
-            {showPreview ? <PreviewMask></PreviewMask> : <></>}
+            {showPreview ? <PreviewMask urls={urls}></PreviewMask> : <></>}
         </div>
     );
 }

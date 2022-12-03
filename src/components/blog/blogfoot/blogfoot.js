@@ -91,11 +91,12 @@ function BlogFoot(props) {
 
     function openModal() {
         setModalOpen(true);
+        resetModal();
         setReplyDetail([]);
         setShowEnd('none');
         setTimeout(() => {
-            document.querySelectorAll('.ant-modal-body').onscroll = null;
-            document.querySelector('.ant-modal-body').onscroll = _throttle(modalBodyScroll, 200);
+            document.querySelector('.ant-modal-body').onscroll = null;
+            document.querySelector('.ant-modal-body').onscroll = _throttle(modalBodyScroll, 200, { begin: true, end: true });
         }, 50);
     }
 
@@ -113,9 +114,10 @@ function BlogFoot(props) {
         navigate(`/comment?mid=${mid}`, { state: { blogData, scrollTop: document.documentElement.scrollTop } });
     }
 
-    function closeModal() {
+    function resetModal() {
         curPage = 1;
         prePage = 0;
+        beforeTop = 0;
     }
 
     return (
@@ -146,7 +148,6 @@ function BlogFoot(props) {
                         onOk={() => setModalOpen(false)}
                         onCancel={() => setModalOpen(false)}
                         footer={null}
-                        afterClose={closeModal}
                         closeIcon={<span className='iconfont icon-guanbi'></span>}
                     >
                         <Comment avatar_uid={avatar_uid} commtData={curCommt} replyDetail={replyDetail} isModal></Comment>

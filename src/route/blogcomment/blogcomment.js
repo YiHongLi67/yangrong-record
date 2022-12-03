@@ -29,7 +29,7 @@ function BlogComment(props) {
     useEffect(() => {
         document.onscroll = null;
         // allcomment 添加 scroll 事件
-        document.onscroll = _throttle(appScroll, 200);
+        document.onscroll = _throttle(appScroll, 200, { before: true, end: true });
         fetchComment(curPage);
         blogCommtRefreshId = subscribe('blogCommtRefresh', _ => {
             curPage = 1;
@@ -71,7 +71,7 @@ function BlogComment(props) {
             return;
         }
         beforeTop = currentTop;
-        if (e.target.documentElement.scrollHeight - currentTop <= winHeight + 500 && fetchDone && curPage !== prePage) {
+        if (e.target.documentElement.scrollHeight - currentTop <= winHeight + 400 && fetchDone && curPage !== prePage) {
             fetchDone = false;
             fetchComment(curPage);
         }

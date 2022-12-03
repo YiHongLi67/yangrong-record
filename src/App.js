@@ -61,7 +61,7 @@ export default function App() {
             return;
         }
         beforeTop = currentTop;
-        if (e.target.documentElement.scrollHeight - currentTop <= winHeight + 500 && fetchDone && sinceId !== preId) {
+        if (e.target.documentElement.scrollHeight - currentTop <= winHeight + 400 && fetchDone && sinceId !== preId) {
             fetchDone = false;
             fetchBlog(sinceId);
         }

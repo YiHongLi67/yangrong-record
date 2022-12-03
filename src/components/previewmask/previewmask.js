@@ -40,10 +40,6 @@ function PreviewMask(props) {
             setTimeout(() => {}, 0);
             onImgLoad(data.urls[data.idx]);
         });
-        document.body.onmousedown = function () {
-            // 取消选中元素和图片默认禁止拖拽
-            return false;
-        };
         return () => {
             unsubscribe(showMaskId);
         };
@@ -213,6 +209,10 @@ function PreviewMask(props) {
     }
 
     function imgMove(e, ...args) {
+        if (emitUp) {
+            // 解决当 ratio 为 1 时, mousemove 设置 translate 后 mouseup 位置偶现不复原的 bug
+            return;
+        }
         let [t, start] = args;
         emitMove = true;
         transX = t.tx + (e.clientX - start.startX) / ratio;
@@ -323,6 +323,8 @@ function PreviewMask(props) {
         // 解决拖拽功能按钮释放鼠标后 preview-mask 会关闭的 bug
         document.addEventListener('mousemove', throttleMaskMove);
         document.addEventListener('mouseup', maskUp);
+        // 取消选中元素和图片默认禁止拖拽
+        e.preventDefault();
     }
 
     function maskUp() {

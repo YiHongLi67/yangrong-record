@@ -3,6 +3,11 @@ body {
     height: 100%;
 }
 
+/* 灰色主题 */
+/* html {
+    filter: grayscale(100%);
+} */
+
 body {
     min-width: 600px;
 }

@@ -8,15 +8,19 @@ import { PropTypes } from 'prop-types';
 
 const browser = getBrowser();
 const img = document.createElement('img');
+const video = document.createElement('video');
+video.autoplay = 'autoplay';
+video.muted = 'muted';
+
 let ratio = 1;
-let throttleImgMove;
+let throttleSourceMove;
 let throttleMaskMove;
 let emitUp = false;
 let emitMove = false;
 let showMaskId;
 
 function PreviewMask(props) {
-    const { urls } = props;
+    const { urls, pic_infos } = props;
     let [showMask, setShowMask] = useState(false);
     let [curIdx, setCurIdx] = useState(0);
     let [src, setSrc] = useState('');
@@ -26,9 +30,10 @@ function PreviewMask(props) {
     let [rotate, setRotate] = useState(0);
     let [isFullScreen, setIsFullScreen] = useState(false);
     let [parentNode, setParentNode] = useState(null);
-    let previewMask = useRef(null);
-    let previewImg = useRef(null);
-    let maskFoot = useRef(null);
+    const previewMask = useRef(null);
+    const previewImg = useRef(null);
+    const maskFoot = useRef(null);
+    const previewVideo = useRef(null);
 
     useEffect(() => {
         showMaskId = subscribe('showMask', (_, data) => {
@@ -37,8 +42,7 @@ function PreviewMask(props) {
             document.body.classList.add('overflow-hid');
             setSrc(data.urls[data.idx]);
             setCurIdx(data.idx);
-            setTimeout(() => {}, 0);
-            onImgLoad(data.urls[data.idx]);
+            onSrcLoad(data.idx);
         });
         return () => {
             unsubscribe(showMaskId);
@@ -46,6 +50,10 @@ function PreviewMask(props) {
     }, []);
 
     function resetMask() {
+        // 停止加载上一张图片
+        img.src = '';
+        video.src = '';
+        previewVideo.current && previewVideo.current.setAttribute('src', '');
         setShowMask(false);
         document.body.classList.remove('overflow-hid');
         setScaleRatio((ratio = 1));
@@ -78,36 +86,70 @@ function PreviewMask(props) {
         }
     }
 
+    function changeStyle(operate) {
+        if (operate === 'add') {
+            previewVideo.current && previewVideo.current.classList.add('no-trans');
+            previewImg.current.classList.add('no-trans');
+        } else if (operate === 'remove') {
+            previewVideo.current && previewVideo.current.classList.remove('no-trans');
+            previewImg.current.classList.remove('no-trans');
+        }
+    }
+
     function changeImg(e, idx) {
         if (idx === curIdx) {
             return;
         }
+        toggleImg(idx);
         setCurIdx(idx);
-        toggleImg(urls[idx]);
     }
 
-    function toggleImg(src) {
-        setSrc(src);
+    function toggleImg(idx) {
+        changeStyle('add');
+        previewImg.current.classList.remove('invisible');
+        setSrc(urls[idx]);
+        previewVideo.current && previewVideo.current.setAttribute('src', '');
         setTransX(0);
         setTransY(0);
         setScaleRatio((ratio = 1));
         setRotate(0);
-        previewImg.current.classList.add('no-trans');
-        onImgLoad(src);
+        onSrcLoad(idx);
     }
 
-    function onImgLoad(src) {
-        // 停止加载上一张图片
-        img.src = '';
-        if (src.indexOf('thumbnail') !== -1) {
-            src = src.replace('thumbnail', 'normal');
+    function showVideo() {
+        // 监听 video onplay 事件, 当 video 开始播放时, 设置 video 为可见, img 为不可见
+        previewImg.current.classList.add('invisible');
+        previewVideo.current.classList.remove('invisible');
+    }
+
+    function onSrcLoad(idx) {
+        const pic_info = pic_infos[idx] || {};
+        const normalSrc = pic_info.normalUrl || '';
+        if (!normalSrc) {
+            return;
         }
-        // 开始加载下一张图片
-        img.src = src;
-        img.onload = function () {
-            // 加载大图
-            setSrc(src);
-        };
+        const type = pic_infos[idx].type;
+        if (type === 'jpg' || type === 'gif') {
+            // 停止加载上一张图片
+            img.src = '';
+            video.src = '';
+            previewVideo.current && previewVideo.current.setAttribute('src', '');
+            // 开始加载下一张图片
+            img.src = normalSrc;
+            img.onload = function () {
+                // 加载大图
+                setSrc(normalSrc);
+            };
+        }
+        if (type === 'mov') {
+            const movUrl = pic_info.movUrl || '';
+            // 开始加载下一张live
+            video.src = movUrl;
+            video.onloadeddata = function () {
+                // 设置 video 的 src, 此时video仍不可见
+                previewVideo.current && previewVideo.current.setAttribute('src', movUrl);
+            };
+        }
     }
 
     function preImg() {
@@ -117,7 +159,7 @@ function PreviewMask(props) {
         setCurIdx(curIdx => {
             return curIdx - 1;
         });
-        toggleImg(urls[curIdx - 1]);
+        toggleImg(curIdx - 1);
     }
 
     function nextImg() {
@@ -127,11 +169,11 @@ function PreviewMask(props) {
         setCurIdx(curIdx => {
             return curIdx + 1;
         });
-        toggleImg(urls[curIdx + 1]);
+        toggleImg(curIdx + 1);
     }
 
     function scaleImg(e) {
-        previewImg.current.classList.remove('no-trans');
+        changeStyle('remove');
         if (e.deltaY < 0) {
             if (ratio >= 50) {
                 ratio += 0;
@@ -172,19 +214,20 @@ function PreviewMask(props) {
     }
 
     function grow() {
-        previewImg.current.classList.remove('no-trans');
+        changeStyle('remove');
         setScaleRatio((ratio = 50));
     }
 
     function shrink() {
-        previewImg.current.classList.remove('no-trans');
+        changeStyle('remove');
         setScaleRatio((ratio = 1));
         setTransX(0);
         setTransY(0);
     }
 
-    function imgDown(e) {
-        previewImg.current.classList.remove('no-trans');
+    function sourceDown(e) {
+        previewVideo.current && previewVideo.current.pause();
+        changeStyle('remove');
         // 获取元素当前的偏移量
         let t = {
             tx: transX,
@@ -195,9 +238,9 @@ function PreviewMask(props) {
             startX: e.clientX,
             startY: e.clientY
         };
-        throttleImgMove = _throttle(imgMove, 100, { begin: true, end: true }, t, start);
-        document.addEventListener('mousemove', throttleImgMove);
-        document.addEventListener('mouseup', imgUp);
+        throttleSourceMove = _throttle(sourceMove, 100, { begin: true, end: true }, t, start);
+        document.addEventListener('mousemove', throttleSourceMove);
+        document.addEventListener('mouseup', sourceUp);
         e.preventDefault();
     }
 
@@ -208,7 +251,7 @@ function PreviewMask(props) {
         start.startY = e.clientY;
     }
 
-    function imgMove(e, ...args) {
+    function sourceMove(e, ...args) {
         if (emitUp) {
             // 解决当 ratio 为 1 时, mousemove 设置 translate 后 mouseup 位置偶现不复原的 bug
             return;
@@ -293,18 +336,19 @@ function PreviewMask(props) {
         setTransY(transY);
     }
 
-    function imgUp() {
+    function sourceUp() {
+        previewVideo.current && previewVideo.current.play();
         if (ratio === 1) {
             // 如果缩放比例等于 1, 在 mouseup 的时候设置边界值为 0
             setTransX(0);
             setTransY(0);
         }
-        previewImg.current.classList.add('no-trans');
+        changeStyle('add');
         setShowMask(true);
         document.body.classList.add('overflow-hid');
         emitUp = true;
-        document.removeEventListener('mousemove', throttleImgMove);
-        document.removeEventListener('mouseup', imgUp);
+        document.removeEventListener('mousemove', throttleSourceMove);
+        document.removeEventListener('mouseup', sourceUp);
         setTimeout(function () {
             emitUp = false;
             emitMove = false;
@@ -358,7 +402,6 @@ function PreviewMask(props) {
         let FullScreen = document.webkitIsFullScreen || document.mozFullScreen || false;
         if (FullScreen) {
             document.exitFullscreen();
-            setTimeout(() => {}, 0);
         } else {
             previewMask.current.requestFullscreen();
         }
@@ -368,10 +411,7 @@ function PreviewMask(props) {
     }
 
     function download() {
-        let type = 'large';
-        // type = 'normal';
-        let _urls = urls;
-        downloadImage(_urls[curIdx].replace('thumbnail', type));
+        downloadImage(largeUrls[curIdx]);
     }
 
     // IE 浏览器图片保存 (IE 其实用的就是 window.open)
@@ -401,7 +441,7 @@ function PreviewMask(props) {
         }
     }
 
-    function imgStyle() {
+    function sourceStyle() {
         return {
             transform: `scale3d(${scaleRatio}, ${scaleRatio}, 1) translate3d(${transX}px, ${transY}px, 0px) rotate(${rotate}deg)`,
             height: isFullScreen ? '100%' : 'calc(100vh - 70px)'
@@ -435,6 +475,7 @@ function PreviewMask(props) {
             color: ratio === 50 ? 'rgba(204, 204, 204, 0.5)' : 'var(--w-color-gray-9)'
         };
     }
+
     function scaleMin() {
         return {
             cursor: ratio === 1 ? 'no-drop' : 'pointer',
@@ -456,9 +497,23 @@ function PreviewMask(props) {
                 className='preview-img absolute absolute-center pointer'
                 src={src}
                 alt='加载失败'
-                onMouseDown={imgDown}
-                style={imgStyle()}
+                onMouseDown={sourceDown}
+                style={sourceStyle()}
             />
+            {pic_infos[curIdx] && pic_infos[curIdx].type === 'mov' && (
+                <video
+                    id='previewVideo'
+                    ref={previewVideo}
+                    className='preview-video absolute absolute-center pointer invisible'
+                    // src={videoSrc}
+                    autoPlay
+                    muted
+                    loop
+                    onMouseDown={sourceDown}
+                    onPlay={showVideo}
+                    style={sourceStyle()}
+                ></video>
+            )}
             <span className='progress relative'>
                 {curIdx + 1} / {urls.length}
             </span>
@@ -508,7 +563,10 @@ function PreviewMask(props) {
     );
 }
 PreviewMask.propTypes = {
-    urls: PropTypes.array.isRequired
+    urls: PropTypes.array.isRequired,
+    pic_infos: PropTypes.array
 };
-PreviewMask.defaultProps = {};
+PreviewMask.defaultProps = {
+    pic_infos: []
+};
 export default PreviewMask;

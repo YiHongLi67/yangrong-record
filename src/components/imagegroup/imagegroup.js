@@ -9,7 +9,7 @@ import { PropTypes } from 'prop-types';
 let updateShowId;
 
 function ImageGroup(props) {
-    const { urls, objectFit, text, alt, emitPreview } = props;
+    const { urls, pic_ids, pic_infos, objectFit, text, alt, emitPreview } = props;
     const className = getCls(props.className, 'img-group');
     const groupWidth = getPropVal(props.groupWidth);
     const groupHeight = getPropVal(props.groupHeight);
@@ -18,6 +18,7 @@ function ImageGroup(props) {
     const borderRadius = getPropVal(props.borderRadius);
     const imggroup = useRef(null);
     let [showPreview, setShowPreview] = useState(getShow());
+    let isFirst = false;
 
     useEffect(() => {
         updateShowId = subscribe('updateShow', (_, data) => {
@@ -46,12 +47,28 @@ function ImageGroup(props) {
     return (
         <div ref={imggroup} className={className} style={{ width: groupWidth, height: groupHeight }}>
             {urls.map((url, idx) => {
+                const sourceType = (pic_infos[idx] && pic_infos[idx].type) || null;
+                let lazySource = null;
+                if (!isFirst) {
+                    if (sourceType === 'gif') {
+                        lazySource = (pic_infos[idx] && pic_infos[idx].normalUrl) || null;
+                    } else if (sourceType === 'mov') {
+                        lazySource = (pic_infos[idx] && pic_infos[idx].movUrl) || null;
+                    }
+                    if (lazySource) {
+                        isFirst = true;
+                    }
+                } else {
+                    lazySource = null;
+                }
                 return (
                     <Img
                         key={url + idx}
                         src={url}
                         idx={idx}
                         urls={urls}
+                        sourceType={sourceType}
+                        lazySource={lazySource}
                         width={imgWidth}
                         height={imgHeight}
                         objectFit={objectFit}
@@ -62,7 +79,7 @@ function ImageGroup(props) {
                     ></Img>
                 );
             })}
-            {showPreview ? <PreviewMask urls={urls}></PreviewMask> : <></>}
+            {showPreview ? <PreviewMask urls={urls} pic_infos={pic_infos}></PreviewMask> : <></>}
         </div>
     );
 }
@@ -70,6 +87,8 @@ function ImageGroup(props) {
 ImageGroup.propTypes = {
     urls: PropTypes.array.isRequired,
     className: PropTypes.string,
+    pic_ids: PropTypes.array.isRequired,
+    pic_infos: PropTypes.array.isRequired,
     groupWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     groupHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     imgWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),

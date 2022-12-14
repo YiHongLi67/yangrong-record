@@ -29,13 +29,14 @@ function Blogs(props) {
     return (
         <>
             {blogsData.map(blogData => {
-                const { mid, urls, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = blogData;
+                const { mid, pic_ids, pic_infos, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = blogData;
                 return (
                     <Blog
                         key={mid}
                         mid={mid}
                         uid='1858065064'
-                        urls={urls}
+                        pic_ids={pic_ids}
+                        pic_infos={pic_infos}
                         text={text}
                         reposts_count={reposts_count}
                         comments_count={comments_count}

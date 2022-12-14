@@ -76,7 +76,7 @@ module.exports = {
         new HtmlWebpackPlugin({
             title: 'yangrong-record',
             template: './public/index.html', // 解析生成 HTML 首页
-            favicon: './public/favicon.ico'
+            favicon: './public/favicon.png'
         }),
         // new EslintWebpackPlugin({
         //     context: path.resolve(__dirname, './src'), // 配置 eslint 语法检查

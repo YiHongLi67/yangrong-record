@@ -9,7 +9,7 @@ import { publish } from 'pubsub-js';
 
 function Comment(props) {
     const { avatar_uid, commtData, replyDetail, isModal } = props;
-    const { uid, text, user_avatar, user_name, created_at, like_counts, pic_urls, reply, source } = commtData;
+    const { uid, text, user_avatar, user_name, created_at, like_counts, pic_infos, reply, source } = commtData;
     let replyCommt;
     if (isModal) {
         replyCommt = replyDetail;
@@ -33,9 +33,16 @@ function Comment(props) {
                         </span>
                         <span className='comment-text' dangerouslySetInnerHTML={{ __html: text }}></span>
                     </div>
-                    {pic_urls ? (
+                    {pic_infos ? (
                         <div>
-                            <Img src={pic_urls.thumbnail} width='120px' text='' borderRadius='8px'></Img>
+                            <Img
+                                src={pic_infos.thumbUrl}
+                                width='120px'
+                                text=''
+                                borderRadius='8px'
+                                sourceType={pic_infos.type}
+                                lazySource={pic_infos.type === 'gif' ? pic_infos.normalUrl : ''}
+                            ></Img>
                         </div>
                     ) : (
                         <></>

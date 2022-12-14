@@ -12,7 +12,8 @@ import 'moment/locale/zh-cn';
 moment.locale('zh-cn');
 
 function Blog(props) {
-    const { uid, mid, urls, text, source, created_at, region_name, isAllCommt, allCommt, pathName } = props;
+    const { uid, mid, pic_ids, pic_infos, text, source, created_at, region_name, isAllCommt, allCommt, pathName } = props;
+    const { thumbUrls } = pic_infos;
     const className = getCls(props.className, 'blog-wrap');
     const width = picWidth();
     const pic_wrap_width = width && width.pic_wrap_width;
@@ -23,7 +24,7 @@ function Blog(props) {
             pic_wrap_width: 'calc((100% - 16px) / 4)',
             pics_wrap_width: '100%'
         };
-        switch (urls.length) {
+        switch (pic_ids.length) {
             case 5:
             case 6:
             case 9:
@@ -73,11 +74,15 @@ function Blog(props) {
                     <div>
                         <p className='gray-1 text' dangerouslySetInnerHTML={{ __html: text }}></p>
                     </div>
-                    {urls.length ? (
+                    {pic_ids.length ? (
                         <div className='margin-t-10'>
                             <ImageGroup
                                 className='pics-wrap flex wrap'
-                                urls={urls}
+                                urls={pic_infos.map(item => {
+                                    return item.thumbUrl;
+                                })}
+                                pic_ids={pic_ids}
+                                pic_infos={pic_infos}
                                 groupWidth={pics_wrap_width}
                                 imgWidth={pic_wrap_width}
                                 borderRadius='8px'
@@ -95,7 +100,8 @@ function Blog(props) {
 Blog.propTypes = {
     uid: PropTypes.string.isRequired,
     mid: PropTypes.string.isRequired,
-    urls: PropTypes.array.isRequired,
+    pic_ids: PropTypes.array.isRequired,
+    pic_infos: PropTypes.array.isRequired,
     text: PropTypes.string.isRequired,
     source: PropTypes.string.isRequired,
     created_at: PropTypes.string.isRequired,

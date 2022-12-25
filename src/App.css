@@ -71,3 +71,8 @@ main::after {
     display: block;
     height: 50px;
 }
+
+video {
+    /* 去掉video底部黑色的线条 */
+    mix-blend-mode: darken;
+}

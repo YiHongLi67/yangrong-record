@@ -98,6 +98,7 @@ function BlogComment(props) {
                 key={mid}
                 mid={mid}
                 uid='1858065064'
+                // uid='6330711166'
                 pic_ids={pic_ids}
                 pic_infos={pic_infos}
                 text={text}

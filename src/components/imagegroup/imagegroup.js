@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Img from '../img/img';
+import Source from '../source/source';
 import './imagegroup.css';
 import PreviewMask from '../previewmask/previewmask';
 import { publish, subscribe, unsubscribe } from 'pubsub-js';
@@ -49,10 +49,13 @@ function ImageGroup(props) {
             {urls.map((url, idx) => {
                 const sourceType = (pic_infos[idx] && pic_infos[idx].type) || null;
                 let lazySource = null;
+                let lazySrcType = null;
                 if (!isFirst) {
                     if (sourceType === 'gif') {
+                        lazySrcType = 'mp4';
                         lazySource = (pic_infos[idx] && pic_infos[idx].normalUrl) || null;
                     } else if (sourceType === 'mov') {
+                        lazySrcType = 'mov';
                         lazySource = (pic_infos[idx] && pic_infos[idx].movUrl) || null;
                     }
                     if (lazySource) {
@@ -62,13 +65,14 @@ function ImageGroup(props) {
                     lazySource = null;
                 }
                 return (
-                    <Img
+                    <Source
                         key={url + idx}
                         src={url}
                         idx={idx}
                         urls={urls}
                         sourceType={sourceType}
                         lazySource={lazySource}
+                        lazySrcType={lazySrcType}
                         width={imgWidth}
                         height={imgHeight}
                         objectFit={objectFit}
@@ -76,7 +80,7 @@ function ImageGroup(props) {
                         alt={alt}
                         borderRadius={borderRadius}
                         emitPreview={emitPreview}
-                    ></Img>
+                    ></Source>
                 );
             })}
             {showPreview ? <PreviewMask urls={urls} pic_infos={pic_infos}></PreviewMask> : <></>}

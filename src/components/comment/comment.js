@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Avatar, Comment as AntdComment } from 'antd';
 import './comment.css';
 import { formatTime } from '../../static/utils/utils';
-import Img from '../img/img';
+import Source from '../source/source';
 import { antiShake, _throttle } from '../../static/utils/utils';
 import { publish } from 'pubsub-js';
 
@@ -35,14 +35,14 @@ function Comment(props) {
                     </div>
                     {pic_infos ? (
                         <div>
-                            <Img
+                            <Source
                                 src={pic_infos.thumbUrl}
                                 width='120px'
                                 text=''
                                 borderRadius='8px'
                                 sourceType={pic_infos.type}
                                 lazySource={pic_infos.type === 'gif' ? pic_infos.normalUrl : ''}
-                            ></Img>
+                            ></Source>
                         </div>
                     ) : (
                         <></>
@@ -92,7 +92,7 @@ function Comment(props) {
                                       </>
                                   }
                                   actions={[
-                                      !isModal && reply.reply_count ? (
+                                      !isModal && reply.avatar_reply && reply.reply_count !== reply.avatar_reply.length ? (
                                           <span className='fold-comments' onClick={antiShake(fetchReply, 500, commtData)}>
                                               <span>共{reply.reply_count}条回复</span>
                                               <span className='iconfont icon-zhankai1'></span>

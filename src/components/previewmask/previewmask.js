@@ -1,16 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { subscribe, unsubscribe } from 'pubsub-js';
 import './previewmask.css';
-import { throttle, _throttle, antiShake } from '../../static/utils/utils';
-import Img from '../img/img';
+import { throttle, _throttle, antiShake, judgeType } from '../../static/utils/utils';
+import Source from '../source/source';
 import { getBrowser } from '../../static/utils/utils';
 import { PropTypes } from 'prop-types';
 
 const browser = getBrowser();
 const img = document.createElement('img');
-const video = document.createElement('video');
-video.autoplay = 'autoplay';
-video.muted = 'muted';
 
 let ratio = 1;
 let throttleSourceMove;
@@ -24,6 +21,7 @@ function PreviewMask(props) {
     let [showMask, setShowMask] = useState(false);
     let [curIdx, setCurIdx] = useState(0);
     let [src, setSrc] = useState('');
+    let [videoSrc, setVideoSrc] = useState('');
     let [scaleRatio, setScaleRatio] = useState(1);
     let [transX, setTransX] = useState(0);
     let [transY, setTransY] = useState(0);
@@ -50,10 +48,8 @@ function PreviewMask(props) {
     }, []);
 
     function resetMask() {
-        // 停止加载上一张图片
         img.src = '';
-        video.src = '';
-        previewVideo.current && previewVideo.current.setAttribute('src', '');
+        previewVideo.current && previewVideo.current.setAttribute('src', ''); // 停止加载未加载完成的图片/视频
         setShowMask(false);
         document.body.classList.remove('overflow-hid');
         setScaleRatio((ratio = 1));
@@ -77,8 +73,7 @@ function PreviewMask(props) {
             }
         } else {
             if (emitMove && emitUp) {
-                // 在非全屏模式下, 通过设置 emitMove emitUp 来判断鼠标行为是点击还是拖拽
-                return;
+                return; // 在非全屏模式下, 通过设置 emitMove emitUp 来判断鼠标行为是点击还是拖拽
             }
             if (e.target.id === 'preview-mask' || e.target.id === 'close') {
                 resetMask();
@@ -87,28 +82,25 @@ function PreviewMask(props) {
     }
 
     function changeStyle(operate) {
+        let targetEle = previewVideo.current || previewImg.current;
+        if (!targetEle) return;
         if (operate === 'add') {
-            previewVideo.current && previewVideo.current.classList.add('no-trans');
-            previewImg.current.classList.add('no-trans');
+            targetEle.classList.add('no-trans');
         } else if (operate === 'remove') {
-            previewVideo.current && previewVideo.current.classList.remove('no-trans');
-            previewImg.current.classList.remove('no-trans');
+            targetEle.classList.remove('no-trans');
         }
     }
 
     function changeImg(e, idx) {
-        if (idx === curIdx) {
-            return;
-        }
+        if (idx === curIdx) return;
         toggleImg(idx);
         setCurIdx(idx);
     }
 
     function toggleImg(idx) {
         changeStyle('add');
-        previewImg.current.classList.remove('invisible');
         setSrc(urls[idx]);
-        previewVideo.current && previewVideo.current.setAttribute('src', '');
+        setVideoSrc('');
         setTransX(0);
         setTransY(0);
         setScaleRatio((ratio = 1));
@@ -117,45 +109,32 @@ function PreviewMask(props) {
     }
 
     function showVideo() {
-        // 监听 video onplay 事件, 当 video 开始播放时, 设置 video 为可见, img 为不可见
-        previewImg.current.classList.add('invisible');
-        previewVideo.current.classList.remove('invisible');
+        previewVideo.current.playbackRate = 0.5;
     }
 
     function onSrcLoad(idx) {
-        const pic_info = pic_infos[idx] || {};
-        const normalSrc = pic_info.normalUrl || '';
-        if (!normalSrc) {
-            return;
-        }
-        const type = pic_infos[idx].type;
-        if (type === 'jpg' || type === 'gif') {
-            // 停止加载上一张图片
-            img.src = '';
-            video.src = '';
-            previewVideo.current && previewVideo.current.setAttribute('src', '');
-            // 开始加载下一张图片
-            img.src = normalSrc;
+        img.src = '';
+        setVideoSrc(''); // 停止加载未加载完成的图片/视频
+        const type = judgeType(pic_infos[idx]) === 'object' && pic_infos[idx].type;
+        if (type === 'jpg') {
+            const normalUrl = getUrl('normal', idx);
+            img.src = normalUrl;
             img.onload = function () {
-                // 加载大图
-                setSrc(normalSrc);
+                setSrc(normalUrl); // 加载大图
             };
+        }
+        if (type === 'gif') {
+            const mp4Url = getUrl('normal', idx);
+            setVideoSrc(mp4Url);
         }
         if (type === 'mov') {
-            const movUrl = pic_info.movUrl || '';
-            // 开始加载下一张live
-            video.src = movUrl;
-            video.onloadeddata = function () {
-                // 设置 video 的 src, 此时video仍不可见
-                previewVideo.current && previewVideo.current.setAttribute('src', movUrl);
-            };
+            const movUrl = getUrl('mov', idx);
+            setVideoSrc(movUrl);
         }
     }
 
     function preImg() {
-        if (curIdx === 0) {
-            return;
-        }
+        if (curIdx === 0) return;
         setCurIdx(curIdx => {
             return curIdx - 1;
         });
@@ -163,9 +142,7 @@ function PreviewMask(props) {
     }
 
     function nextImg() {
-        if (curIdx === urls.length - 1) {
-            return;
-        }
+        if (curIdx === urls.length - 1) return;
         setCurIdx(curIdx => {
             return curIdx + 1;
         });
@@ -252,10 +229,8 @@ function PreviewMask(props) {
     }
 
     function sourceMove(e, ...args) {
-        if (emitUp) {
-            // 解决当 ratio 为 1 时, mousemove 设置 translate 后 mouseup 位置偶现不复原的 bug
-            return;
-        }
+        if (emitUp) return; // 解决当 ratio 为 1 时, mousemove 设置 translate 后 mouseup 位置偶现不复原的 bug
+        let targetEle = previewImg.current || previewVideo.current;
         let [t, start] = args;
         emitMove = true;
         transX = t.tx + (e.clientX - start.startX) / ratio;
@@ -268,8 +243,8 @@ function PreviewMask(props) {
         // previewImg.current.getBoundingClientRect().height;
         let borderX,
             borderY,
-            imgWidth = parseFloat(window.getComputedStyle(previewImg.current).width),
-            imgHeight = parseFloat(window.getComputedStyle(previewImg.current).height),
+            eleWidth = parseFloat(window.getComputedStyle(targetEle).width),
+            eleHeight = parseFloat(window.getComputedStyle(targetEle).height),
             winWidth = window.innerWidth,
             winHeight = window.innerHeight;
         // 缩放比例为 1, 拖动的边界值在 mouseup 时设置为 0, 即无论怎么拖拽都是原始位置
@@ -281,34 +256,34 @@ function PreviewMask(props) {
         // 缩放比例大于 1, 给拖拽设置边界值
         // 如果旋转后宽高未置反
         if (!isRotate()) {
-            if (imgWidth * ratio < winWidth) {
-                borderX = (winWidth - imgWidth * ratio) / 2 / ratio;
+            if (eleWidth * ratio < winWidth) {
+                borderX = (winWidth - eleWidth * ratio) / 2 / ratio;
             } else {
-                borderX = (imgWidth * ratio - winWidth) / 2 / ratio;
+                borderX = (eleWidth * ratio - winWidth) / 2 / ratio;
             }
-            borderY = (imgHeight * (ratio - 1)) / 2 / ratio;
+            borderY = (eleHeight * (ratio - 1)) / 2 / ratio;
         } else {
             // 旋转后宽高置反
             // 缩放后图片的高度小于窗口宽度
-            if (imgHeight * ratio < winWidth) {
+            if (eleHeight * ratio < winWidth) {
                 /**
                  * 可向左 / 向右拖拽的最大距离: (窗口宽度 - 图片高度 * 缩放比例) / 2 / 缩放比例
                  * 除以 2 是图片居中, 上下可 translate 的距离均分
                  * 为何除以缩放比例 ratio, 摸索出来的
                  */
-                borderX = (winWidth - imgHeight * ratio) / 2 / ratio;
+                borderX = (winWidth - eleHeight * ratio) / 2 / ratio;
             } else {
-                borderX = (imgHeight * ratio - winWidth) / 2 / ratio;
+                borderX = (eleHeight * ratio - winWidth) / 2 / ratio;
             }
             // 缩放后图片的宽度小于窗口高度
-            if (imgWidth * ratio < winHeight) {
+            if (eleWidth * ratio < winHeight) {
                 /**
                  * 可向上 / 向下拖拽最的大距离: (窗口高度 - 图片宽度 * 缩放比例) / 2 / 缩放比例
-                 * 由于图片高度为 100%, 所以宽口高度 winHeight 也就是图片高度 imgHeight
+                 * 由于图片高度为 100%, 所以宽口高度 winHeight 也就是图片高度 eleHeight
                  */
-                borderY = (imgHeight - imgWidth * ratio) / 2 / ratio;
+                borderY = (eleHeight - eleWidth * ratio) / 2 / ratio;
             } else {
-                borderY = (imgWidth * ratio - imgHeight) / 2 / ratio;
+                borderY = (eleWidth * ratio - eleHeight) / 2 / ratio;
             }
         }
         if (transX >= borderX) {
@@ -337,7 +312,7 @@ function PreviewMask(props) {
     }
 
     function sourceUp() {
-        previewVideo.current && previewVideo.current.play();
+        previewVideo.current && videoSrc && previewVideo.current.play();
         if (ratio === 1) {
             // 如果缩放比例等于 1, 在 mouseup 的时候设置边界值为 0
             setTransX(0);
@@ -410,8 +385,34 @@ function PreviewMask(props) {
         });
     }
 
+    function getUrl(type, idx) {
+        const pic_info = judgeType(pic_infos[idx]) === 'object' ? pic_infos[idx] : {};
+        const thumb = pic_info.thumbUrl || '';
+        const normal = pic_info.normalUrl || '';
+        const large = pic_info.largeUrl || '';
+        const mov = pic_info.movUrl || '';
+        switch (type) {
+            case 'thumb':
+                return thumb;
+            case 'normal':
+                return normal;
+            case 'large':
+                return large;
+            case 'mov':
+                return mov;
+            default:
+                return '';
+        }
+    }
+
     function download() {
-        downloadImage(largeUrls[curIdx]);
+        if (judgeType(pic_infos[curIdx]) === 'object') {
+            if (pic_infos[curIdx].type === 'mov') {
+                downloadImage(getUrl('mov', curIdx));
+            } else {
+                downloadImage(getUrl('large', curIdx));
+            }
+        }
     }
 
     // IE 浏览器图片保存 (IE 其实用的就是 window.open)
@@ -429,10 +430,10 @@ function PreviewMask(props) {
     function downloadImage(imgURL) {
         // 下载图片 (区分 IE 和非 IE 部分)
         if (browser === 'IE' || browser === 'Edge') {
-            //IE 浏览器
+            // IE 浏览器
             SaveAs5(imgURL);
         } else {
-            //!IE
+            // !IE
             let a = document.createElement('a');
             a.href = imgURL;
             document.body.appendChild(a); // 修复 firefox 中无法触发 click
@@ -492,20 +493,21 @@ function PreviewMask(props) {
             onMouseDown={maskDown}
             onWheel={throttle(scaleImg, 200)}
         >
-            <img
-                ref={previewImg}
-                className='preview-img absolute absolute-center pointer'
-                src={src}
-                alt='加载失败'
-                onMouseDown={sourceDown}
-                style={sourceStyle()}
-            />
-            {pic_infos[curIdx] && pic_infos[curIdx].type === 'mov' && (
+            {judgeType(pic_infos[curIdx]) === 'object' && pic_infos[curIdx].type === 'jpg' ? (
+                <img
+                    ref={previewImg}
+                    className='preview-img absolute absolute-center pointer'
+                    src={src}
+                    alt='加载失败'
+                    onMouseDown={sourceDown}
+                    style={sourceStyle()}
+                />
+            ) : (
                 <video
-                    id='previewVideo'
                     ref={previewVideo}
-                    className='preview-video absolute absolute-center pointer invisible'
-                    // src={videoSrc}
+                    className='preview-video absolute absolute-center pointer'
+                    poster={src}
+                    src={videoSrc}
                     autoPlay
                     muted
                     loop
@@ -541,7 +543,7 @@ function PreviewMask(props) {
                     <div className='flex-center padding-t-6 padding-b-6 ie-box'>
                         {urls.map((src, idx) => {
                             return (
-                                <Img
+                                <Source
                                     key={src + idx}
                                     idx={idx}
                                     curIdx={curIdx}
@@ -551,7 +553,7 @@ function PreviewMask(props) {
                                     text=''
                                     lazy={false}
                                     onClick={changeImg}
-                                ></Img>
+                                ></Source>
                             );
                         })}
                     </div>

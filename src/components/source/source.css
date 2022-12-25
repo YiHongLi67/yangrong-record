@@ -13,6 +13,7 @@
     position: absolute;
     width: 100%;
     height: 100%;
+    border-radius: inherit;
 }
 
 .img-wrap .z-index {
@@ -48,6 +49,11 @@
     background-color: var(--w-tip-warn);
     letter-spacing: 2px;
     padding: 0 4px;
+}
+
+.source-type.mov {
+    color: var(--w-color-gray-1);
+    background-color: #fffa;
 }
 
 @keyframes mask {

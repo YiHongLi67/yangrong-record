@@ -140,6 +140,4 @@ a.birthday div {
 .birthday video {
     width: 100%;
     height: auto;
-    /* 去掉video底部黑色的线条 */
-    mix-blend-mode: darken;
 }

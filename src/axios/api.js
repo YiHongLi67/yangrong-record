@@ -19,6 +19,7 @@ export function getblog(sinceId) {
         }
     });
 }
+
 export function getComment(uid, mid, page, rootid) {
     let url;
     if (rootid) {

@@ -76,3 +76,21 @@ video {
     /* 去掉video底部黑色的线条 */
     mix-blend-mode: darken;
 }
+
+.iconfont.icon-lianjie {
+    font-size: 12px;
+    margin: 0 2px;
+    font-weight: bold;
+}
+
+.iconfont.icon-shipin {
+    font-size: 14px;
+}
+
+.iconfont.icon-lianjie,
+.iconfont.icon-shipin,
+.iconfont.icon-zuanshi,
+.iconfont.icon-tupian {
+    margin: 0 2px;
+    font-weight: bold;
+}

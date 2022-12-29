@@ -10,13 +10,6 @@
     width: auto;
 }
 
-.preview-mask img.preview-img.invisible,
-.preview-mask video.preview-video.invisible {
-    visibility: hidden;
-    z-index: 0;
-}
-
-
 .preview-mask img.preview-img,
 .preview-mask video.preview-video {
     bottom: unset;

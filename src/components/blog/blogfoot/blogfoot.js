@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './blogfoot.css';
-import { antiShake, _throttle } from '../../../static/utils/utils';
+import { antiShake, getCls, _throttle } from '../../../static/utils/utils';
 import { useEffect } from 'react';
 import { getComment } from '../../../axios/api';
 import { Modal } from 'antd';
@@ -120,6 +120,12 @@ function BlogFoot(props) {
         beforeTop = 0;
     }
 
+    function getComCls() {
+        let baseCls = 'flex flex-1 flex-row-center flex-col-center pointer';
+        if (isAllCommt) return getCls('comment-active-color', baseCls);
+        return baseCls;
+    }
+
     return (
         <div className='blog-foot'>
             <div className='comment flex line-38'>
@@ -127,8 +133,8 @@ function BlogFoot(props) {
                     <span className='iconfont icon-zhuanfa margin-r-8'></span>
                     <span>{reposts_count}</span>
                 </div>
-                <div className='flex flex-1 flex-row-center flex-col-center pointer' onClick={antiShake(fetchComment, 500)}>
-                    <span className='iconfont icon-pinglun font-20 margin-r-8'></span>
+                <div className={getComCls()} onClick={antiShake(fetchComment, 500)}>
+                    <span className='iconfont icon-pinglun font-20 margin-r-4'></span>
                     <span>{comments_count}</span>
                 </div>
                 <div className='flex flex-1 flex-row-center flex-col-center pointer'>

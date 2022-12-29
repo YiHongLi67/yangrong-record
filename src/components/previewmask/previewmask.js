@@ -17,8 +17,9 @@ let emitMove = false;
 let showMaskId;
 
 function PreviewMask(props) {
-    const { urls, pic_infos } = props;
-    let [showMask, setShowMask] = useState(false);
+    const { urls, pic_infos, isCommt, onClose } = props;
+    console.log(pic_infos);
+    let [showMask, setShowMask] = useState(true);
     let [curIdx, setCurIdx] = useState(0);
     let [src, setSrc] = useState('');
     let [videoSrc, setVideoSrc] = useState('');
@@ -34,13 +35,13 @@ function PreviewMask(props) {
     const previewVideo = useRef(null);
 
     useEffect(() => {
+        document.body.classList.add('overflow-hid');
         showMaskId = subscribe('showMask', (_, data) => {
+            let idx = data.idx || 0;
             setParentNode(data.parentNode);
-            setShowMask(true);
-            document.body.classList.add('overflow-hid');
-            setSrc(data.urls[data.idx]);
-            setCurIdx(data.idx);
-            onSrcLoad(data.idx);
+            setSrc(data.urls[idx]);
+            setCurIdx(idx);
+            onSrcLoad(idx);
         });
         return () => {
             unsubscribe(showMaskId);
@@ -59,7 +60,8 @@ function PreviewMask(props) {
         setIsFullScreen(false);
         emitMove = false;
         emitUp = false;
-        setParentNode(parentNode.setAttribute('data-show', ''));
+        parentNode && setParentNode(parentNode.setAttribute('data-show', ''));
+        onClose && onClose();
     }
 
     function closeMask(e) {
@@ -116,14 +118,14 @@ function PreviewMask(props) {
         img.src = '';
         setVideoSrc(''); // 停止加载未加载完成的图片/视频
         const type = judgeType(pic_infos[idx]) === 'object' && pic_infos[idx].type;
-        if (type === 'jpg') {
+        if (type === 'jpg' || (type === 'gif' && isCommt)) {
             const normalUrl = getUrl('normal', idx);
             img.src = normalUrl;
             img.onload = function () {
                 setSrc(normalUrl); // 加载大图
             };
         }
-        if (type === 'gif') {
+        if (type === 'gif' && !isCommt) {
             const mp4Url = getUrl('normal', idx);
             setVideoSrc(mp4Url);
         }
@@ -203,6 +205,7 @@ function PreviewMask(props) {
     }
 
     function sourceDown(e) {
+        e.target.classList.add('grabbing');
         previewVideo.current && previewVideo.current.pause();
         changeStyle('remove');
         // 获取元素当前的偏移量
@@ -311,7 +314,8 @@ function PreviewMask(props) {
         setTransY(transY);
     }
 
-    function sourceUp() {
+    function sourceUp(e) {
+        e.target.classList.remove('grabbing');
         previewVideo.current && videoSrc && previewVideo.current.play();
         if (ratio === 1) {
             // 如果缩放比例等于 1, 在 mouseup 的时候设置边界值为 0
@@ -445,7 +449,7 @@ function PreviewMask(props) {
     function sourceStyle() {
         return {
             transform: `scale3d(${scaleRatio}, ${scaleRatio}, 1) translate3d(${transX}px, ${transY}px, 0px) rotate(${rotate}deg)`,
-            height: isFullScreen ? '100%' : 'calc(100vh - 70px)'
+            height: isFullScreen || urls.length <= 1 ? '100%' : 'calc(100vh - 70px)'
         };
     }
 
@@ -484,6 +488,19 @@ function PreviewMask(props) {
         };
     }
 
+    function isImg(idx) {
+        const type = judgeType(pic_infos[idx]) === 'object' && pic_infos[idx].type;
+        if (type === 'jpg' || (type === 'gif' && isCommt)) {
+            return true;
+        }
+        if (type === 'gif' && !isCommt) {
+            return false;
+        }
+        if (type === 'mov') {
+            return false;
+        }
+    }
+
     return showMask ? (
         <div
             id='preview-mask'
@@ -493,10 +510,10 @@ function PreviewMask(props) {
             onMouseDown={maskDown}
             onWheel={throttle(scaleImg, 200)}
         >
-            {judgeType(pic_infos[curIdx]) === 'object' && pic_infos[curIdx].type === 'jpg' ? (
+            {isImg(curIdx) ? (
                 <img
                     ref={previewImg}
-                    className='preview-img absolute absolute-center pointer'
+                    className='preview-img absolute absolute-center grab'
                     src={src}
                     alt='加载失败'
                     onMouseDown={sourceDown}
@@ -505,7 +522,7 @@ function PreviewMask(props) {
             ) : (
                 <video
                     ref={previewVideo}
-                    className='preview-video absolute absolute-center pointer'
+                    className='preview-video absolute absolute-center grab'
                     poster={src}
                     src={videoSrc}
                     autoPlay
@@ -530,15 +547,17 @@ function PreviewMask(props) {
                 <span className='iconfont icon-rotate-right' title='右旋转' onClick={rotateRight}></span>
                 <span className='iconfont icon-rotate-left' title='左旋转' onClick={rotateLeft}></span>
             </div>
-            <div className='toggle-btn left-btn margin-l-10 fixed' onClick={preImg} style={leftBtnStyle()}>
-                <span className='iconfont icon-arrow-left-bold'></span>
-            </div>
-            <div className='toggle-btn right-btn margin-r-10 fixed' onClick={nextImg} style={rightBtnStyle()}>
-                <span className='iconfont icon-arrow-right-bold'></span>
-            </div>
-            {isFullScreen ? (
-                <></>
-            ) : (
+            {urls.length > 1 && (
+                <>
+                    <div className='toggle-btn left-btn margin-l-10 fixed' onClick={preImg} style={leftBtnStyle()}>
+                        <span className='iconfont icon-arrow-left-bold'></span>
+                    </div>
+                    <div className='toggle-btn right-btn margin-r-10 fixed' onClick={nextImg} style={rightBtnStyle()}>
+                        <span className='iconfont icon-arrow-right-bold'></span>
+                    </div>
+                </>
+            )}
+            {!isFullScreen && urls.length > 1 && (
                 <div className='mask-foot fixed w-v-full' ref={maskFoot}>
                     <div className='flex-center padding-t-6 padding-b-6 ie-box'>
                         {urls.map((src, idx) => {
@@ -566,9 +585,12 @@ function PreviewMask(props) {
 }
 PreviewMask.propTypes = {
     urls: PropTypes.array.isRequired,
-    pic_infos: PropTypes.array
+    pic_infos: PropTypes.array,
+    isCommt: PropTypes.bool,
+    onClose: PropTypes.func
 };
 PreviewMask.defaultProps = {
-    pic_infos: []
+    pic_infos: [],
+    isCommt: false
 };
 export default PreviewMask;

@@ -9,6 +9,15 @@
     cursor: pointer;
 }
 
+.comment>div>span.iconfont::before {
+    padding: 3px;
+}
+
+.comment>div:hover>span.iconfont::before {
+    background-color: #ff000013;
+    border-radius: 50%;
+}
+
 /* 点赞后的颜色未设置:  --w-color-red */
 
 /* 模态框 */

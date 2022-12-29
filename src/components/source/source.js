@@ -20,17 +20,13 @@ function Source(props) {
 
     function clickEvent(e) {
         e.stopPropagation();
-        if (emitPreview) {
-            // setShow
+        if (emitPreview && urls) {
+            // blog setShow
             let parentNode = e.target.parentNode.parentNode;
             parentNode.setAttribute('data-show', 'true');
             publish('updateShow', { urls, idx, parentNode });
-            onClick && onClick(e, idx);
-        } else if (urls) {
-            onClick && onClick(e, idx);
-        } else {
-            onClick && onClick(e);
         }
+        onClick && onClick(e, idx);
     }
 
     return (

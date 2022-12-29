@@ -35,6 +35,17 @@
     color: var(--w-color-gray-1);
 }
 
+.comment-text .iconfont,
+.comment-text a,
+.comment-text span {
+    color: var(--w-color-orange-4);
+}
+
+.iconfont.icon-zuanshi,
+.iconfont.icon-tupian {
+    font-size: 16px;
+}
+
 /* 评论文本中的表情 */
 .comment-text img {
     width: 16px !important;

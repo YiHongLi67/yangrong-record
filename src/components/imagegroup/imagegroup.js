@@ -83,7 +83,15 @@ function ImageGroup(props) {
                     ></Source>
                 );
             })}
-            {showPreview ? <PreviewMask urls={urls} pic_infos={pic_infos}></PreviewMask> : <></>}
+            {showPreview && (
+                <PreviewMask
+                    urls={urls}
+                    pic_infos={pic_infos}
+                    onClose={() => {
+                        setShowPreview(false);
+                    }}
+                ></PreviewMask>
+            )}
         </div>
     );
 }

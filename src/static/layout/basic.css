@@ -506,3 +506,11 @@
 .w-main {
     color: var(--w-main);
 }
+
+.grab {
+    cursor: grab;
+}
+
+.grabbing {
+    cursor: grabbing;
+}

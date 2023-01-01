@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-let baseURL = 'http://localhost:5000';
-// baseURL = 'https://yangrong-record.com:5000';
+let baseURL = 'http://localhost:5500';
+// baseURL = 'https://yangrong-record.com:5500';
 
 const request = axios.create({
     baseURL, //后端接口的基准地址

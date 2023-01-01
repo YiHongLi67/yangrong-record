@@ -9,7 +9,8 @@
 }
 
 .img-wrap>img.yr-img,
-.img-wrap>video.yr-video {
+.img-wrap>video.yr-video,
+.img-wrap>i.i-svg {
     position: absolute;
     width: 100%;
     height: 100%;

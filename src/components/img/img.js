@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
-import { publish } from 'pubsub-js';
 import { getCls, getPropVal } from '../../static/utils/utils';
+import defaultImg from '../../static/images/default_img.png';
 import { PropTypes } from 'prop-types';
 // import axios from 'axios';
 // const CancelToken = axios.CancelToken;
@@ -45,7 +45,11 @@ function Img(props) {
         return () => {};
     }, []);
 
-    return <img className='yr-img' ref={observerImg} src={lazy ? '' : src} alt={alt} style={{ objectFit }} />;
+    function loadErr() {
+        observerImg.current.src = defaultImg;
+    }
+
+    return <img className='yr-img' ref={observerImg} src={lazy ? '' : src} alt={alt} style={{ objectFit }} onError={loadErr} />;
 }
 
 Img.propTypes = {
@@ -73,7 +77,7 @@ Img.defaultProps = {
     lazySource: '',
     idx: -1,
     curIdx: -2,
-    iwidth: '150px',
+    width: '150px',
     height: '',
     objectFit: 'cover',
     text: '预览',

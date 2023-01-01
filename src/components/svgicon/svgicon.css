@@ -13,13 +13,13 @@ i {
     height: auto;
 }
 
-i.i-vip {
+i.vip {
     z-index: 1;
     width: 15px;
     height: 15px;
 }
 
-i.i-vip svg {
+i.vip svg {
     animation: blink 1.4s 3 steps(14) backwards;
 }
 
@@ -33,7 +33,7 @@ i.i-vip svg {
     }
 }
 
-i.i-svip_8 {
+i.svip_8 {
     width: 18px;
     height: 18px;
     margin-left: 2px;

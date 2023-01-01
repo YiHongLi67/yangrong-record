@@ -40,7 +40,7 @@ function Source(props) {
                     <></>
                 )
             ) : (
-                <Img src={src} />
+                <Img src={src} lazy={false} />
             )}
             {sourceType !== 'jpg' && (
                 <span

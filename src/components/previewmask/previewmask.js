@@ -4,6 +4,7 @@ import './previewmask.css';
 import { throttle, _throttle, antiShake, judgeType } from '../../static/utils/utils';
 import Source from '../source/source';
 import { getBrowser } from '../../static/utils/utils';
+import defaultImg from '../../static/images/default_img.png';
 import { PropTypes } from 'prop-types';
 
 const browser = getBrowser();
@@ -18,7 +19,6 @@ let showMaskId;
 
 function PreviewMask(props) {
     const { urls, pic_infos, isCommt, onClose } = props;
-    console.log(pic_infos);
     let [showMask, setShowMask] = useState(true);
     let [curIdx, setCurIdx] = useState(0);
     let [src, setSrc] = useState('');
@@ -29,6 +29,7 @@ function PreviewMask(props) {
     let [rotate, setRotate] = useState(0);
     let [isFullScreen, setIsFullScreen] = useState(false);
     let [parentNode, setParentNode] = useState(null);
+    let [sourceErr, setSourceErr] = useState(false);
     const previewMask = useRef(null);
     const previewImg = useRef(null);
     const maskFoot = useRef(null);
@@ -100,6 +101,10 @@ function PreviewMask(props) {
     }
 
     function toggleImg(idx) {
+        const target = previewImg.current || previewVideo.current;
+        if (target) {
+            target.onerror = null;
+        }
         changeStyle('add');
         setSrc(urls[idx]);
         setVideoSrc('');
@@ -107,10 +112,12 @@ function PreviewMask(props) {
         setTransY(0);
         setScaleRatio((ratio = 1));
         setRotate(0);
+        setSourceErr(false);
         onSrcLoad(idx);
     }
 
     function showVideo() {
+        setSourceErr(false);
         previewVideo.current.playbackRate = 0.5;
     }
 
@@ -123,6 +130,7 @@ function PreviewMask(props) {
             img.src = normalUrl;
             img.onload = function () {
                 setSrc(normalUrl); // 加载大图
+                setSourceErr(false);
             };
         }
         if (type === 'gif' && !isCommt) {
@@ -133,6 +141,23 @@ function PreviewMask(props) {
             const movUrl = getUrl('mov', idx);
             setVideoSrc(movUrl);
         }
+        setTimeout(() => {
+            if (previewVideo.current) {
+                previewVideo.current.onerror = e => {
+                    if (e.cancelable) {
+                        setSourceErr(true); // poster 可, src 不可
+                    } else {
+                        previewVideo.current && previewVideo.current.setAttribute('poster', defaultImg); // poster 不可, src 可
+                    }
+                };
+            }
+            if (previewImg.current) {
+                previewImg.current.onerror = () => {
+                    previewImg.current.src = defaultImg;
+                    setSourceErr(true);
+                };
+            }
+        }, 0);
     }
 
     function preImg() {
@@ -411,16 +436,22 @@ function PreviewMask(props) {
 
     function download() {
         if (judgeType(pic_infos[curIdx]) === 'object') {
-            if (pic_infos[curIdx].type === 'mov') {
-                downloadImage(getUrl('mov', curIdx));
+            const type = pic_infos[curIdx].type;
+            if (isCommt) {
+                downloadImage(getUrl('normal', curIdx));
             } else {
-                downloadImage(getUrl('large', curIdx));
+                if (type === 'mov') {
+                    downloadImage(getUrl('mov', curIdx));
+                } else if (type === 'jpg' || type === 'gif') {
+                    downloadImage(getUrl('large', curIdx));
+                }
             }
         }
     }
 
     // IE 浏览器图片保存 (IE 其实用的就是 window.open)
     function SaveAs5(imgURL) {
+        imgURL = imgURL.replace('com/', 'com/download/');
         let oPop = window.open(imgURL, '', 'width=1, height=1, top=5000, left=5000');
         for (; oPop.document.readyState !== 'complete'; ) {
             if (oPop.document.readyState === 'complete') {
@@ -432,6 +463,7 @@ function PreviewMask(props) {
     }
 
     function downloadImage(imgURL) {
+        imgURL = imgURL.replace('com/', 'com/download/');
         // 下载图片 (区分 IE 和非 IE 部分)
         if (browser === 'IE' || browser === 'Edge') {
             // IE 浏览器
@@ -443,6 +475,19 @@ function PreviewMask(props) {
             document.body.appendChild(a); // 修复 firefox 中无法触发 click
             a.click();
             document.body.removeChild(a);
+        }
+    }
+
+    function isImg(idx) {
+        const type = judgeType(pic_infos[idx]) === 'object' && pic_infos[idx].type;
+        if (type === 'jpg' || (type === 'gif' && isCommt)) {
+            return true;
+        }
+        if (type === 'gif' && !isCommt) {
+            return false;
+        }
+        if (type === 'mov') {
+            return false;
         }
     }
 
@@ -488,17 +533,10 @@ function PreviewMask(props) {
         };
     }
 
-    function isImg(idx) {
-        const type = judgeType(pic_infos[idx]) === 'object' && pic_infos[idx].type;
-        if (type === 'jpg' || (type === 'gif' && isCommt)) {
-            return true;
-        }
-        if (type === 'gif' && !isCommt) {
-            return false;
-        }
-        if (type === 'mov') {
-            return false;
-        }
+    function cursorStyle() {
+        return {
+            cursor: sourceErr ? 'no-drop' : 'pointer'
+        };
     }
 
     return showMask ? (
@@ -508,7 +546,7 @@ function PreviewMask(props) {
             className='preview-mask h-v-full w-v-full fixed'
             onClick={closeMask}
             onMouseDown={maskDown}
-            onWheel={throttle(scaleImg, 200)}
+            onWheel={sourceErr ? null : throttle(scaleImg, 200)}
         >
             {isImg(curIdx) ? (
                 <img
@@ -516,8 +554,8 @@ function PreviewMask(props) {
                     className='preview-img absolute absolute-center grab'
                     src={src}
                     alt='加载失败'
-                    onMouseDown={sourceDown}
-                    style={sourceStyle()}
+                    onMouseDown={sourceErr ? null : sourceDown}
+                    style={{ ...sourceStyle(), ...cursorStyle() }}
                 />
             ) : (
                 <video
@@ -528,9 +566,9 @@ function PreviewMask(props) {
                     autoPlay
                     muted
                     loop
-                    onMouseDown={sourceDown}
+                    onMouseDown={sourceErr ? null : sourceDown}
                     onPlay={showVideo}
-                    style={sourceStyle()}
+                    style={{ ...sourceStyle(), ...cursorStyle() }}
                 ></video>
             )}
             <span className='progress relative'>
@@ -542,10 +580,20 @@ function PreviewMask(props) {
             <div className='mask-head fixed right-0 top-0'>
                 <span id='close' className='iconfont icon-24gl-delete' title='关闭' onClick={closeMask}></span>
                 <span className={fullScreenCls()} title={fullScreenTitle()} onClick={fullScreen}></span>
-                <span className='iconfont icon-fangda' title='最大化' style={scaleMax()} onClick={grow}></span>
-                <span className='iconfont icon-suoxiao' title='最小化' style={scaleMin()} onClick={shrink}></span>
-                <span className='iconfont icon-rotate-right' title='右旋转' onClick={rotateRight}></span>
-                <span className='iconfont icon-rotate-left' title='左旋转' onClick={rotateLeft}></span>
+                <span
+                    className='iconfont icon-fangda'
+                    title='最大化'
+                    style={{ ...scaleMax(), ...cursorStyle() }}
+                    onClick={sourceErr ? null : grow}
+                ></span>
+                <span
+                    className='iconfont icon-suoxiao'
+                    title='最小化'
+                    style={{ ...scaleMin(), ...cursorStyle() }}
+                    onClick={sourceErr ? null : shrink}
+                ></span>
+                <span className='iconfont icon-rotate-right' title='右旋转' style={cursorStyle()} onClick={sourceErr ? null : rotateRight}></span>
+                <span className='iconfont icon-rotate-left' title='左旋转' style={cursorStyle()} onClick={sourceErr ? null : rotateLeft}></span>
             </div>
             {urls.length > 1 && (
                 <>

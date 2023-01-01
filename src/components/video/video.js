@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
-import { publish } from 'pubsub-js';
-import { getCls, getPropVal } from '../../static/utils/utils';
+import { getPropVal } from '../../static/utils/utils';
 import { PropTypes } from 'prop-types';
+import defaultImg from '../../static/images/default_img.png';
 // import axios from 'axios';
 // const CancelToken = axios.CancelToken;
 
@@ -57,6 +57,14 @@ function Video(props) {
         observerVideo.current.playbackRate = 0.5;
     }
 
+    function loadErr() {
+        const img = document.createElement('img');
+        img.src = poster;
+        img.onerror = () => {
+            observerVideo.current.poster = defaultImg;
+        };
+    }
+
     return (
         <video
             ref={observerVideo}
@@ -67,6 +75,7 @@ function Video(props) {
             src={lazy ? '' : src}
             style={{ objectFit }}
             onPlay={playSpeed}
+            onError={loadErr}
         ></video>
     );
 }

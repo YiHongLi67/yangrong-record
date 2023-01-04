@@ -29,6 +29,13 @@ const getStyleLoader = loader => {
                 }
             }
         },
+        // {
+        //     loader: 'px2rem-loader',
+        //     options: {
+        //         remUnit: 136.6, // 适合750的设计稿 1rem = 75px
+        //         remPrecision: 8 // px转rem小数点保留的位置
+        //     }
+        // },
         loader
     ].filter(Boolean);
 };
@@ -101,17 +108,14 @@ module.exports = {
                 test: /\.css$/, // 使用正则表达式匹配 css 文件
                 use: getStyleLoader() // 打包 css 的配置
             },
-
             {
                 test: /\.less$/,
                 use: getStyleLoader('less-loader') // 打包 less 的配置
             },
-
             {
                 test: /\.s[ac]ss$/,
                 use: getStyleLoader('sass-loader') // 打包 scss/sass 的配置
             },
-
             {
                 test: /\.styl$/,
                 use: getStyleLoader('stylus-loader') // 打包 stylus 的配置

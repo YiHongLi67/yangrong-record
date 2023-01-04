@@ -2,9 +2,11 @@
     padding-left: 60px;
 }
 
-.blog {
-    min-width: 400px;
-    max-width: 640px;
+@media (min-width: 751px) {
+    .blog {
+        min-width: 400px;
+        max-width: 640px;
+    }
 }
 
 .img-group .img-wrap {

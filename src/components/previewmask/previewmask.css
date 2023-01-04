@@ -12,7 +12,6 @@
 
 .preview-mask img.preview-img,
 .preview-mask video.preview-video {
-    bottom: unset;
     transition: transform .2s linear;
     mix-blend-mode: unset;
 }

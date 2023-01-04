@@ -8,9 +8,12 @@ body {
     filter: grayscale(100%);
 } */
 
-body {
-    min-width: 600px;
+@media (min-width: 751px) {
+    body {
+        min-width: 600px;
+    }
 }
+
 
 p {
     margin: 0;
@@ -21,9 +24,17 @@ p {
     transition: color .2s;
 }
 
-main {
-    margin-left: 300px;
-    margin-right: 100px;
+@media (max-width: 750px) {
+    main {
+        margin: 0;
+    }
+}
+
+@media (min-width: 751px) {
+    main {
+        margin-left: 300px;
+        margin-right: 100px;
+    }
 }
 
 .ant-layout-header {
@@ -79,8 +90,6 @@ video {
 
 .iconfont.icon-lianjie {
     font-size: 12px;
-    margin: 0 2px;
-    font-weight: bold;
 }
 
 .iconfont.icon-shipin {

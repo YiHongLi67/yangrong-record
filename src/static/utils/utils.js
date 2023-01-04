@@ -138,3 +138,12 @@ export function getPropVal(propVal) {
         return propVal;
     }
 }
+
+export function setDevice() {
+    window.onresize = function () {
+        let userAgentInfo = navigator.userAgent;
+        let Agents = ['Android', 'iPhone', 'SymbianOS', 'Windows Phone', 'iPad', 'iPod'];
+        let getArr = Agents.filter(i => userAgentInfo.includes(i));
+        getArr.length ? (window.deviceIsPc = false) : (window.deviceIsPc = true);
+    };
+}

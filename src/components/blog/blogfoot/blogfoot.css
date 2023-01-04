@@ -37,3 +37,7 @@
 .comment .comment-active-color>span {
     color: var(--w-brand);
 }
+
+.comment-detail .iconfont.icon-lianjie {
+    margin: 0;
+}

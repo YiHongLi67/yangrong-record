@@ -5,6 +5,9 @@ import 'antd/dist/antd.css';
 import './static/layout/theme.css';
 import './static/layout/basic.css';
 import './static/icon/svg.js';
+import 'lib-flexible';
+import { setDevice } from './static/utils/utils';
+setDevice();
 import App from './App';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 

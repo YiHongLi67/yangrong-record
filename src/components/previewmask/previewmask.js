@@ -492,10 +492,16 @@ function PreviewMask(props) {
     }
 
     function sourceStyle() {
-        return {
-            transform: `scale3d(${scaleRatio}, ${scaleRatio}, 1) translate3d(${transX}px, ${transY}px, 0px) rotate(${rotate}deg)`,
-            height: isFullScreen || urls.length <= 1 ? '100%' : 'calc(100vh - 70px)'
+        let styleObj = {
+            transform: `scale3d(${scaleRatio}, ${scaleRatio}, 1) translate3d(${transX}px, ${transY}px, 0px) rotate(${rotate}deg)`
         };
+        if (window.deviceIsPc) {
+            styleObj.height = isFullScreen || urls.length <= 1 ? '100%' : 'calc(100vh - 70px)';
+            styleObj.bottom = 'unset';
+        } else {
+            styleObj.width = '100%';
+        }
+        return styleObj;
     }
 
     function fullScreenTitle() {
@@ -535,7 +541,7 @@ function PreviewMask(props) {
 
     function cursorStyle() {
         return {
-            cursor: sourceErr ? 'no-drop' : 'pointer'
+            cursor: sourceErr ? 'no-drop' : ''
         };
     }
 
@@ -605,7 +611,7 @@ function PreviewMask(props) {
                     </div>
                 </>
             )}
-            {!isFullScreen && urls.length > 1 && (
+            {window.deviceIsPc && !isFullScreen && urls.length > 1 && (
                 <div className='mask-foot fixed w-v-full' ref={maskFoot}>
                     <div className='flex-center padding-t-6 padding-b-6 ie-box'>
                         {urls.map((src, idx) => {

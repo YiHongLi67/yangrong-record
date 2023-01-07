@@ -29,13 +29,13 @@ const getStyleLoader = loader => {
                 }
             }
         },
-        // {
-        //     loader: 'px2rem-loader',
-        //     options: {
-        //         remUnit: 136.6, // 适合750的设计稿 1rem = 75px
-        //         remPrecision: 8 // px转rem小数点保留的位置
-        //     }
-        // },
+        {
+            loader: 'px2rem-loader',
+            options: {
+                remUnit: 136.6, // 适合750的设计稿 1rem = 75px
+                remPrecision: 8 // px转rem小数点保留的位置
+            }
+        },
         loader
     ].filter(Boolean);
 };
@@ -155,6 +155,15 @@ module.exports = {
                 },
                 exclude: '/node_modules/', // 排除这个目录
                 include: path.resolve(__dirname, './src') // 包含这个目录
+            },
+            {
+                test: /\.jsx?$/,
+                loader: path.resolve(__dirname, './loaders/js-px2rem-loader')
+                // loader: path.resolve(__dirname, './loaders/verify-loader')
+                // options: {
+                //     remUnit: 136.6, // 适合750的设计稿 1rem = 75px
+                //     remPrecision: 8 // px转rem小数点保留的位置
+                // }
             }
         ]
     }

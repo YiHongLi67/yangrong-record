@@ -34,7 +34,7 @@ function Comment(props) {
     return (
         <>
             <AntdComment
-                avatar={<Avatar src={user_avatar} alt='头像无法访问' />}
+                avatar={<Avatar size={window.deviceIsPc ? 30 : 26} src={user_avatar} alt='头像无法访问' />}
                 content={
                     <>
                         <div>
@@ -47,7 +47,7 @@ function Comment(props) {
                             <div>
                                 <Source
                                     src={pic_infos.thumbUrl}
-                                    width='120px'
+                                    width={window.deviceIsPc ? `${120}px` : `${80}px`}
                                     text=''
                                     borderRadius='8px'
                                     sourceType={pic_infos.type}

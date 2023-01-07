@@ -95,9 +95,14 @@ function BlogFoot(props) {
         setReplyDetail([]);
         setShowEnd('none');
         setTimeout(() => {
-            document.querySelector('.ant-modal-body').onscroll = null;
-            document.querySelector('.ant-modal-body').onscroll = _throttle(modalBodyScroll, 200, { begin: true, end: true });
-        }, 50);
+            const modalBody = document.querySelector('.ant-modal-body');
+            const modalWrap = document.querySelector('.ant-modal-wrap');
+            modalBody.onscroll = null;
+            modalBody.onscroll = _throttle(modalBodyScroll, 200, { begin: true, end: true });
+            if (!window.deviceIsPc) {
+                modalWrap.style.top = 'unset';
+            }
+        }, 0);
     }
 
     function spreadReply(e, rootCommt) {
@@ -148,8 +153,8 @@ function BlogFoot(props) {
                         className='comment-detail modal-comment'
                         title={curCommt.reply.reply_count + '条回复'}
                         centered
-                        width='45%'
-                        bodyStyle={{ height: '70vh', overflow: 'auto', padding: '16px 20px' }}
+                        width={window.deviceIsPc ? '45vw' : '100vw'}
+                        bodyStyle={{ height: window.deviceIsPc ? '70vh' : '90vh', overflow: 'auto' }}
                         open={modalOpen}
                         onOk={() => setModalOpen(false)}
                         onCancel={() => setModalOpen(false)}

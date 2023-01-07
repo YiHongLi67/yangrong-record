@@ -139,11 +139,14 @@ export function getPropVal(propVal) {
     }
 }
 
-export function setDevice() {
-    window.onresize = function () {
+export function resetDevice() {
+    const setDevice = function () {
+        console.log('setDevice');
         let userAgentInfo = navigator.userAgent;
         let Agents = ['Android', 'iPhone', 'SymbianOS', 'Windows Phone', 'iPad', 'iPod'];
         let getArr = Agents.filter(i => userAgentInfo.includes(i));
         getArr.length ? (window.deviceIsPc = false) : (window.deviceIsPc = true);
     };
+    setDevice();
+    // window.onresize = setDevice;
 }

@@ -41,3 +41,24 @@
 .comment-detail .iconfont.icon-lianjie {
     margin: 0;
 }
+
+.ant-modal-title {
+    font-size: 16px;
+    /* no */
+    line-height: 22px;
+    /* no */
+}
+
+.ant-modal-body {
+    padding: 16px 20px;
+}
+
+.vh70 {
+    height: calc(70vh - 22px);
+    /* no */
+}
+
+.vh100 {
+    height: calc(100vh - 22px);
+    /* no */
+}

@@ -21,7 +21,7 @@ function Blog(props) {
 
     function picWidth() {
         let width = {
-            pic_wrap_width: 'calc((100% - 16px) / 4)',
+            pic_wrap_width: `calc((100% - ${16}px) / 4)`,
             pics_wrap_width: '100%'
         };
         switch (pic_ids.length) {
@@ -31,7 +31,7 @@ function Blog(props) {
             case 15:
             case 17:
             case 18:
-                width.pic_wrap_width = 'calc((100% - 12px) / 3)';
+                width.pic_wrap_width = `calc((100% - ${12}px) / 3)`;
                 width.pics_wrap_width = '75%';
                 return width;
             default:
@@ -45,7 +45,7 @@ function Blog(props) {
                 <div className='blog-head flex'>
                     <div>
                         <a className='avatar'>
-                            <Avatar size={50} src={avatar} draggable={false} />
+                            <Avatar size={window.deviceIsPc ? 50 : 30} src={avatar} draggable={false} />
                             <span className='v'>
                                 <SvgIcon iconClass='vip' width='42' height='672' viewBox='0 0 42 672' />
                             </span>
@@ -85,7 +85,7 @@ function Blog(props) {
                                 pic_infos={pic_infos}
                                 groupWidth={pics_wrap_width}
                                 imgWidth={pic_wrap_width}
-                                borderRadius='8px'
+                                borderRadius={`${8}px`}
                             ></ImageGroup>
                         </div>
                     ) : (

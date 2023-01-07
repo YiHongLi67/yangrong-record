@@ -16,7 +16,9 @@ i {
 i.vip {
     z-index: 1;
     width: 15px;
+    /* no */
     height: 15px;
+    /* no */
 }
 
 i.vip svg {
@@ -35,6 +37,9 @@ i.vip svg {
 
 i.svip_8 {
     width: 18px;
+    /* no */
     height: 18px;
+    /* no */
     margin-left: 2px;
+    /* no */
 }

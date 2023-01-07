@@ -11,6 +11,7 @@
 
 .img-group .img-wrap {
     margin: 2px;
+    /* no */
     display: flex;
 }
 
@@ -45,8 +46,6 @@
 .avatar {
     display: block;
     position: relative;
-    width: 50px;
-    height: 50px;
 }
 
 .avatar:hover::after {
@@ -56,7 +55,9 @@
     top: 0;
     left: 0;
     width: 50px;
+    /* no */
     height: 50px;
+    /* no */
     border-radius: 50%;
     background-color: var(--w-tip-border);
 }
@@ -64,13 +65,18 @@
 .v {
     position: absolute;
     width: 15px;
+    /* no */
     height: 15px;
+    /* no */
     right: 2px;
+    /* no */
     bottom: 0px;
+    /* no */
 }
 
 .icon-renzheng {
     font-size: 15px;
+    /* no */
     color: var(--w-color-red);
     border-radius: 50%;
     background-color: #FEFF5D;
@@ -79,7 +85,9 @@
 .icon-weibohuiyuan::before {
     position: relative;
     top: -2px;
+    /* no */
     left: -5px;
+    /* no */
 }
 
 .surl-text,
@@ -97,7 +105,9 @@
 
 .text img {
     width: 18px !important;
+    /* no */
     height: 18px !important;
+    /* no */
     vertical-align: sub !important;
 }
 
@@ -130,6 +140,7 @@ a.birthday div {
     transform: translateX(-50%);
     bottom: 15%;
     font-size: 16px;
+    /* no */
     color: var(--w-color-orange-1);
     text-decoration: none;
     text-align: center;

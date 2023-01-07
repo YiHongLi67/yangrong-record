@@ -44,6 +44,7 @@
 .source-type {
     z-index: 1;
     font-size: 12px;
+    /* no */
     transform-origin: right bottom;
     transform: scale(0.8, 0.8);
     color: var(--w-color-light);

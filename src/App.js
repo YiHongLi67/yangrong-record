@@ -20,6 +20,7 @@ let toBlogsId;
 let blogsRefreshId;
 
 export default function App() {
+    console.log('hello world');
     useEffect(() => {
         toBlogsId = subscribe('toBlogs', (_, data) => {
             document.onscroll = null;

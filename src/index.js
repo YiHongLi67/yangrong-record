@@ -6,8 +6,8 @@ import './static/layout/theme.css';
 import './static/layout/basic.css';
 import './static/icon/svg.js';
 import 'lib-flexible';
-import { setDevice } from './static/utils/utils';
-setDevice();
+import { resetDevice } from './static/utils/utils';
+resetDevice();
 import App from './App';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 

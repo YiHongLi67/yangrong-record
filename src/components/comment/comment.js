@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Avatar, Comment as AntdComment } from 'antd';
 import './comment.css';
-import { formatTime } from '../../static/utils/utils';
+import { formatTime, getCls, getMobileFont } from '../../static/utils/utils';
 import Source from '../source/source';
 import { antiShake, _throttle } from '../../static/utils/utils';
 import PreviewMask from '../previewmask/previewmask';
@@ -38,18 +38,28 @@ function Comment(props) {
                 content={
                     <>
                         <div>
-                            <span className='comment-user-name'>
-                                <a>{avatar_uid === uid ? user_name + ' 博主：' : user_name + '：'}</a>
+                            <span className='comment-user-name font-12 line-20'>
+                                <a>
+                                    {avatar_uid === uid
+                                        ? user_name + ' 博主' + (window.innerWidth > 750 ? '：' : '')
+                                        : user_name + (window.innerWidth > 750 ? '：' : '')}
+                                </a>
                             </span>
-                            <span className='comment-text' dangerouslySetInnerHTML={{ __html: text }}></span>
+                            <span
+                                className={getCls(
+                                    window.innerWidth > 750 ? 'font-14 line-20' : `block ${getMobileFont('comment-text')}`,
+                                    'comment-text comment-text-l1'
+                                )}
+                                dangerouslySetInnerHTML={{ __html: text }}
+                            ></span>
                         </div>
                         {pic_infos ? (
                             <div>
                                 <Source
                                     src={pic_infos.thumbUrl}
-                                    width={window.deviceIsPc ? `${120}px` : `${80}px`}
+                                    width={window.deviceIsPc ? `${120}px` : `400px`}
                                     text=''
-                                    borderRadius='8px'
+                                    borderRadius={`${8}px`}
                                     sourceType={pic_infos.type}
                                     lazySource={pic_infos.type === 'gif' ? pic_infos.normalUrl : ''}
                                     emitPreview
@@ -59,16 +69,16 @@ function Comment(props) {
                         ) : (
                             <></>
                         )}
-                        <div className='collapse'>
+                        <div className='collapse font-12 line-20'>
                             <div className='comments-msg float-l'>
                                 <span>{formatTime(created_at)}</span>
                                 <span>&nbsp;{source}</span>
                             </div>
                             <div className='operate float-r flex-center'>
-                                <span className='iconfont icon-zhuanfa'></span>
+                                <span className='iconfont icon-31zhuanfa'></span>
                                 <span className='iconfont icon-pinglun'></span>
                                 <span className='iconfont icon-dianzan'>
-                                    {like_counts ? <span className='padding-l-6'>{like_counts}</span> : <></>}
+                                    {like_counts ? <span className='padding-l-6 like font-12 float-r'>{like_counts}</span> : <></>}
                                 </span>
                             </div>
                         </div>
@@ -85,21 +95,32 @@ function Comment(props) {
                                       content={
                                           <>
                                               <div>
-                                                  <span className='comment-user-name'>
-                                                      <a>{avatar_uid === uid ? user_name + ' 博主：' : user_name + '：'}</a>
+                                                  <span className='comment-user-name font-12 line-20'>
+                                                      <a>
+                                                          {avatar_uid === uid
+                                                              ? user_name + ' 博主' + (isModal && window.innerWidth <= 750 ? '' : '：')
+                                                              : user_name + (isModal && window.innerWidth > 750 ? '：' : '')}
+                                                      </a>
                                                   </span>
-                                                  <span className='comment-text' dangerouslySetInnerHTML={{ __html: text }}></span>
+                                                  <span
+                                                      className={
+                                                          getCls(isModal && window.innerWidth <= 750 ? 'block comment-text-l2' : '', 'comment-text') +
+                                                          ' ' +
+                                                          getCls(window.innerWidth > 750 ? 'font-14 line-20' : getMobileFont('comment-text'))
+                                                      }
+                                                      dangerouslySetInnerHTML={{ __html: text }}
+                                                  ></span>
                                               </div>
-                                              <div className='collapse operate-wrap'>
+                                              <div className='collapse operate-wrap font-12 line-20'>
                                                   <div className='comments-msg float-l'>
                                                       <span>{formatTime(created_at)}</span>
                                                       <span>&nbsp;{source}</span>
                                                   </div>
                                                   <div className='operate float-r flex-center'>
-                                                      <span className='iconfont icon-zhuanfa'></span>
+                                                      <span className='iconfont icon-31zhuanfa'></span>
                                                       <span className='iconfont icon-pinglun'></span>
                                                       <span className='iconfont icon-dianzan'>
-                                                          {like_counts ? <span className='padding-l-6'>{like_counts}</span> : <></>}
+                                                          {like_counts ? <span className='padding-l-6 font-12'>{like_counts}</span> : <></>}
                                                       </span>
                                                   </div>
                                               </div>
@@ -108,7 +129,9 @@ function Comment(props) {
                                       actions={[
                                           !isModal && reply.avatar_reply && reply.reply_count !== reply.avatar_reply.length ? (
                                               <span className='fold-comments' onClick={antiShake(fetchReply, 500, commtData)}>
-                                                  <span>共{reply.reply_count}条回复</span>
+                                                  <span className={window.innerWidth > 750 ? 'font-12' : getMobileFont('fold-comments')}>
+                                                      共{reply.reply_count}条回复
+                                                  </span>
                                                   <span className='iconfont icon-zhankai1'></span>
                                               </span>
                                           ) : (
@@ -124,7 +147,9 @@ function Comment(props) {
                                   actions={[
                                       !isModal && reply.reply_count ? (
                                           <span className='fold-comments' onClick={antiShake(fetchReply, 500, commtData)}>
-                                              <span>共{reply.reply_count}条回复</span>
+                                              <span className={window.innerWidth > 750 ? 'font-12' : getMobileFont('fold-comments')}>
+                                                  共{reply.reply_count}条回复
+                                              </span>
                                               <span className='iconfont icon-zhankai1'></span>
                                           </span>
                                       ) : (

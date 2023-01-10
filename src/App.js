@@ -20,7 +20,6 @@ let toBlogsId;
 let blogsRefreshId;
 
 export default function App() {
-    console.log('hello world');
     useEffect(() => {
         toBlogsId = subscribe('toBlogs', (_, data) => {
             document.onscroll = null;
@@ -85,7 +84,7 @@ export default function App() {
                     </Route>
                 </Routes>
             </Content>
-            <Footer className='fixed bottom-0 ie-box align-center w-full'>©copyRight yhl</Footer>
+            <Footer className='fixed bottom-0 ie-box align-center w-full font-12'>©CopyRight yhl</Footer>
         </KeepAliveLayout>
     );
 }

@@ -1,31 +1,7 @@
-/* 评论下的span a */
-.ant-comment-content span,
-.ant-comment-content a {
-    line-height: 20px;
-    /* no */
-    height: 20px;
-    /* no */
-    font-size: 12px;
-    /* no */
-}
-
-/* 评论下的span a */
-.ant-comment-content-detail>div:first-child {
-    line-height: 20px;
-    /* no */
-}
-
-/* 折叠评论 */
-.ant-comment-actions ul li {
-    height: 20px;
-    /* no */
-    line-height: 20px;
-    /* no */
-}
-
 /* 一级评论用户头像 */
 .ant-comment-avatar {
     margin-right: 10px;
+    /* no */
 }
 
 /* 评论用户昵称 */
@@ -55,11 +31,7 @@
 
 /* 评论文本中的表情 */
 .comment-text img {
-    width: 16px !important;
-    /* no */
-    height: 16px !important;
-    /* no */
-    vertical-align: sub !important;
+    vertical-align: text-top !important;
     margin: 0 1px;
     /* no */
 }
@@ -67,28 +39,21 @@
 /* 发布时间、地区 */
 .comments-msg {
     color: var(--w-color-gray-2);
-    line-height: 20px;
-    /* no */
-    height: 20px;
-    /* no */
-}
-
-/* 每条回复的转发按钮 */
-.ant-comment-content .operate .icon-zhuanfa {
-    font-size: 13px;
-    /* no */
 }
 
 /* 每条回复的评论、点赞按钮 */
-.ant-comment-content .operate .icon-pinglun,
-.ant-comment-content .operate .icon-dianzan {
+.ant-comment-content .operate .iconfont {
     font-size: 16px;
     /* no */
 }
 
 .operate .iconfont {
     color: var(--w-color-gray-3);
-    margin-right: 16px;
+}
+
+.icon-pinglun:before {
+    position: relative;
+    top: 1px;
 }
 
 /* 二级评论 */
@@ -135,18 +100,20 @@ span.fold-comments>span.icon-zhankai1 {
     display: inline-block;
     /* inline 元素不可缩放 */
     transform: scale(.8, .8);
-}
-
-/* 模态框评论 */
-.modal-comment .ant-comment-content span.comment-text,
-.modal-comment .ant-comment-content span.comment-text a,
-.modal-comment .ant-comment-content span.comment-user-name a {
     font-size: 14px;
     /* no */
 }
 
-/* 模态框评论下的span a */
-.modal-comment .ant-comment-content-detail>div:first-child {
-    line-height: 22px;
-    /* no */
+.ant-modal-close>span::after {
+    content: '';
+    display: block;
+    clear: both;
+}
+
+.ant-modal-close>span {
+    display: inline;
+}
+
+.iconfont.icon-guanbi {
+    float: left;
 }

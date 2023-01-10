@@ -135,23 +135,23 @@ function BlogFoot(props) {
         <div className='blog-foot'>
             <div className='comment flex line-38'>
                 <div className='flex flex-1 flex-row-center flex-col-center pointer'>
-                    <span className='iconfont icon-zhuanfa margin-r-8'></span>
-                    <span>{reposts_count}</span>
+                    <span className='iconfont icon-31zhuanfa margin-r-8'></span>
+                    <span className='font-12'>{reposts_count}</span>
                 </div>
                 <div className={getComCls()} onClick={antiShake(fetchComment, 500)}>
-                    <span className='iconfont icon-pinglun font-20 margin-r-4'></span>
-                    <span>{comments_count}</span>
+                    <span className='iconfont icon-pinglun margin-r-4'></span>
+                    <span className='font-12'>{comments_count}</span>
                 </div>
                 <div className='flex flex-1 flex-row-center flex-col-center pointer'>
-                    <span className='iconfont icon-dianzan font-20 margin-r-8'></span>
-                    <span>{attitudes_count}</span>
+                    <span className='iconfont icon-dianzan margin-r-8'></span>
+                    <span className='font-12'>{attitudes_count}</span>
                 </div>
             </div>
             <div className='comment-detail' style={{ display: showDetail }}>
                 {modalOpen ? (
                     <Modal
                         className='comment-detail modal-comment'
-                        title={curCommt.reply.reply_count + '条回复'}
+                        title={<div className='font-16 line-22 align-center'>{curCommt.reply.reply_count + '条回复'}</div>}
                         centered
                         width={window.deviceIsPc ? '45vw' : '100vw'}
                         bodyStyle={{ height: window.deviceIsPc ? '70vh' : '90vh', overflow: 'auto' }}
@@ -159,7 +159,7 @@ function BlogFoot(props) {
                         onOk={() => setModalOpen(false)}
                         onCancel={() => setModalOpen(false)}
                         footer={null}
-                        closeIcon={<span className='iconfont icon-guanbi'></span>}
+                        closeIcon={<span className='iconfont icon-guanbi line-22'></span>}
                     >
                         <Comment avatar_uid={avatar_uid} commtData={curCommt} replyDetail={replyDetail} isModal></Comment>
                         <div className='align-center font-12 padding-t-6 padding-b-6 margin-t-4 margin-b-4 w-sub' style={{ display: showEnd }}>
@@ -178,7 +178,7 @@ function BlogFoot(props) {
                       })}
                 {!isAllCommt ? (
                     <div className='align-center show-all line-25' onClick={viewComment}>
-                        <span className='margin-r-2'>查看全部{comments_count}条评论</span>
+                        <span className='margin-r-2 font-12'>查看全部{comments_count}条评论</span>
                         <span className='iconfont icon-arrow-right-bold font-12'></span>
                     </div>
                 ) : (

@@ -577,15 +577,15 @@ function PreviewMask(props) {
                     style={{ ...sourceStyle(), ...cursorStyle() }}
                 ></video>
             )}
-            <span className='progress relative'>
+            <span className='progress relative font-14'>
                 {curIdx + 1} / {urls.length}
             </span>
-            <div className='mask-head fixed download left-0 top-0'>
-                <span className='iconfont icon-xiazai-wenjianxiazai-05' title='下载原图' onClick={antiShake(download, 1000)}></span>
-            </div>
-            <div className='mask-head fixed right-0 top-0'>
+            <div className='mask-head fixed top-0 w-full margin-t-10 padding-l-10 padding-r-10 ie-box'>
+                {window.innerWidth > 750 && (
+                    <span className='iconfont icon-xiazai-wenjianxiazai-05 download' title='下载原图' onClick={antiShake(download, 1000)}></span>
+                )}
                 <span id='close' className='iconfont icon-24gl-delete' title='关闭' onClick={closeMask}></span>
-                <span className={fullScreenCls()} title={fullScreenTitle()} onClick={fullScreen}></span>
+                {window.innerWidth > 750 && <span className={fullScreenCls()} title={fullScreenTitle()} onClick={fullScreen}></span>}
                 <span
                     className='iconfont icon-fangda'
                     title='最大化'

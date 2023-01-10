@@ -5,7 +5,7 @@ import moment from 'moment';
 import ImageGroup from '../../components/imagegroup/imagegroup';
 import SvgIcon from '../svgicon/svgicon';
 import BlogFoot from './blogfoot/blogfoot';
-import { formatTime, getCls } from '../../static/utils/utils';
+import { formatTime, getCls, getMobileFont } from '../../static/utils/utils';
 import { PropTypes } from 'prop-types';
 import './blog.css';
 import 'moment/locale/zh-cn';
@@ -20,33 +20,48 @@ function Blog(props) {
     const pics_wrap_width = width && width.pics_wrap_width;
 
     function picWidth() {
-        let width = {
-            pic_wrap_width: `calc((100% - ${16}px) / 4)`,
-            pics_wrap_width: '100%'
-        };
-        switch (pic_ids.length) {
-            case 5:
-            case 6:
-            case 9:
-            case 15:
-            case 17:
-            case 18:
-                width.pic_wrap_width = `calc((100% - ${12}px) / 3)`;
-                width.pics_wrap_width = '75%';
-                return width;
-            default:
-                return width;
+        if (window.innerWidth <= 750) {
+            const width = {
+                pic_wrap_width: `calc((100% - ${12}px) / 3)`,
+                pics_wrap_width: '100%'
+            };
+            switch (pic_ids.length) {
+                case 4:
+                    width.pic_wrap_width = `calc((100% - ${8}px) / 2)`;
+                    width.pics_wrap_width = '66.6%';
+                    return width;
+                default:
+                    return width;
+            }
+        } else {
+            const width = {
+                pic_wrap_width: `calc((100% - ${16}px) / 4)`,
+                pics_wrap_width: '100%'
+            };
+            switch (pic_ids.length) {
+                case 5:
+                case 6:
+                case 9:
+                case 15:
+                case 17:
+                case 18:
+                    width.pic_wrap_width = `calc((100% - ${12}px) / 3)`;
+                    width.pics_wrap_width = '75%';
+                    return width;
+                default:
+                    return width;
+            }
         }
     }
 
     return (
         <div className={className}>
-            <div className='blog padding-20 padding-b-0 ie-box'>
+            <div className='blog ie-box'>
                 <div className='blog-head flex'>
                     <div>
                         <a className='avatar'>
-                            <Avatar size={window.deviceIsPc ? 50 : 30} src={avatar} draggable={false} />
-                            <span className='v'>
+                            <Avatar src={avatar} draggable={false} />
+                            <span className='v flex'>
                                 <SvgIcon iconClass='vip' width='42' height='672' viewBox='0 0 42 672' />
                             </span>
                         </a>
@@ -54,13 +69,23 @@ function Blog(props) {
                     <div className='flex flex-1 margin-l-10'>
                         <div>
                             <div className='flex flex-col-center margin-t-4'>
-                                <a className='weight-900 gray-1 screen-name line-20 inline-block'>杨蓉</a>
+                                <a
+                                    className={getCls(
+                                        window.innerWidth > 750 ? 'font-12 line-20' : getMobileFont('screen-name'),
+                                        'weight-900 gray-1 screen-name inline-block'
+                                    )}
+                                >
+                                    杨蓉
+                                </a>
                                 <SvgIcon iconClass='svip_8' />
                             </div>
-                            <p className='font-12 line-14 gray-2 margin-t-4'>
-                                {formatTime(created_at)} 来自 <span className='source'>{source}</span>
+                            <p
+                                className={'font-12 line-14 gray-2 margin-t-4 ellipsis blog-msg'}
+                                style={{ width: window.innerWidth > 750 ? `calc(100vw - ${90}px)` : `calc(100vw - 88px - ${50}px)` }}
+                            >
+                                {formatTime(created_at)}&nbsp;来自&nbsp;<span className='source'>{source}</span>
                             </p>
-                            {region_name ? (
+                            {window.innerWidth > 750 && region_name ? (
                                 <p className='font-12 line-14 gray-2 margin-t-6'>
                                     <span>{region_name}</span>
                                 </p>
@@ -72,7 +97,10 @@ function Blog(props) {
                 </div>
                 <div className='blog-content margin-t-6'>
                     <div>
-                        <p className='gray-1 text' dangerouslySetInnerHTML={{ __html: text }}></p>
+                        <p
+                            className={getCls(window.innerWidth > 750 ? 'font-14 line-20' : getMobileFont('comment-text'), 'gray-1 text')}
+                            dangerouslySetInnerHTML={{ __html: text }}
+                        ></p>
                     </div>
                     {pic_ids.length ? (
                         <div className='margin-t-10'>

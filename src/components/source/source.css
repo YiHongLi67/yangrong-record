@@ -50,7 +50,9 @@
     color: var(--w-color-light);
     background-color: var(--w-tip-warn);
     letter-spacing: 2px;
+    /* no */
     padding: 0 4px;
+    /* no */
 }
 
 .source-type.mov {

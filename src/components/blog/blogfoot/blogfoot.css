@@ -19,12 +19,6 @@
 }
 
 /* 点赞后的颜色未设置:  --w-color-red */
-
-/* 模态框 */
-.ant-modal-header {
-    padding: 10px 20px;
-}
-
 .show-all:hover {
     color: var(--w-alink);
     cursor: pointer;
@@ -40,13 +34,6 @@
 
 .comment-detail .iconfont.icon-lianjie {
     margin: 0;
-}
-
-.ant-modal-title {
-    font-size: 16px;
-    /* no */
-    line-height: 22px;
-    /* no */
 }
 
 .ant-modal-body {

@@ -85,7 +85,11 @@ export function formatTime(created_at) {
     if (new Date().getTime() - created_at.getTime() <= 1000 * 60 * 60 * 21) {
         return new Date(created_at).getTime();
     } else {
-        return moment(created_at).format('YY-M-D HH: mm');
+        if (window.innerWidth > 750) {
+            return moment(created_at).format('YY-M-D HH: mm');
+        } else {
+            return moment(created_at).format('YY-M-D');
+        }
     }
 }
 
@@ -141,7 +145,6 @@ export function getPropVal(propVal) {
 
 export function resetDevice() {
     const setDevice = function () {
-        console.log('setDevice');
         let userAgentInfo = navigator.userAgent;
         let Agents = ['Android', 'iPhone', 'SymbianOS', 'Windows Phone', 'iPad', 'iPod'];
         let getArr = Agents.filter(i => userAgentInfo.includes(i));
@@ -149,4 +152,60 @@ export function resetDevice() {
     };
     setDevice();
     // window.onresize = setDevice;
+}
+
+export function getMobileFont(className) {
+    const fontSize = window.fontSize || 18;
+    switch (fontSize) {
+        case 14:
+            switch (className) {
+                case 'screen-name':
+                    return 'font-12 line-14';
+                case 'text':
+                case 'comment-text':
+                case 'fold-comments':
+                    return 'font-14 line-20';
+                default:
+                    return '';
+            }
+        case 16:
+            switch (className) {
+                case 'screen-name':
+                    return 'font-14 line-20';
+                case 'text':
+                case 'comment-text':
+                case 'fold-comments':
+                    return 'font-16 line-22';
+                default:
+                    return '';
+            }
+        case 18:
+            switch (className) {
+                case 'screen-name':
+                    return 'font-16 line-22';
+                case 'text':
+                case 'comment-text':
+                case 'fold-comments':
+                    return 'font-18 line-25';
+                default:
+                    return '';
+            }
+        case 20:
+            switch (className) {
+                case 'screen-name':
+                    return 'font-18 line-25';
+                case 'text':
+                case 'comment-text':
+                case 'fold-comments':
+                    return 'font-20 line-32';
+                default:
+                    return '';
+            }
+        case 24:
+            return 'font-24 line 38';
+        case 30:
+            return 'font-30 line-48';
+        default:
+            return '';
+    }
 }

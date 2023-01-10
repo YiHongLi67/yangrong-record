@@ -32,8 +32,8 @@ const getStyleLoader = loader => {
         {
             loader: 'px2rem-loader',
             options: {
-                remUnit: 136.6, // 适合750的设计稿 1rem = 75px
-                remPrecision: 8 // px转rem小数点保留的位置
+                remUnit: 136.6, // 适合136.60的设计稿 1rem = 136.6px
+                remPrecision: 3 // px转rem小数点保留的位置
             }
         },
         loader
@@ -161,8 +161,8 @@ module.exports = {
                 loader: path.resolve(__dirname, './loaders/js-px2rem-loader')
                 // loader: path.resolve(__dirname, './loaders/verify-loader')
                 // options: {
-                //     remUnit: 136.6, // 适合750的设计稿 1rem = 75px
-                //     remPrecision: 8 // px转rem小数点保留的位置
+                //     remUnit: 136.6, // 适合136.60的设计稿 1rem = 136.6px
+                //     remPrecision: 3 // px转rem小数点保留的位置
                 // }
             }
         ]

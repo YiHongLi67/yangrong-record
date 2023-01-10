@@ -4,6 +4,7 @@ import './static/layout/iconfont.css';
 import 'antd/dist/antd.css';
 import './static/layout/theme.css';
 import './static/layout/basic.css';
+import './static/layout/flexible.css';
 import './static/icon/svg.js';
 import 'lib-flexible';
 import { resetDevice } from './static/utils/utils';

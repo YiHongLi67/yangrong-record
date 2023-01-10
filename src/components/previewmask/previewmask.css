@@ -27,50 +27,30 @@
 }
 
 .mask-head {
-    display: inline-block;
-    height: 50px;
-    margin-right: 15px;
+    height: 0;
+    line-height: 1.5;
 }
 
-.mask-head span.iconfont {
-    float: right;
-    color: var(--w-color-gray-9);
-    font-size: 22px;
-    /* no */
-    line-height: 50px;
-    /* no */
-    padding: 2px;
+.mask-head .iconfont {
+    color: var(--w-pophover-background);
     cursor: pointer;
-    padding: 0 15px;
-}
-
-.mask-head.download span {
-    float: left;
-}
-
-.mask-head.download {
-    margin-left: 15px;
-    margin-right: 0;
-}
-
-.mask-head span.icon-fangda,
-.mask-head span.icon-suoxiao {
-    font-size: 20px;
-    /* no */
 }
 
 .progress {
-    line-height: 50px;
+    display: inline-block;
+    line-height: 1.5;
+    transform: scale(.8);
     color: var(--w-color-gray-9);
-    left: 50%;
-    transform: translateX(-50%);
     user-select: none;
+    -webkit-user-select: none;
 }
 
 .toggle-btn {
-    top: 50%;
     text-align: center;
+    border-radius: 50%;
+    top: 50%;
     transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
 .left-btn {
@@ -79,19 +59,6 @@
 
 .right-btn {
     right: 0;
-}
-
-.toggle-btn span {
-    font-size: 20px;
-    /* no */
-    line-height: 45px;
-}
-
-.toggle-btn {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.1);
 }
 
 .mask-foot>div {

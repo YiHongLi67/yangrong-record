@@ -8,12 +8,6 @@ body {
     filter: grayscale(100%);
 } */
 
-@media (min-width: 751px) {
-    body {
-        min-width: 600px;
-    }
-}
-
 p {
     margin: 0;
 }
@@ -23,17 +17,26 @@ p {
     transition: color .2s;
 }
 
-@media (max-width: 750px) {
-    main {
-        margin: 0;
-    }
+.ant-layout-header .iconfont {
+    color: var(--w-brand);
+    text-align: center;
+    float: left;
 }
 
-@media (min-width: 751px) {
-    main {
-        margin-left: 300px;
-        margin-right: 100px;
-    }
+.ant-layout-header,
+.ant-layout-footer {
+    z-index: 9;
+}
+
+main::before,
+main::after {
+    content: '';
+    display: block;
+}
+
+.ant-layout-footer {
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .ant-layout-header {
@@ -44,35 +47,6 @@ p {
     margin: 0;
 }
 
-.ant-layout-header .iconfont {
-    font-size: 30px;
-    color: var(--w-brand);
-}
-
-.ant-layout-header,
-.ant-layout-footer {
-    line-height: 50px;
-    /* no */
-    height: 50px;
-    /* no */
-    z-index: 9;
-}
-
-.ant-layout-footer {
-    height: 50px;
-    line-height: 50px;
-    /* no */
-    padding-top: 0;
-    padding-bottom: 0;
-}
-
-.ant-layout-header ul {
-    line-height: 50px;
-    /* no */
-    height: 50px;
-    /* no */
-}
-
 .ant-layout-header ul li span {
     display: inline-block;
     position: relative;
@@ -80,26 +54,9 @@ p {
     transform: translateX(-50%);
 }
 
-main::before,
-main::after {
-    content: '';
-    display: block;
-    height: 50px;
-}
-
 video {
     /* 去掉video底部黑色的线条 */
     mix-blend-mode: darken;
-}
-
-.iconfont.icon-lianjie {
-    font-size: 12px;
-    /* no */
-}
-
-.iconfont.icon-shipin {
-    font-size: 14px;
-    /* no */
 }
 
 .iconfont.icon-lianjie,
@@ -107,6 +64,7 @@ video {
 .iconfont.icon-zuanshi,
 .iconfont.icon-tupian {
     margin: 0 2px;
+    /* no */
     font-weight: bold;
 }
 
@@ -114,4 +72,13 @@ video {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.url-icon {
+    /* position: relative; */
+    display: inline-block;
+    /* width: 16px; */
+    /* no */
+    /* height: 16px; */
+    /* no */
 }

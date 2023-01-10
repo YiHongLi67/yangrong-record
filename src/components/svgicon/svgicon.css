@@ -15,31 +15,13 @@ i {
 
 i.vip {
     z-index: 1;
-    width: 15px;
-    /* no */
-    height: 15px;
-    /* no */
 }
 
 i.vip svg {
     animation: blink 1.4s 3 steps(14) backwards;
 }
 
-@keyframes blink {
-    0% {
-        transform: translateY(0);
-    }
-
-    100% {
-        transform: translateY(-210px);
-    }
-}
-
 i.svip_8 {
-    width: 18px;
-    /* no */
-    height: 18px;
-    /* no */
     margin-left: 2px;
     /* no */
 }

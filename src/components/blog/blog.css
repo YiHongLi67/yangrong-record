@@ -1,12 +1,5 @@
-.blog-content {
-    padding-left: 60px;
-}
-
-@media (min-width: 751px) {
-    .blog {
-        min-width: 400px;
-        max-width: 640px;
-    }
+.blog {
+    padding-bottom: 0;
 }
 
 .img-group .img-wrap {
@@ -64,10 +57,6 @@
 
 .v {
     position: absolute;
-    width: 15px;
-    /* no */
-    height: 15px;
-    /* no */
     right: 2px;
     /* no */
     bottom: 0px;
@@ -104,11 +93,9 @@
 }
 
 .text img {
-    width: 18px !important;
-    /* no */
-    height: 18px !important;
-    /* no */
     vertical-align: sub !important;
+    margin: 0 2px;
+    /* no */
 }
 
 .text a.birthday {

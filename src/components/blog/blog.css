@@ -1,5 +1,19 @@
 .blog {
+    padding: 20px;
     padding-bottom: 0;
+}
+
+.blog-content {
+    margin-left: 50px;
+    /* no */
+    padding-left: 10px;
+}
+
+.ant-avatar {
+    width: 50px;
+    /* no */
+    height: 50px;
+    /* no */
 }
 
 .img-group .img-wrap {
@@ -47,6 +61,7 @@
     position: absolute;
     top: 0;
     left: 0;
+    /* there */
     width: 50px;
     /* no */
     height: 50px;
@@ -61,21 +76,9 @@
     /* no */
     bottom: 0px;
     /* no */
-}
-
-.icon-renzheng {
-    font-size: 15px;
+    width: 16px;
     /* no */
-    color: var(--w-color-red);
-    border-radius: 50%;
-    background-color: #FEFF5D;
-}
-
-.icon-weibohuiyuan::before {
-    position: relative;
-    top: -2px;
-    /* no */
-    left: -5px;
+    height: 16px;
     /* no */
 }
 
@@ -92,9 +95,11 @@
     color: var(--w-tip-warn);
 }
 
+.comment-text img,
 .text img {
-    vertical-align: sub !important;
-    margin: 0 2px;
+    width: 18px !important;
+    /* no */
+    height: 18px !important;
     /* no */
 }
 
@@ -126,6 +131,7 @@ a.birthday div {
     left: 50%;
     transform: translateX(-50%);
     bottom: 15%;
+    /* there */
     font-size: 16px;
     /* no */
     color: var(--w-color-orange-1);

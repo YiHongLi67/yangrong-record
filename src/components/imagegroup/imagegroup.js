@@ -9,7 +9,7 @@ import { PropTypes } from 'prop-types';
 let updateShowId;
 
 function ImageGroup(props) {
-    const { urls, pic_ids, pic_infos, objectFit, text, alt, emitPreview } = props;
+    const { urls, pic_ids, pic_num, pic_infos, objectFit, text, alt, emitPreview } = props;
     const className = getCls(props.className, 'img-group');
     const groupWidth = getPropVal(props.groupWidth);
     const groupHeight = getPropVal(props.groupHeight);
@@ -70,6 +70,7 @@ function ImageGroup(props) {
                         src={url}
                         idx={idx}
                         urls={urls}
+                        pic_num={pic_num}
                         sourceType={sourceType}
                         lazySource={lazySource}
                         lazySrcType={lazySrcType}
@@ -100,6 +101,7 @@ ImageGroup.propTypes = {
     urls: PropTypes.array.isRequired,
     className: PropTypes.string,
     pic_ids: PropTypes.array.isRequired,
+    pic_num: PropTypes.number.isRequired,
     pic_infos: PropTypes.array.isRequired,
     groupWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     groupHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),

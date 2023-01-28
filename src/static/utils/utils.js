@@ -84,13 +84,8 @@ export function formatTime(created_at) {
     created_at = new Date(created_at);
     if (new Date().getTime() - created_at.getTime() <= 1000 * 60 * 60 * 21) {
         return new Date(created_at).getTime();
-    } else {
-        if (window.innerWidth > 750) {
-            return moment(created_at).format('YY-M-D HH: mm');
-        } else {
-            return moment(created_at).format('YY-M-D');
-        }
     }
+    return moment(created_at).format('YY-M-D HH: mm');
 }
 
 export function getBrowser() {
@@ -143,15 +138,12 @@ export function getPropVal(propVal) {
     }
 }
 
-export function resetDevice() {
-    const setDevice = function () {
-        let userAgentInfo = navigator.userAgent;
-        let Agents = ['Android', 'iPhone', 'SymbianOS', 'Windows Phone', 'iPad', 'iPod'];
-        let getArr = Agents.filter(i => userAgentInfo.includes(i));
-        getArr.length ? (window.deviceIsPc = false) : (window.deviceIsPc = true);
+export function setDevice() {
+    const resetDevice = function () {
+        window.innerWidth > 750 ? (window.isPC = true) : (window.isPC = false);
     };
-    setDevice();
-    // window.onresize = setDevice;
+    resetDevice();
+    window.addEventListener('resize', _throttle(resetDevice, 300, { bengin: true, end: true }));
 }
 
 export function getMobileFont(className) {
@@ -160,52 +152,114 @@ export function getMobileFont(className) {
         case 14:
             switch (className) {
                 case 'screen-name':
-                    return 'font-12 line-14';
+                case 'comment-user-name':
+                case 'show-all':
+                case 'fold-comments':
+                    return 'font-12 line-12';
                 case 'text':
                 case 'comment-text':
-                case 'fold-comments':
-                    return 'font-14 line-20';
+                case 'radio':
+                    return 'font-14 line-14';
                 default:
                     return '';
             }
         case 16:
             switch (className) {
+                case 'comment-user-name':
+                    return 'font-12 line-12';
                 case 'screen-name':
-                    return 'font-14 line-20';
+                case 'show-all':
+                case 'fold-comments':
+                    return 'font-14 line-14';
                 case 'text':
                 case 'comment-text':
-                case 'fold-comments':
-                    return 'font-16 line-22';
+                case 'radio':
+                    return 'font-16 line-16';
                 default:
                     return '';
             }
         case 18:
             switch (className) {
+                case 'comment-user-name':
+                    return 'font-14 line-14';
                 case 'screen-name':
-                    return 'font-16 line-22';
+                case 'show-all':
+                case 'fold-comments':
+                    return 'font-16 line-16';
                 case 'text':
                 case 'comment-text':
-                case 'fold-comments':
-                    return 'font-18 line-25';
+                case 'radio':
+                    return 'font-18 line-18';
                 default:
                     return '';
             }
         case 20:
             switch (className) {
+                case 'comment-user-name':
+                    return 'font-16 line-16';
                 case 'screen-name':
-                    return 'font-18 line-25';
+                case 'show-all':
+                case 'fold-comments':
+                    return 'font-18 line-18';
                 case 'text':
                 case 'comment-text':
-                case 'fold-comments':
-                    return 'font-20 line-32';
+                case 'radio':
+                    return 'font-20 line-20';
                 default:
                     return '';
             }
         case 24:
-            return 'font-24 line 38';
+            switch (className) {
+                case 'comment-user-name':
+                    return 'font-16 line-16';
+                case 'screen-name':
+                case 'show-all':
+                case 'fold-comments':
+                    return 'font-18 line-18';
+                case 'text':
+                case 'comment-text':
+                case 'radio':
+                    return 'font-24 line-24';
+                default:
+                    return '';
+            }
         case 30:
-            return 'font-30 line-48';
+            switch (className) {
+                case 'comment-user-name':
+                    return 'font-16 line-16';
+                case 'screen-name':
+                case 'show-all':
+                case 'fold-comments':
+                    return 'font-18 line-18';
+                case 'text':
+                case 'comment-text':
+                case 'radio':
+                    return 'font-30 line-30';
+                default:
+                    return '';
+            }
         default:
             return '';
     }
+}
+
+export function setFontSize() {
+    const vw = window.innerWidth;
+    if (vw <= 280) {
+        window.fontSize = 30;
+        return;
+    }
+    if (vw <= 375) {
+        window.fontSize = 20;
+        return;
+    }
+    if (vw <= 540) {
+        window.fontSize = 18;
+        return;
+    }
+    if (vw <= 750) {
+        window.fontSize = 16;
+        return;
+    }
+    window.fontSize = 20;
 }

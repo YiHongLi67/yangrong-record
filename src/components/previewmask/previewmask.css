@@ -80,3 +80,37 @@
 .preview-mask .mask-foot img {
     width: 100%;
 }
+
+.mask-head .iconfont {
+    font-size: 22px;
+    /* no */
+}
+
+.mask-head .iconfont {
+    float: right;
+    padding: 0 15px;
+    /* no */
+}
+
+.mask-head .download {
+    float: left;
+}
+
+.progress {
+    top: 10px;
+    /* no */
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.toggle-btn span {
+    line-height: 45px;
+    /* no */
+}
+
+.toggle-btn {
+    width: 45px;
+    /* no */
+    height: 45px;
+    /* no */
+}

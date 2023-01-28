@@ -1,19 +1,19 @@
-.comment>div>span {
+.comment > div > span {
     color: var(--w-fonticon);
 }
 
 /* 每条微博内容底部的转发 评论 点赞按钮 */
-.comment>div:hover>span,
-.operate>span:hover {
+.comment > div:hover > span,
+.operate > span:hover {
     color: var(--w-brand);
     cursor: pointer;
 }
 
-.comment>div>span.iconfont::before {
+.comment > div > span.iconfont::before {
     padding: 3px;
 }
 
-.comment>div:hover>span.iconfont::before {
+.comment > div:hover > span.iconfont::before {
     background-color: #ff000013;
     border-radius: 50%;
 }
@@ -25,10 +25,13 @@
 }
 
 .show-all {
-    transition: color .1s;
+    transition: color 0.1s;
+    span {
+        vertical-align: top;
+    }
 }
 
-.comment .comment-active-color>span {
+.comment .comment-active-color > span {
     color: var(--w-brand);
 }
 
@@ -40,6 +43,7 @@
     padding: 16px 20px;
 }
 
+/* there */
 .vh70 {
     height: calc(70vh - 22px);
     /* no */

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './blogfoot.css';
-import { antiShake, getCls, _throttle } from '../../../static/utils/utils';
+import './blogfoot.less';
+import { antiShake, getCls, getMobileFont, _throttle } from '../../../static/utils/utils';
 import { useEffect } from 'react';
 import { getComment } from '../../../axios/api';
 import { Modal } from 'antd';
@@ -99,10 +99,10 @@ function BlogFoot(props) {
             const modalWrap = document.querySelector('.ant-modal-wrap');
             modalBody.onscroll = null;
             modalBody.onscroll = _throttle(modalBodyScroll, 200, { begin: true, end: true });
-            if (!window.deviceIsPc) {
+            if (!window.isPC) {
                 modalWrap.style.top = 'unset';
             }
-        }, 0);
+        }, 10);
     }
 
     function spreadReply(e, rootCommt) {
@@ -133,36 +133,39 @@ function BlogFoot(props) {
 
     return (
         <div className='blog-foot'>
-            <div className='comment flex line-38'>
+            <div className='comment flex line-24'>
                 <div className='flex flex-1 flex-row-center flex-col-center pointer'>
                     <span className='iconfont icon-31zhuanfa margin-r-8'></span>
-                    <span className='font-12'>{reposts_count}</span>
+                    <span className={`margin-r-2 ${getMobileFont('show-all').split(' ')[0]}`}>{reposts_count}</span>
                 </div>
                 <div className={getComCls()} onClick={antiShake(fetchComment, 500)}>
                     <span className='iconfont icon-pinglun margin-r-4'></span>
-                    <span className='font-12'>{comments_count}</span>
+                    <span className={`margin-r-2 ${getMobileFont('show-all').split(' ')[0]}`}>{comments_count}</span>
                 </div>
                 <div className='flex flex-1 flex-row-center flex-col-center pointer'>
                     <span className='iconfont icon-dianzan margin-r-8'></span>
-                    <span className='font-12'>{attitudes_count}</span>
+                    <span className={`margin-r-2 ${getMobileFont('show-all').split(' ')[0]}`}>{attitudes_count}</span>
                 </div>
             </div>
             <div className='comment-detail' style={{ display: showDetail }}>
                 {modalOpen ? (
                     <Modal
                         className='comment-detail modal-comment'
-                        title={<div className='font-16 line-22 align-center'>{curCommt.reply.reply_count + '条回复'}</div>}
+                        title={<div className='font-16 line-14 align-center'>{curCommt.reply.reply_count + '条回复'}</div>}
                         centered
-                        width={window.deviceIsPc ? '45vw' : '100vw'}
-                        bodyStyle={{ height: window.deviceIsPc ? '70vh' : '90vh', overflow: 'auto' }}
+                        width={window.isPC ? '45vw' : '100vw'}
+                        bodyStyle={{ height: window.isPC ? '70vh' : '90vh', overflow: 'auto' }}
                         open={modalOpen}
                         onOk={() => setModalOpen(false)}
                         onCancel={() => setModalOpen(false)}
                         footer={null}
-                        closeIcon={<span className='iconfont icon-guanbi line-22'></span>}
+                        closeIcon={<span className='iconfont icon-guanbi line-14'></span>}
                     >
                         <Comment avatar_uid={avatar_uid} commtData={curCommt} replyDetail={replyDetail} isModal></Comment>
-                        <div className='align-center font-12 padding-t-6 padding-b-6 margin-t-4 margin-b-4 w-sub' style={{ display: showEnd }}>
+                        <div
+                            className={window.isPC ? 'font-12' : 'font-14' + ' align-center padding-t-6 padding-b-6 margin-t-4 margin-b-4 w-sub'}
+                            style={{ display: showEnd }}
+                        >
                             <span>没有更多回复了~</span>
                         </div>
                     </Modal>
@@ -177,8 +180,8 @@ function BlogFoot(props) {
                           return <Comment key={item.id} avatar_uid={avatar_uid} commtData={item}></Comment>;
                       })}
                 {!isAllCommt ? (
-                    <div className='align-center show-all line-25' onClick={viewComment}>
-                        <span className='margin-r-2 font-12'>查看全部{comments_count}条评论</span>
+                    <div className='align-center show-all line-16' onClick={viewComment}>
+                        <span className={`margin-r-2 ${getMobileFont('show-all').split(' ')[0]}`}>查看全部{comments_count}条评论</span>
                         <span className='iconfont icon-arrow-right-bold font-12'></span>
                     </div>
                 ) : (

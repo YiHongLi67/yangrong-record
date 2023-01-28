@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Avatar, Comment as AntdComment } from 'antd';
 import './comment.css';
@@ -31,23 +31,29 @@ function Comment(props) {
         }, 10);
     }
 
+    useEffect(() => {
+        Array.from(document.querySelectorAll('.url-icon')).map(imgIcon => {
+            const className = window.isPC ? '' : getMobileFont('comment-text').split(' ')[1].match(/\d+/);
+            imgIcon.classList.add(`height-${className}`);
+        });
+        return () => {};
+    });
+
     return (
         <>
             <AntdComment
-                avatar={<Avatar size={window.deviceIsPc ? 30 : 26} src={user_avatar} alt='头像无法访问' />}
+                avatar={<Avatar size={window.isPC ? 30 : 26} src={user_avatar} alt='头像无法访问' />}
                 content={
                     <>
                         <div>
-                            <span className='comment-user-name font-12 line-20'>
-                                <a>
-                                    {avatar_uid === uid
-                                        ? user_name + ' 博主' + (window.innerWidth > 750 ? '：' : '')
-                                        : user_name + (window.innerWidth > 750 ? '：' : '')}
+                            <span className='comment-user-name font-12 line-12'>
+                                <a className={window.isPC ? '' : getMobileFont('comment-user-name')}>
+                                    {avatar_uid === uid ? user_name + ' 博主' + (window.isPC ? '：' : '') : user_name + (window.isPC ? '：' : '')}
                                 </a>
                             </span>
                             <span
                                 className={getCls(
-                                    window.innerWidth > 750 ? 'font-14 line-20' : `block ${getMobileFont('comment-text')}`,
+                                    window.isPC ? 'font-14 line-12' : `block ${getMobileFont('comment-text')}`,
                                     'comment-text comment-text-l1'
                                 )}
                                 dangerouslySetInnerHTML={{ __html: text }}
@@ -57,7 +63,7 @@ function Comment(props) {
                             <div>
                                 <Source
                                     src={pic_infos.thumbUrl}
-                                    width={window.deviceIsPc ? `${120}px` : `400px`}
+                                    width={window.isPC ? `${120}px` : `320px`}
                                     text=''
                                     borderRadius={`${8}px`}
                                     sourceType={pic_infos.type}
@@ -69,7 +75,7 @@ function Comment(props) {
                         ) : (
                             <></>
                         )}
-                        <div className='collapse font-12 line-20'>
+                        <div className={getCls(window.isPC ? 'font-12 line-12' : 'font-14 line-14', 'clear')}>
                             <div className='comments-msg float-l'>
                                 <span>{formatTime(created_at)}</span>
                                 <span>&nbsp;{source}</span>
@@ -94,24 +100,33 @@ function Comment(props) {
                                       className='reply-inner'
                                       content={
                                           <>
-                                              <div>
-                                                  <span className='comment-user-name font-12 line-20'>
-                                                      <a>
+                                              <div className='clear'>
+                                                  <span
+                                                      className={
+                                                          getCls(window.isPC ? '' : getMobileFont('comment-user-name') + '', 'comment-user-name') +
+                                                          (!window.isPC && !isModal ? ' float-l' : '')
+                                                      }
+                                                  >
+                                                      <a
+                                                          className={
+                                                              'inline-block' + (isModal ? '' : ` ${getMobileFont('comment-text').split(' ')[1]}`)
+                                                          }
+                                                      >
                                                           {avatar_uid === uid
-                                                              ? user_name + ' 博主' + (isModal && window.innerWidth <= 750 ? '' : '：')
-                                                              : user_name + (isModal && window.innerWidth > 750 ? '：' : '')}
+                                                              ? user_name + ' 博主' + (isModal && !window.isPC ? '' : '：')
+                                                              : user_name + (isModal && window.isPC ? '：' : '')}
                                                       </a>
                                                   </span>
                                                   <span
                                                       className={
-                                                          getCls(isModal && window.innerWidth <= 750 ? 'block comment-text-l2' : '', 'comment-text') +
+                                                          getCls(isModal && !window.isPC ? 'block comment-text-l2' : '', 'comment-text') +
                                                           ' ' +
-                                                          getCls(window.innerWidth > 750 ? 'font-14 line-20' : getMobileFont('comment-text'))
+                                                          getCls(window.isPC ? 'font-14 line-12' : getMobileFont('comment-text'))
                                                       }
                                                       dangerouslySetInnerHTML={{ __html: text }}
                                                   ></span>
                                               </div>
-                                              <div className='collapse operate-wrap font-12 line-20'>
+                                              <div className={getCls(window.isPC ? 'font-12 line-12' : 'font-14 line-14', 'clear operate-wrap')}>
                                                   <div className='comments-msg float-l'>
                                                       <span>{formatTime(created_at)}</span>
                                                       <span>&nbsp;{source}</span>
@@ -120,7 +135,7 @@ function Comment(props) {
                                                       <span className='iconfont icon-31zhuanfa'></span>
                                                       <span className='iconfont icon-pinglun'></span>
                                                       <span className='iconfont icon-dianzan'>
-                                                          {like_counts ? <span className='padding-l-6 font-12'>{like_counts}</span> : <></>}
+                                                          {like_counts ? <span className='padding-l-6'>{like_counts}</span> : <></>}
                                                       </span>
                                                   </div>
                                               </div>
@@ -129,7 +144,7 @@ function Comment(props) {
                                       actions={[
                                           !isModal && reply.avatar_reply && reply.reply_count !== reply.avatar_reply.length ? (
                                               <span className='fold-comments' onClick={antiShake(fetchReply, 500, commtData)}>
-                                                  <span className={window.innerWidth > 750 ? 'font-12' : getMobileFont('fold-comments')}>
+                                                  <span className={window.isPC ? 'font-12' : getMobileFont('fold-comments')}>
                                                       共{reply.reply_count}条回复
                                                   </span>
                                                   <span className='iconfont icon-zhankai1'></span>
@@ -147,7 +162,7 @@ function Comment(props) {
                                   actions={[
                                       !isModal && reply.reply_count ? (
                                           <span className='fold-comments' onClick={antiShake(fetchReply, 500, commtData)}>
-                                              <span className={window.innerWidth > 750 ? 'font-12' : getMobileFont('fold-comments')}>
+                                              <span className={window.isPC ? 'font-12' : getMobileFont('fold-comments')}>
                                                   共{reply.reply_count}条回复
                                               </span>
                                               <span className='iconfont icon-zhankai1'></span>

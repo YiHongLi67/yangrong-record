@@ -88,7 +88,7 @@ function BlogComment(props) {
 
     return (
         <>
-            <div className='back font-18 w-main line-38 fixed w-full' onClick={toBlogs}>
+            <div className='back font-18 w-main line-24 fixed w-full' onClick={toBlogs}>
                 <span className='iconfont icon-arrow-left-bold font-20 pointer'></span>
                 <span className='pointer weight-600'>返回</span>
             </div>

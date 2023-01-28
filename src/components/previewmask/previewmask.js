@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { subscribe, unsubscribe } from 'pubsub-js';
 import './previewmask.css';
-import { throttle, _throttle, antiShake, judgeType } from '../../static/utils/utils';
+import { throttle, _throttle, antiShake, judgeType, getCls } from '../../static/utils/utils';
 import Source from '../source/source';
 import { getBrowser } from '../../static/utils/utils';
 import defaultImg from '../../static/images/default_img.png';
@@ -495,7 +495,7 @@ function PreviewMask(props) {
         let styleObj = {
             transform: `scale3d(${scaleRatio}, ${scaleRatio}, 1) translate3d(${transX}px, ${transY}px, 0px) rotate(${rotate}deg)`
         };
-        if (window.deviceIsPc) {
+        if (window.isPC) {
             styleObj.height = isFullScreen || urls.length <= 1 ? '100%' : 'calc(100vh - 70px)';
             styleObj.bottom = 'unset';
         } else {
@@ -577,30 +577,30 @@ function PreviewMask(props) {
                     style={{ ...sourceStyle(), ...cursorStyle() }}
                 ></video>
             )}
-            <span className='progress relative font-14'>
+            <span className={getCls(window.isPC ? 'font-14' : 'font-18', 'progress relative')}>
                 {curIdx + 1} / {urls.length}
             </span>
-            <div className='mask-head fixed top-0 w-full margin-t-10 padding-l-10 padding-r-10 ie-box'>
-                {window.innerWidth > 750 && (
+            {window.isPC && (
+                <div className='mask-head fixed top-0 w-full margin-t-10 padding-l-10 padding-r-10 ie-box'>
                     <span className='iconfont icon-xiazai-wenjianxiazai-05 download' title='下载原图' onClick={antiShake(download, 1000)}></span>
-                )}
-                <span id='close' className='iconfont icon-24gl-delete' title='关闭' onClick={closeMask}></span>
-                {window.innerWidth > 750 && <span className={fullScreenCls()} title={fullScreenTitle()} onClick={fullScreen}></span>}
-                <span
-                    className='iconfont icon-fangda'
-                    title='最大化'
-                    style={{ ...scaleMax(), ...cursorStyle() }}
-                    onClick={sourceErr ? null : grow}
-                ></span>
-                <span
-                    className='iconfont icon-suoxiao'
-                    title='最小化'
-                    style={{ ...scaleMin(), ...cursorStyle() }}
-                    onClick={sourceErr ? null : shrink}
-                ></span>
-                <span className='iconfont icon-rotate-right' title='右旋转' style={cursorStyle()} onClick={sourceErr ? null : rotateRight}></span>
-                <span className='iconfont icon-rotate-left' title='左旋转' style={cursorStyle()} onClick={sourceErr ? null : rotateLeft}></span>
-            </div>
+                    <span id='close' className='iconfont icon-24gl-delete' title='关闭' onClick={closeMask}></span>
+                    <span className={fullScreenCls()} title={fullScreenTitle()} onClick={fullScreen}></span>
+                    <span
+                        className='iconfont icon-fangda'
+                        title='最大化'
+                        style={{ ...scaleMax(), ...cursorStyle() }}
+                        onClick={sourceErr ? null : grow}
+                    ></span>
+                    <span
+                        className='iconfont icon-suoxiao'
+                        title='最小化'
+                        style={{ ...scaleMin(), ...cursorStyle() }}
+                        onClick={sourceErr ? null : shrink}
+                    ></span>
+                    <span className='iconfont icon-rotate-right' title='右旋转' style={cursorStyle()} onClick={sourceErr ? null : rotateRight}></span>
+                    <span className='iconfont icon-rotate-left' title='左旋转' style={cursorStyle()} onClick={sourceErr ? null : rotateLeft}></span>
+                </div>
+            )}
             {urls.length > 1 && (
                 <>
                     <div className='toggle-btn left-btn margin-l-10 fixed' onClick={preImg} style={leftBtnStyle()}>
@@ -611,7 +611,7 @@ function PreviewMask(props) {
                     </div>
                 </>
             )}
-            {window.deviceIsPc && !isFullScreen && urls.length > 1 && (
+            {window.isPC && !isFullScreen && urls.length > 1 && (
                 <div className='mask-foot fixed w-v-full' ref={maskFoot}>
                     <div className='flex-center padding-t-6 padding-b-6 ie-box'>
                         {urls.map((src, idx) => {

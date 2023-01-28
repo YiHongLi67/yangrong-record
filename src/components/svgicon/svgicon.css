@@ -13,15 +13,35 @@ i {
     height: auto;
 }
 
+i.svip_8 {
+    margin-left: 2px;
+    /* no */
+    width: 18px;
+    /* no */
+    height: 18px;
+    /* no */
+}
+
 i.vip {
     z-index: 1;
+    width: 16px;
+    /* no */
+    height: 16px;
+    /* no */
 }
+
 
 i.vip svg {
     animation: blink 1.4s 3 steps(14) backwards;
 }
 
-i.svip_8 {
-    margin-left: 2px;
-    /* no */
+@keyframes blink {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(-224px);
+        /* no */
+    }
 }

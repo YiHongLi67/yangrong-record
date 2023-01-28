@@ -1,7 +1,7 @@
 // 默认参数
 const defaultopts = {
-    remUnit: 136.6, // rem unit value (default: 100)
-    remFixed: 3 // rem value precision (default: 2)
+    remUnit: 75,
+    remFixed: 4
 };
 // 获取webpack配置好的参数
 const opts = this.getOptions;

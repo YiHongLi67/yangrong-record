@@ -11,7 +11,8 @@ import Video from '../video/video';
 function Source(props) {
     const width = getPropVal(props.width);
     const height = getPropVal(props.height);
-    const { urls, sourceType, lazySource, lazySrcType, idx, curIdx, src, text, alt, objectFit, emitPreview, borderRadius, lazy, onClick } = props;
+    const { urls, pic_num, sourceType, lazySource, lazySrcType, idx, curIdx, src, text, alt, objectFit, emitPreview, borderRadius, lazy, onClick } =
+        props;
     const imgMask = useRef(null);
 
     useEffect(() => {
@@ -29,8 +30,20 @@ function Source(props) {
         onClick && onClick(e, idx);
     }
 
+    function getHeight() {
+        const reg = /^\d+/;
+        if (pic_num && reg.test(width)) {
+            return `${width.match(/^\d+/) * 1.2}%`;
+        }
+        return width;
+    }
+
     return (
-        <div className='img-wrap overflow-hid inline-block vertical-m relative' onClick={clickEvent} style={{ width, height, borderRadius }}>
+        <div
+            className='img-wrap overflow-hid inline-block vertical-m relative'
+            onClick={clickEvent}
+            style={{ width, height, borderRadius, paddingTop: getHeight() }}
+        >
             {lazySource ? (
                 lazySrcType === 'mov' || lazySrcType === 'mp4' ? (
                     <Video poster={src} src={lazySource} />
@@ -60,6 +73,7 @@ function Source(props) {
 Source.propTypes = {
     // imagegroup 所需
     urls: PropTypes.array,
+    pic_num: PropTypes.number,
     sourceType: PropTypes.oneOf(['jpg', 'gif', 'mov']),
     lazySource: PropTypes.string,
     lazySrcType: PropTypes.oneOf(['jpg', 'gif', 'mov', 'mp4']),

@@ -29,13 +29,6 @@
     /* no */
 }
 
-/* 评论文本中的表情 */
-.comment-text img {
-    vertical-align: text-top !important;
-    margin: 0 1px;
-    /* no */
-}
-
 /* 发布时间、地区 */
 .comments-msg {
     color: var(--w-color-gray-2);
@@ -49,6 +42,8 @@
 
 .operate .iconfont {
     color: var(--w-color-gray-3);
+    margin-right: 16px;
+    /* no */
 }
 
 .icon-pinglun:before {
@@ -104,6 +99,18 @@ span.fold-comments>span.icon-zhankai1 {
     /* no */
 }
 
+/* 模态框 */
+.ant-modal-close {
+    top: 10px;
+    right: 20px;
+    padding: 0 4px;
+}
+
+.ant-modal-header {
+    padding: 10px 20px;
+    /* no */
+}
+
 .ant-modal-close>span::after {
     content: '';
     display: block;
@@ -116,4 +123,8 @@ span.fold-comments>span.icon-zhankai1 {
 
 .iconfont.icon-guanbi {
     float: left;
+}
+
+.comment-user-name a {
+    word-break: keep-all;
 }

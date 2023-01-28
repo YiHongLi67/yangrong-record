@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Layout } from 'antd';
-import './App.css';
+import './App.less';
 import { getblog } from './axios/api';
 import { _throttle } from './static/utils/utils';
 import { Routes, Route } from 'react-router-dom';

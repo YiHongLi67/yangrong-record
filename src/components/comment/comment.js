@@ -161,7 +161,10 @@ function Comment(props) {
                                       }
                                       actions={[
                                           !isModal && reply.avatar_reply && reply.reply_count !== reply.avatar_reply.length ? (
-                                              <span className='fold-comments' onClick={antiShake(fetchReply, 500, commtData)}>
+                                              <span
+                                                  className='fold-comments inline-flex flex-col-center'
+                                                  onClick={antiShake(fetchReply, 500, commtData)}
+                                              >
                                                   <span className={window.isPC ? 'font-12' : getMobileFont('fold-comments')}>
                                                       共{reply.reply_count}条回复
                                                   </span>
@@ -179,7 +182,7 @@ function Comment(props) {
                                   className='reply-inner'
                                   actions={[
                                       !isModal && reply.reply_count ? (
-                                          <span className='fold-comments' onClick={antiShake(fetchReply, 500, commtData)}>
+                                          <span className='fold-comments inline-flex flex-col-center' onClick={antiShake(fetchReply, 500, commtData)}>
                                               <span className={window.isPC ? 'font-12' : getMobileFont('fold-comments')}>
                                                   共{reply.reply_count}条回复
                                               </span>

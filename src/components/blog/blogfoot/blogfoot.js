@@ -159,7 +159,11 @@ function BlogFoot(props) {
                 {modalOpen ? (
                     <Modal
                         className='comment-detail modal-comment'
-                        title={<div className='font-16 line-14 align-center'>{curCommt.reply.reply_count + '条回复'}</div>}
+                        title={
+                            <div className={getCls(window.isPC ? 'font-16' : 'font-20', 'line-14 align-center')}>
+                                {curCommt.reply.reply_count + '条回复'}
+                            </div>
+                        }
                         centered
                         width={window.isPC ? '45vw' : '100vw'}
                         bodyStyle={{ height: window.isPC ? '70vh' : '90vh', overflow: 'auto' }}
@@ -191,9 +195,9 @@ function BlogFoot(props) {
                           return <Comment key={item.id} avatar_uid={avatar_uid} commtData={item}></Comment>;
                       })}
                 {!isAllCommt ? (
-                    <div className='align-center show-all line-16' onClick={viewComment}>
-                        <span className={getCls(getSize14(), 'margin-r-2 inline-block')}>查看全部{comments_count}条评论</span>
-                        <span className={getCls(getSize14(), 'iconfont icon-arrow-right-bold inline-block')}></span>
+                    <div className={getCls(getSize14(), 'show-all line-16 inline-flex flex-center')} onClick={viewComment}>
+                        <span className='margin-r-2'>查看全部{comments_count}条评论</span>
+                        <span className='iconfont icon-arrow-right-bold'></span>
                     </div>
                 ) : (
                     <></>

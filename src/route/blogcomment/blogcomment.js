@@ -101,12 +101,10 @@ function BlogComment(props) {
 
     return (
         <>
-            {window.isPC && (
-                <div className='back font-18 w-main line-24 fixed w-full' onClick={toBlogs}>
-                    <span className='iconfont icon-arrow-left-bold font-20 pointer'></span>
-                    <span className='pointer weight-600'>返回</span>
-                </div>
-            )}
+            <div className='back font-18 w-main line-24 fixed w-full vertical-m clear' onClick={toBlogs}>
+                <span className='iconfont icon-arrow-left-bold font-20 pointer float-l'></span>
+                <span className='pointer weight-600 float-l'>返回</span>
+            </div>
             <Blog
                 className='all-comment'
                 pathName={pathName}

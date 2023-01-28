@@ -101,6 +101,8 @@
     /* no */
     height: 18px !important;
     /* no */
+    margin: 0 1px;
+    /* no */
 }
 
 .text a.birthday {

@@ -36,6 +36,9 @@ body {
             padding: 30px;
             padding-bottom: unset;
         }
+        .all-comment .blog {
+            padding: 0 30px 0 30px;
+        }
         .blog,
         .end,
         .back {
@@ -51,14 +54,15 @@ body {
         }
         .operate .iconfont {
             margin-right: 44px;
-        } /* 模态框 */
+        }
+        /* 模态框 */
         .ant-modal-header {
-            padding: 30px 50px 0;
+            padding: 20px 50px;
         }
         .ant-modal-close {
-            top: 30px;
+            top: 0px;
             right: 50px;
-            padding: 0 30px;
+            padding: 20px;
         }
         .left-btn {
             margin-left: 60px;
@@ -90,6 +94,18 @@ body {
         .text img {
             width: 20px !important; /* no */
             height: 20px !important; /* no */
+        }
+        // 查看所有评论, 展开评论
+        div.show-all > span.icon-arrow-right-bold,
+        span.fold-comments > span.icon-zhankai1 {
+            font-size: 12px; /* no */
+        }
+        // 返回按钮
+        .back {
+            line-height: 100px;
+        }
+        .blog-wrap.all-comment::before {
+            height: 100px;
         }
     }
     @media screen and (min-width: 751px) {

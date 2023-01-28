@@ -601,7 +601,7 @@ function PreviewMask(props) {
                     <span className='iconfont icon-rotate-left' title='左旋转' style={cursorStyle()} onClick={sourceErr ? null : rotateLeft}></span>
                 </div>
             )}
-            {urls.length > 1 && (
+            {window.isPC && urls.length > 1 && (
                 <>
                     <div className='toggle-btn left-btn margin-l-10 fixed' onClick={preImg} style={leftBtnStyle()}>
                         <span className='iconfont icon-arrow-left-bold'></span>

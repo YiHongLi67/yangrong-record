@@ -1,11 +1,11 @@
 .back {
     background-color: var(--w-card-background);
     z-index: 2;
-    top: 50px;
 }
 
 .blog-wrap.all-comment::before {
     content: '';
     display: block;
     height: 38px;
+    /* no */
 }

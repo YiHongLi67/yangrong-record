@@ -131,20 +131,28 @@ function BlogFoot(props) {
         return baseCls;
     }
 
+    function getSize12() {
+        return window.isPC ? 'font-12' : `${getMobileFont('show-all').split(' ')[0]}`;
+    }
+
+    function getSize14() {
+        return window.isPC ? 'font-14' : `${getMobileFont('show-all').split(' ')[0]}`;
+    }
+
     return (
         <div className='blog-foot'>
             <div className='comment flex line-24'>
                 <div className='flex flex-1 flex-row-center flex-col-center pointer'>
                     <span className='iconfont icon-31zhuanfa margin-r-8'></span>
-                    <span className={`margin-r-2 ${getMobileFont('show-all').split(' ')[0]}`}>{reposts_count}</span>
+                    <span className={getSize12()}>{reposts_count}</span>
                 </div>
                 <div className={getComCls()} onClick={antiShake(fetchComment, 500)}>
                     <span className='iconfont icon-pinglun margin-r-4'></span>
-                    <span className={`margin-r-2 ${getMobileFont('show-all').split(' ')[0]}`}>{comments_count}</span>
+                    <span className={getSize12()}>{comments_count}</span>
                 </div>
                 <div className='flex flex-1 flex-row-center flex-col-center pointer'>
                     <span className='iconfont icon-dianzan margin-r-8'></span>
-                    <span className={`margin-r-2 ${getMobileFont('show-all').split(' ')[0]}`}>{attitudes_count}</span>
+                    <span className={getSize12()}>{attitudes_count}</span>
                 </div>
             </div>
             <div className='comment-detail' style={{ display: showDetail }}>
@@ -163,7 +171,10 @@ function BlogFoot(props) {
                     >
                         <Comment avatar_uid={avatar_uid} commtData={curCommt} replyDetail={replyDetail} isModal></Comment>
                         <div
-                            className={window.isPC ? 'font-12' : 'font-14' + ' align-center padding-t-6 padding-b-6 margin-t-4 margin-b-4 w-sub'}
+                            className={getCls(
+                                window.isPC ? 'font-12' : 'font-14',
+                                ' align-center padding-t-6 padding-b-6 margin-t-4 margin-b-4 w-sub'
+                            )}
                             style={{ display: showEnd }}
                         >
                             <span>没有更多回复了~</span>
@@ -181,8 +192,8 @@ function BlogFoot(props) {
                       })}
                 {!isAllCommt ? (
                     <div className='align-center show-all line-16' onClick={viewComment}>
-                        <span className={`margin-r-2 ${getMobileFont('show-all').split(' ')[0]}`}>查看全部{comments_count}条评论</span>
-                        <span className='iconfont icon-arrow-right-bold font-12'></span>
+                        <span className={getCls(getSize14(), 'margin-r-2 inline-block')}>查看全部{comments_count}条评论</span>
+                        <span className={getCls(getSize14(), 'iconfont icon-arrow-right-bold inline-block')}></span>
                     </div>
                 ) : (
                     <></>

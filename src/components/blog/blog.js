@@ -13,7 +13,6 @@ moment.locale('zh-cn');
 
 function Blog(props) {
     const { uid, mid, pic_ids, pic_infos, pic_num, text, source, created_at, region_name, isAllCommt, allCommt, pathName } = props;
-    const { thumbUrls } = pic_infos;
     const className = getCls(props.className, 'blog-wrap');
     const width = picWidth();
     const [pic_wrap_width, set_pic_wrap_width] = useState(width.pic_wrap_width);
@@ -112,13 +111,13 @@ function Blog(props) {
                                 <SvgIcon iconClass='svip_8' />
                             </div>
                             <p
-                                className={'font-12 line-14 gray-2 margin-t-4 ellipsis blog-msg'}
+                                className={'font-12 line-14 gray-2 margin-t-0 ellipsis blog-msg'}
                                 style={{ width: window.isPC ? `calc(100vw - ${90}px)` : `calc(100vw - 88px - ${50}px)` }}
                             >
                                 {formatTime(created_at)}&nbsp;来自&nbsp;<span className='source'>{source}</span>
                             </p>
                             {window.isPC && region_name ? (
-                                <p className='font-12 line-14 gray-2 margin-t-6'>
+                                <p className='font-12 line-14 gray-2 margin-t-0'>
                                     <span>{region_name}</span>
                                 </p>
                             ) : (

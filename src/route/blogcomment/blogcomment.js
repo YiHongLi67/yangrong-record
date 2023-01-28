@@ -18,7 +18,20 @@ function BlogComment(props) {
     const { pathName } = props;
     const {
         state: {
-            blogData: { uid, mid, pic_ids, pic_infos, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name },
+            blogData: {
+                uid,
+                mid,
+                pic_ids,
+                pic_num,
+                pic_infos,
+                text,
+                reposts_count,
+                comments_count,
+                attitudes_count,
+                source,
+                created_at,
+                region_name
+            },
             scrollTop
         }
     } = useLocation();
@@ -88,10 +101,12 @@ function BlogComment(props) {
 
     return (
         <>
-            <div className='back font-18 w-main line-24 fixed w-full' onClick={toBlogs}>
-                <span className='iconfont icon-arrow-left-bold font-20 pointer'></span>
-                <span className='pointer weight-600'>返回</span>
-            </div>
+            {window.isPC && (
+                <div className='back font-18 w-main line-24 fixed w-full' onClick={toBlogs}>
+                    <span className='iconfont icon-arrow-left-bold font-20 pointer'></span>
+                    <span className='pointer weight-600'>返回</span>
+                </div>
+            )}
             <Blog
                 className='all-comment'
                 pathName={pathName}
@@ -100,6 +115,7 @@ function BlogComment(props) {
                 uid='1858065064'
                 // uid='6330711166'
                 pic_ids={pic_ids}
+                pic_num={pic_num}
                 pic_infos={pic_infos}
                 text={text}
                 reposts_count={reposts_count}

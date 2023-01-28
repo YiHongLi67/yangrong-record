@@ -2,114 +2,87 @@ html,
 body {
     height: 100%;
 }
-
-/* 灰色主题 */
-/* html {
-    filter: grayscale(100%);
-} */
-
+/* 灰色主题 */ /* html {    filter: grayscale(100%);} */
 body {
     min-width: 750px;
 }
-
 p {
     margin: 0;
 }
-
 * {
     box-sizing: content-box;
     transition: color 0.2s;
 }
-
 .ant-layout-header,
 .ant-layout-footer {
     z-index: 9;
-    line-height: 50px;
-    height: 50px;
+    line-height: 40px; /* no */
+    height: 40px; /* no */
 }
-
 .ant-layout-header ul {
-    line-height: 50px;
-    height: 50px;
+    line-height: 40px; /* no */
+    height: 40px; /* no */
 }
-
 .ant-layout-header .iconfont {
     color: var(--w-brand);
     text-align: center;
     float: left;
-    font-size: 30px;
+    font-size: 30px; /* no */
 }
-
 main {
-    margin-left: 300px;
-    margin-right: 100px;
+    margin-left: 300px; /* no */
+    margin-right: 100px; /* no */
 }
-
 main::before,
 main::after {
     content: '';
     display: block;
-    height: 50px;
+    height: 40px; /* no */
 }
-
 .ant-layout-footer {
     padding-top: 0;
     padding-bottom: 0;
 }
-
 .ant-layout-header {
     background-color: white;
 }
-
 .ant-layout-header .ant-menu-title-content {
     margin: 0;
 }
-
 .ant-layout-header ul li span {
     display: inline-block;
     position: relative;
     left: 50%;
     transform: translateX(-50%);
 }
-
 video {
-    /* 去掉video底部黑色的线条 */
-    mix-blend-mode: darken;
+    mix-blend-mode: darken; /* 去掉video底部黑色的线条 */
 }
-
 .iconfont.icon-lianjie,
 .iconfont.icon-shipin,
 .iconfont.icon-zuanshi,
 .iconfont.icon-tupian {
-    margin: 0 2px;
-    /* no */
+    margin: 0 2px; /* no */
     font-weight: bold;
 }
-
 .ant-avatar > img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
-
 .url-icon {
-    margin: 0 2px;
-    /* no */
+    margin: 0 2px; /* no */
     display: inline-flex;
     justify-content: center;
     align-items: center;
     vertical-align: top;
 }
-
 .ant-radio-wrapper {
     align-items: center;
 }
-
 .blog,
 .end,
 .back {
-    min-width: 400px;
-    /* no */
-    max-width: 640px;
-    /* no */
+    min-width: 400px; /* no */
+    max-width: 640px; /* no */
 }

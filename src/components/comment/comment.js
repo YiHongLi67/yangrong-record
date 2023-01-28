@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Avatar, Comment as AntdComment } from 'antd';
-import './comment.css';
+import './comment.less';
 import { formatTime, getCls, getMobileFont } from '../../static/utils/utils';
 import Source from '../source/source';
 import { antiShake, _throttle } from '../../static/utils/utils';
@@ -75,7 +75,7 @@ function Comment(props) {
                         ) : (
                             <></>
                         )}
-                        <div className={getCls(window.isPC ? 'font-12 line-12' : 'font-14 line-14', 'clear')}>
+                        <div className={getCls(window.isPC ? 'font-12 line-12' : 'font-14 line-14', 'clear operate-wrap')}>
                             <div className='comments-msg float-l'>
                                 <span>{formatTime(created_at)}</span>
                                 <span>&nbsp;{source}</span>
@@ -84,7 +84,13 @@ function Comment(props) {
                                 <span className='iconfont icon-31zhuanfa'></span>
                                 <span className='iconfont icon-pinglun'></span>
                                 <span className='iconfont icon-dianzan'>
-                                    {like_counts ? <span className='padding-l-6 like font-12 float-r'>{like_counts}</span> : <></>}
+                                    {like_counts ? (
+                                        <span className={getCls(window.isPC ? 'font-12 line-12' : 'font-14 line-14', 'padding-l-6 like')}>
+                                            {like_counts}
+                                        </span>
+                                    ) : (
+                                        <></>
+                                    )}
                                 </span>
                             </div>
                         </div>
@@ -109,7 +115,8 @@ function Comment(props) {
                                                   >
                                                       <a
                                                           className={
-                                                              'inline-block' + (isModal ? '' : ` ${getMobileFont('comment-text').split(' ')[1]}`)
+                                                              'inline-block' +
+                                                              (!window.isPC && !isModal ? ` ${getMobileFont('comment-text').split(' ')[1]}` : '')
                                                           }
                                                       >
                                                           {avatar_uid === uid
@@ -135,7 +142,18 @@ function Comment(props) {
                                                       <span className='iconfont icon-31zhuanfa'></span>
                                                       <span className='iconfont icon-pinglun'></span>
                                                       <span className='iconfont icon-dianzan'>
-                                                          {like_counts ? <span className='padding-l-6'>{like_counts}</span> : <></>}
+                                                          {like_counts ? (
+                                                              <span
+                                                                  className={getCls(
+                                                                      window.isPC ? 'font-12 line-12' : 'font-14 line-14',
+                                                                      'padding-l-6 like'
+                                                                  )}
+                                                              >
+                                                                  {like_counts}
+                                                              </span>
+                                                          ) : (
+                                                              <></>
+                                                          )}
                                                       </span>
                                                   </div>
                                               </div>

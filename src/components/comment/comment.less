@@ -1,9 +1,7 @@
 /* 一级评论用户头像 */
 .ant-comment-avatar {
-    margin-right: 10px;
-    /* no */
+    margin-right: 10px; /* no */
 }
-
 /* 评论用户昵称 */
 .comment-user-name a,
 .comment-user-name a:hover,
@@ -11,120 +9,95 @@
 .ant-comment-actions>li>span.fold-comments {
     color: var(--w-color-orange-3);
 }
-
 /* 评论的文本 */
 .comment-text {
     color: var(--w-color-gray-1);
 }
-
 .comment-text .iconfont,
 .comment-text a,
 .comment-text span {
     color: var(--w-color-orange-4);
 }
-
 .iconfont.icon-zuanshi,
 .iconfont.icon-tupian {
-    font-size: 16px;
-    /* no */
+    font-size: 16px; /* no */
 }
-
 /* 发布时间、地区 */
+.operate-wrap {
+    margin: 2px 0; /* no */
+}
 .comments-msg {
     color: var(--w-color-gray-2);
 }
-
 /* 每条回复的评论、点赞按钮 */
-.ant-comment-content .operate .iconfont {
-    font-size: 16px;
-    /* no */
+.ant-comment-content .operate .iconfont:not(.like) {
+    font-size: 16px; /* no */
 }
-
 .operate .iconfont {
     color: var(--w-color-gray-3);
-    margin-right: 16px;
-    /* no */
+    margin-right: 16px; /* no */
 }
-
 .icon-pinglun:before {
     position: relative;
     top: 1px;
 }
-
 /* 二级评论 */
 .ant-comment-content ul {
     margin: 0;
-    margin-top: 2px;
+    margin-top: 2px; /* no */
 }
-
-.ant-comment-actions>li {
+.ant-comment-actions > li {
     display: block;
 }
-
 .ant-comment .ant-comment-inner {
     padding: 6px 0;
 }
-
 .reply-inner .ant-comment-inner {
     padding: 0 0 0px 10px;
 }
-
 .reply-inner .operate {
     opacity: 0;
-    transition: opacity .2s;
+    transition: opacity 0.2s;
 }
-
 .ant-comment-content-detail:hover .operate {
     opacity: 1;
 }
-
 .reply-inner:before {
-    content: "";
+    content: '';
     position: absolute;
     height: 100%;
     left: 0;
     border-left: 2px solid var(--w-card-border);
 }
-
 /* 折叠评论 */
-span.fold-comments>span {
+span.fold-comments > span {
     margin-right: 2px;
 }
-
-span.fold-comments>span.icon-zhankai1 {
-    display: inline-block;
-    /* inline 元素不可缩放 */
-    transform: scale(.8, .8);
-    font-size: 14px;
-    /* no */
+span.fold-comments > span.icon-zhankai1 {
+    display: inline-block; /* inline 元素不可缩放 */
+    transform: scale(0.8, 0.8);
+    font-size: 14px; /* no */
 }
-
 /* 模态框 */
 .ant-modal-close {
     top: 10px;
     right: 20px;
     padding: 0 4px;
 }
-
 .ant-modal-header {
-    padding: 10px 20px;
-    /* no */
+    padding: 10px 20px; /* no */
 }
-
-.ant-modal-close>span::after {
+.ant-modal-close > span::after {
     content: '';
     display: block;
     clear: both;
 }
-
-.ant-modal-close>span {
+.ant-modal-close > span {
     display: inline;
 }
-
 .iconfont.icon-guanbi {
     float: left;
 }
-
 .comment-user-name a {
     word-break: keep-all;
 }

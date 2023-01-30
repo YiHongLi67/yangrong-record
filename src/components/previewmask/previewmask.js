@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { subscribe, unsubscribe } from 'pubsub-js';
+import { on, off } from 'touchjs';
 import './previewmask.css';
 import { throttle, _throttle, antiShake, judgeType, getCls } from '../../static/utils/utils';
 import Source from '../source/source';
@@ -13,9 +14,13 @@ const img = document.createElement('img');
 let ratio = 1;
 let throttleSourceMove;
 let throttleMaskMove;
+let throttlePinchin;
+let throttlePinchout;
 let emitUp = false;
 let emitMove = false;
 let showMaskId;
+let index = 0;
+let imgGroup = null;
 
 function PreviewMask(props) {
     const { urls, pic_infos, isCommt, onClose } = props;
@@ -40,16 +45,21 @@ function PreviewMask(props) {
         showMaskId = subscribe('showMask', (_, data) => {
             let idx = data.idx || 0;
             setParentNode(data.parentNode);
+            imgGroup = data.parentNode;
             setSrc(data.urls[idx]);
             setCurIdx(idx);
-            onSrcLoad(idx);
+            index = idx;
+            onSrcLoad(-1, idx);
         });
+        throttlePinchin = _throttle(pinchin, 200, { begin: true, end: true });
+        throttlePinchout = _throttle(pinchout, 200, { begin: true, end: true });
         return () => {
             unsubscribe(showMaskId);
         };
     }, []);
 
     function resetMask() {
+        console.log('resetMask');
         img.src = '';
         previewVideo.current && previewVideo.current.setAttribute('src', ''); // 停止加载未加载完成的图片/视频
         setShowMask(false);
@@ -61,12 +71,16 @@ function PreviewMask(props) {
         setIsFullScreen(false);
         emitMove = false;
         emitUp = false;
-        parentNode && setParentNode(parentNode.setAttribute('data-show', ''));
+        imgGroup && setParentNode(imgGroup.setAttribute('data-show', ''));
         onClose && onClose();
     }
 
     function closeMask(e) {
         e.stopPropagation();
+        if (!window.isPC && e.target.id === 'close') {
+            resetMask();
+            return;
+        }
         if (isFullScreen) {
             if (e.target.id === 'close') {
                 // 浏览器全屏模式下 click 的同时会触发模拟的 mousemove 事件
@@ -79,6 +93,7 @@ function PreviewMask(props) {
                 return; // 在非全屏模式下, 通过设置 emitMove emitUp 来判断鼠标行为是点击还是拖拽
             }
             if (e.target.id === 'preview-mask' || e.target.id === 'close') {
+                //点击空白区域或关闭按钮关闭
                 resetMask();
             }
         }
@@ -96,11 +111,12 @@ function PreviewMask(props) {
 
     function changeImg(e, idx) {
         if (idx === curIdx) return;
-        toggleImg(idx);
+        toggleImg(undefined, idx);
         setCurIdx(idx);
+        index = idx;
     }
 
-    function toggleImg(idx) {
+    function toggleImg(preIdx, idx) {
         const target = previewImg.current || previewVideo.current;
         if (target) {
             target.onerror = null;
@@ -113,7 +129,7 @@ function PreviewMask(props) {
         setScaleRatio((ratio = 1));
         setRotate(0);
         setSourceErr(false);
-        onSrcLoad(idx);
+        onSrcLoad(preIdx, idx);
     }
 
     function showVideo() {
@@ -121,7 +137,7 @@ function PreviewMask(props) {
         previewVideo.current.playbackRate = 0.5;
     }
 
-    function onSrcLoad(idx) {
+    function onSrcLoad(preIdx, idx) {
         img.src = '';
         setVideoSrc(''); // 停止加载未加载完成的图片/视频
         const type = judgeType(pic_infos[idx]) === 'object' && pic_infos[idx].type;
@@ -157,23 +173,38 @@ function PreviewMask(props) {
                     setSourceErr(true);
                 };
             }
+            if (!window.isPC && isImg(preIdx) !== isImg(idx)) {
+                const targetEle = previewVideo.current || previewImg.current;
+                on(targetEle, 'doubletap', mScale);
+                on(targetEle, 'tap', resetMask);
+                on(targetEle, 'swipeleft', nextImg);
+                on(targetEle, 'swiperight', preImg);
+                on(targetEle, 'pinchin', throttlePinchin);
+                on(targetEle, 'pinchout', throttlePinchout);
+                on(targetEle, 'dragstart', sourceDown);
+                // on(targetEle, 'drag', sourceDown);
+            }
         }, 0);
     }
 
     function preImg() {
-        if (curIdx === 0) return;
+        console.log('preImg');
+        if (index === 0) return;
         setCurIdx(curIdx => {
             return curIdx - 1;
         });
-        toggleImg(curIdx - 1);
+        // index--;
+        toggleImg(index--, index);
     }
 
     function nextImg() {
-        if (curIdx === urls.length - 1) return;
+        console.log('nextImg');
+        if (index === urls.length - 1) return;
         setCurIdx(curIdx => {
             return curIdx + 1;
         });
-        toggleImg(curIdx + 1);
+        // index++;
+        toggleImg(index++, index);
     }
 
     function scaleImg(e) {
@@ -230,6 +261,7 @@ function PreviewMask(props) {
     }
 
     function sourceDown(e) {
+        console.log('dragstart', e);
         e.target.classList.add('grabbing');
         previewVideo.current && previewVideo.current.pause();
         changeStyle('remove');
@@ -243,9 +275,15 @@ function PreviewMask(props) {
             startX: e.clientX,
             startY: e.clientY
         };
-        throttleSourceMove = _throttle(sourceMove, 100, { begin: true, end: true }, t, start);
-        document.addEventListener('mousemove', throttleSourceMove);
-        document.addEventListener('mouseup', sourceUp);
+        // throttleSourceMove = _throttle(sourceMove, 100, { begin: true, end: true }, t, start);
+        // document.addEventListener('mousemove', throttleSourceMove);
+        throttleSourceMove = _throttle(mMove, 100, { begin: true, end: true }, t, start);
+        function mMove(e) {
+            e.preventDefault();
+            console.log('drag', e);
+        }
+        on(previewImg.current, 'drag', throttleSourceMove);
+        // document.addEventListener('mouseup', sourceUp);
         e.preventDefault();
     }
 
@@ -479,6 +517,7 @@ function PreviewMask(props) {
     }
 
     function isImg(idx) {
+        if (idx < 0) return;
         const type = judgeType(pic_infos[idx]) === 'object' && pic_infos[idx].type;
         if (type === 'jpg' || (type === 'gif' && isCommt)) {
             return true;
@@ -489,6 +528,46 @@ function PreviewMask(props) {
         if (type === 'mov') {
             return false;
         }
+    }
+
+    function mScale() {
+        console.log('mScale');
+        changeStyle('remove');
+        if (ratio === 1) {
+            setScaleRatio((ratio = 2.5));
+        } else {
+            setScaleRatio((ratio = 1));
+        }
+    }
+
+    function pinchin() {
+        console.log('pinchin');
+        changeStyle('remove');
+        if (ratio <= 1) {
+            ratio -= 0;
+        } else {
+            ratio -= 0.3;
+        }
+        if (ratio === 1) {
+            setTransX(0);
+            setTransY(0);
+        }
+        setScaleRatio(ratio);
+    }
+
+    function pinchout() {
+        console.log('pinchout');
+        changeStyle('remove');
+        if (ratio >= 2.5) {
+            ratio += 0;
+        } else {
+            ratio += 0.3;
+        }
+        setScaleRatio(ratio);
+    }
+
+    function bindEvent() {
+        if (window.isPC) return '';
     }
 
     function sourceStyle() {
@@ -560,8 +639,9 @@ function PreviewMask(props) {
                     className='preview-img absolute absolute-center grab'
                     src={src}
                     alt='加载失败'
-                    onMouseDown={sourceErr ? null : sourceDown}
+                    onMouseDown={!window.isPC || sourceErr ? null : sourceDown}
                     style={{ ...sourceStyle(), ...cursorStyle() }}
+                    data-event={bindEvent()}
                 />
             ) : (
                 <video
@@ -572,9 +652,10 @@ function PreviewMask(props) {
                     autoPlay
                     muted
                     loop
-                    onMouseDown={sourceErr ? null : sourceDown}
+                    onMouseDown={!window.isPC || sourceErr ? null : sourceDown}
                     onPlay={showVideo}
                     style={{ ...sourceStyle(), ...cursorStyle() }}
+                    data-event={bindEvent()}
                 ></video>
             )}
             <span className={getCls(window.isPC ? 'font-14' : 'font-18', 'progress relative')}>

@@ -45,7 +45,6 @@ function Blogs(props) {
                 <p className='font-30 line-30'>30 48 杨蓉 yr</p>
                 <p className='font-38 line-38'>38 60 杨蓉 yr</p>
             </div> */}
-            {/* <Avatar src={avatar} /> */}
             <Radio.Group name='radiogroup' defaultValue={window.fontSize} size='large' onChange={changeFontSize}>
                 <Radio value={14} className={getMobileFont('radio')}>
                     14

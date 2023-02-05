@@ -31,6 +31,7 @@ let preview = null;
 let status = 0;
 let sp = null;
 let timer = null;
+let store = {};
 
 function PreviewMask(props) {
     const { urls, pic_infos, isCommt, onClose } = props;
@@ -38,7 +39,7 @@ function PreviewMask(props) {
     let [curIdx, setCurIdx] = useState(0);
     let [src, setSrc] = useState('');
     let [videoSrc, setVideoSrc] = useState('');
-    let [scaleRatio, setScaleRatio] = useState(1);
+    let [scaleRatio, setScaleRatio] = useState(ratio);
     let [transX, setTransX] = useState(0);
     let [transY, setTransY] = useState(0);
     let [rotate, setRotate] = useState(0);
@@ -66,12 +67,11 @@ function PreviewMask(props) {
         antiShakePreImg = antiShake(preImg, 100);
         antiShakeNextImg = antiShake(nextImg, 100);
         if (!window.isPC) {
-            // $(preview).on('tap', resetMask);
-            // $(preview).on('doubletap', mScale);
-            // preview.addEventListener('touchstart', sourceDown);
-            // $(preview).on('touchstart', sourceDown);
-            $(preview).on('pinchin', pinchin);
-            $(preview).on('pinchout', pinchout);
+            preview.addEventListener('touchstart', pinchstart);
+            preview.addEventListener('touchmove', pinchmove);
+            preview.addEventListener('touchend', pinchend);
+            preview.addEventListener('touchcancel', pinchend);
+            preview.addEventListener('touchstart', sourceDown);
             $(preview).on('swipeleft', antiShakeNextImg);
             $(preview).on('swiperight', antiShakePreImg);
             $(preview).on('swipeup', resetMask);
@@ -275,6 +275,7 @@ function PreviewMask(props) {
     }
 
     function sourceDown(e) {
+        // e.preventDefault();
         if (status === 1 && timer) {
             // 超过规定时间内的单机/双击事件无效, 清除单机回调函数
             clearTimeout(timer);
@@ -308,12 +309,11 @@ function PreviewMask(props) {
             document.addEventListener('mousemove', throttleSourceMove);
             document.addEventListener('mouseup', sourceUp);
         } else {
-            $(preview).on('touchmove', throttleSourceMove);
-            $(preview).on('touchend', sourceUp);
-            // preview.addEventListener('touchmove', throttleSourceMove);
-            // preview.addEventListener('touchend', sourceUp);
+            // $(preview).on('touchmove', throttleSourceMove);
+            // $(preview).on('touchend', sourceUp);
+            preview.addEventListener('touchmove', throttleSourceMove);
+            preview.addEventListener('touchend', sourceUp);
         }
-        e.preventDefault();
     }
 
     function resetStart(t, start, e) {
@@ -326,6 +326,7 @@ function PreviewMask(props) {
     }
 
     function sourceMove(e) {
+        // e.preventDefault();
         console.log('touchmove', e);
         if (!window.isPC && ratio === 1) return;
         if (emitUp) return; // 解决当 ratio 为 1 时, mousemove 设置 translate 后 mouseup 位置偶现不复原的 bug
@@ -419,7 +420,7 @@ function PreviewMask(props) {
 
     function sourceUp(e) {
         console.log('touchend', e);
-        e.preventDefault();
+        // e.preventDefault();
         // e.stopPropagation();
         const target = e.target;
         emitUp = true;
@@ -473,10 +474,10 @@ function PreviewMask(props) {
             $(preview).on('swiperight', antiShakePreImg);
             $(preview).on('swipeup', resetMask);
             $(preview).on('swipedown', resetMask);
-            $(preview).off('touchmove', throttleSourceMove);
-            $(preview).off('touchend', sourceUp);
-            // preview.removeEventListener('touchmove', throttleSourceMove);
-            // preview.removeEventListener('touchend', sourceUp);
+            // $(preview).off('touchmove', throttleSourceMove);
+            // $(preview).off('touchend', sourceUp);
+            preview.removeEventListener('touchmove', throttleSourceMove);
+            preview.removeEventListener('touchend', sourceUp);
         }
         setTimeout(function () {
             emitUp = false;
@@ -629,33 +630,87 @@ function PreviewMask(props) {
         }
     }
 
-    function pinchin(e) {
-        e.preventDefault();
-        console.log('pinchin');
+    function pinchstart(e) {
+        // e.preventDefault();
+        console.log('pinchstart', e);
         changeStyle('remove');
-        if (ratio <= 1) {
-            ratio -= 0;
-        } else {
-            ratio -= 0.5;
+        let touche1 = e.touches[0];
+        let touche2 = e.touches[1];
+        // 第一个触摸点的坐标
+        store.pageX = touche1.pageX;
+        store.pageY = touche1.pageY;
+        store.moveable = true;
+        if (touche2) {
+            store.pageX2 = touche2.pageX;
+            store.pageY2 = touche2.pageY;
         }
-        if (ratio <= 1) {
-            ratio = 1;
-            setTransX((mTransX = 0));
-            setTransY((mTransY = 0));
-        }
-        setScaleRatio(ratio);
+        store.originScale = ratio;
     }
 
-    function pinchout(e) {
-        e.preventDefault();
-        console.log('pinchout');
-        changeStyle('remove');
-        if (ratio >= 2.5) {
-            ratio += 0;
-        } else {
-            ratio += 0.3;
+    function pinchmove(e) {
+        // e.preventDefault();
+        console.log('pinchmove', e);
+        if (!store.moveable) {
+            return;
         }
-        setScaleRatio(ratio);
+        let touche1 = e.touches[0];
+        let touche2 = e.touches[1];
+        // 双指移动
+        if (touche2) {
+            // 第2个指头坐标在touchmove时候获取
+            if (!store.pageX2) {
+                store.pageX2 = touche2.pageX;
+            }
+            if (!store.pageY2) {
+                store.pageY2 = touche2.pageY;
+            }
+            // 获取坐标之间的举例
+            let getDistance = function (start, stop) {
+                return Math.hypot(stop.x - start.x, stop.y - start.y);
+            };
+            // 双指缩放比例计算
+            let zoom =
+                getDistance(
+                    {
+                        x: touche1.pageX,
+                        y: touche1.pageY
+                    },
+                    {
+                        x: touche2.pageX,
+                        y: touche2.pageY
+                    }
+                ) /
+                getDistance(
+                    {
+                        x: store.pageX,
+                        y: store.pageY
+                    },
+                    {
+                        x: store.pageX2,
+                        y: store.pageY2
+                    }
+                );
+            // 应用在元素上的缩放比例
+            let newScale = store.originScale * zoom;
+            // 最大缩放比例限制
+            if (newScale > 3) {
+                newScale = 3;
+            }
+            if (newScale < 1) {
+                newScale = 1;
+                setTransX((transX = 0));
+                setTransY((transX = 0));
+            }
+            // 图像应用缩放效果
+            setScaleRatio((ratio = newScale));
+        }
+    }
+
+    function pinchend(e) {
+        console.log('pinchend', e);
+        store.moveable = false;
+        delete store.pageX2;
+        delete store.pageY2;
     }
 
     function sourceStyle() {

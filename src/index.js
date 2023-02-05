@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import 'antd/dist/antd.css';
+import 'animate.css';
 import './static/layout/theme.css';
 import './static/layout/basic.css';
 import './static/layout/iconfont.css';

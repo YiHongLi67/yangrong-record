@@ -74,8 +74,8 @@ function PreviewMask(props) {
             preview.addEventListener('touchstart', sourceDown);
             $(preview).on('swipeleft', antiShakeNextImg);
             $(preview).on('swiperight', antiShakePreImg);
-            $(preview).on('swipeup', resetMask);
-            $(preview).on('swipedown', resetMask);
+            // $(preview).on('swipeup', resetMask);
+            // $(preview).on('swipedown', resetMask);
         }
         return () => {
             unsubscribe(showMaskId);
@@ -83,27 +83,31 @@ function PreviewMask(props) {
     }, []);
 
     function resetMask(e) {
-        console.log('resetMask');
+        console.log('resetMask', e);
         if (!window.isPC && ratio !== 1 && (e.type === 'swipeup' || e.type === 'swipedown')) return;
-        img.src = '';
-        previewVideo.current && previewVideo.current.setAttribute('src', ''); // 停止加载未加载完成的图片/视频
-        setShowMask(false);
-        document.body.classList.remove('overflow-hid');
-        setScaleRatio((ratio = 1));
-        setTransX((mTransX = 0));
-        setTransY((mTransY = 0));
-        setRotate(0);
-        setIsFullScreen(false);
-        emitMove = false;
-        emitUp = false;
-        imgGroup && setParentNode(imgGroup.setAttribute('data-show', ''));
-        onClose && onClose();
+        preview.classList.remove('animate__fadeIn');
+        preview.classList.add('animate__fadeOut');
+        setTimeout(() => {
+            img.src = '';
+            previewVideo.current && previewVideo.current.setAttribute('src', ''); // 停止加载未加载完成的图片/视频
+            setShowMask(false);
+            document.body.classList.remove('overflow-hid');
+            setScaleRatio((ratio = 1));
+            setTransX((mTransX = 0));
+            setTransY((mTransY = 0));
+            setRotate(0);
+            setIsFullScreen(false);
+            emitMove = false;
+            emitUp = false;
+            imgGroup && setParentNode(imgGroup.setAttribute('data-show', ''));
+            onClose && onClose();
+        }, 300);
     }
 
     function closeMask(e) {
         e.stopPropagation();
         if (!window.isPC && e.target.id === 'close') {
-            resetMask();
+            resetMask(e);
             return;
         }
         if (isFullScreen) {
@@ -111,7 +115,7 @@ function PreviewMask(props) {
                 // 浏览器全屏模式下 click 的同时会触发模拟的 mousemove 事件
                 // 因此无法通过设置 emitMove emitUp 判断鼠标行为是否是点击还是拖拽
                 // 而全屏模式下本身解决了拖拽空白区域也会关闭 previewmask 的 bug, 因此不用通过 emitMove emitUp 解决
-                resetMask();
+                resetMask(e);
             }
         } else {
             if (emitMove && emitUp) {
@@ -119,7 +123,7 @@ function PreviewMask(props) {
             }
             if (e.target.id === 'preview-mask' || e.target.id === 'close') {
                 //点击空白区域或关闭按钮关闭
-                resetMask();
+                resetMask(e);
             }
         }
     }
@@ -424,10 +428,10 @@ function PreviewMask(props) {
         // e.stopPropagation();
         const target = e.target;
         emitUp = true;
+        previewVideo.current && mVideoSrc && previewVideo.current.play();
         if (emitMove) {
             // 触发move事件
             target.classList.remove('grabbing');
-            previewVideo.current && mVideoSrc && previewVideo.current.play();
             if (ratio === 1) {
                 // 如果缩放比例等于 1, 在 mouseup 的时候设置边界值为 0
                 setTransX((mTransX = 0));
@@ -771,7 +775,7 @@ function PreviewMask(props) {
         <div
             id='preview-mask'
             ref={previewMask}
-            className='preview-mask h-v-full w-v-full fixed'
+            className='preview-mask h-v-full w-v-full fixed animate__animated animate__fadeIn'
             onClick={closeMask}
             onMouseDown={maskDown}
             onWheel={sourceErr ? null : throttle(scaleImg, 200)}

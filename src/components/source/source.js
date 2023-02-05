@@ -5,6 +5,8 @@ import { getCls, getPropVal } from '../../static/utils/utils';
 import { PropTypes } from 'prop-types';
 import Img from '../img/img';
 import Video from '../video/video';
+import { on, off } from 'touchjs';
+import $ from 'zepto-webpack';
 // import axios from 'axios';
 // const CancelToken = axios.CancelToken;
 
@@ -13,13 +15,16 @@ function Source(props) {
     const height = getPropVal(props.height);
     const { urls, pic_num, sourceType, lazySource, lazySrcType, idx, curIdx, src, text, alt, objectFit, emitPreview, borderRadius, lazy, onClick } =
         props;
-    const imgMask = useRef(null);
+    const imgWrap = useRef(null);
 
     useEffect(() => {
+        if (window.isPC) return;
+        $(imgWrap.current).on('tap', clickEvent);
         return () => {};
     }, []);
 
     function clickEvent(e) {
+        console.log('预览');
         e.stopPropagation();
         if (emitPreview && urls) {
             // blog setShow
@@ -41,8 +46,9 @@ function Source(props) {
     return (
         <div
             className='img-wrap overflow-hid inline-block vertical-m relative'
-            onClick={clickEvent}
+            onClick={window.isPC ? clickEvent : null}
             style={{ width, height, borderRadius, paddingTop: getHeight() }}
+            ref={imgWrap}
         >
             {lazySource ? (
                 lazySrcType === 'mov' || lazySrcType === 'mp4' ? (
@@ -63,9 +69,11 @@ function Source(props) {
                     {sourceType === 'mov' ? 'Live' : '动图'}
                 </span>
             )}
-            <div className='img-mask absolute none' ref={imgMask} style={{ display: idx === curIdx ? 'flex' : null }}>
-                {text}
-            </div>
+            {window.isPC && (
+                <div className='img-mask absolute none' style={{ display: idx === curIdx ? 'flex' : null }}>
+                    {text}
+                </div>
+            )}
         </div>
     );
 }

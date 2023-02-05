@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { subscribe, unsubscribe } from 'pubsub-js';
 import { on, off } from 'touchjs';
-import './previewmask.css';
-import { throttle, _throttle, antiShake, judgeType, getCls } from '../../static/utils/utils';
+import $ from 'zepto-webpack';
+import './previewmask.less';
+import { throttle, _throttle, antiShake, judgeType, getCls, tap, doubletap } from '../../static/utils/utils';
 import Source from '../source/source';
 import { getBrowser } from '../../static/utils/utils';
 import defaultImg from '../../static/images/default_img.png';
@@ -14,13 +15,22 @@ const img = document.createElement('img');
 let ratio = 1;
 let throttleSourceMove;
 let throttleMaskMove;
-let throttlePinchin;
-let throttlePinchout;
+let antiShakePreImg;
+let antiShakeNextImg;
 let emitUp = false;
 let emitMove = false;
 let showMaskId;
 let index = 0;
 let imgGroup = null;
+let mTransX = 0;
+let mTransY = 0;
+let start = null;
+let t = null;
+let mVideoSrc = '';
+let preview = null;
+let status = 0;
+let sp = null;
+let timer = null;
 
 function PreviewMask(props) {
     const { urls, pic_infos, isCommt, onClose } = props;
@@ -39,8 +49,10 @@ function PreviewMask(props) {
     const previewImg = useRef(null);
     const maskFoot = useRef(null);
     const previewVideo = useRef(null);
+    const progress = useRef(null);
 
     useEffect(() => {
+        preview = previewMask.current;
         document.body.classList.add('overflow-hid');
         showMaskId = subscribe('showMask', (_, data) => {
             let idx = data.idx || 0;
@@ -51,22 +63,35 @@ function PreviewMask(props) {
             index = idx;
             onSrcLoad(-1, idx);
         });
-        throttlePinchin = _throttle(pinchin, 200, { begin: true, end: true });
-        throttlePinchout = _throttle(pinchout, 200, { begin: true, end: true });
+        antiShakePreImg = antiShake(preImg, 100);
+        antiShakeNextImg = antiShake(nextImg, 100);
+        if (!window.isPC) {
+            // $(preview).on('tap', resetMask);
+            // $(preview).on('doubletap', mScale);
+            // preview.addEventListener('touchstart', sourceDown);
+            // $(preview).on('touchstart', sourceDown);
+            $(preview).on('pinchin', pinchin);
+            $(preview).on('pinchout', pinchout);
+            $(preview).on('swipeleft', antiShakeNextImg);
+            $(preview).on('swiperight', antiShakePreImg);
+            $(preview).on('swipeup', resetMask);
+            $(preview).on('swipedown', resetMask);
+        }
         return () => {
             unsubscribe(showMaskId);
         };
     }, []);
 
-    function resetMask() {
+    function resetMask(e) {
         console.log('resetMask');
+        if (!window.isPC && ratio !== 1 && (e.type === 'swipeup' || e.type === 'swipedown')) return;
         img.src = '';
         previewVideo.current && previewVideo.current.setAttribute('src', ''); // 停止加载未加载完成的图片/视频
         setShowMask(false);
         document.body.classList.remove('overflow-hid');
         setScaleRatio((ratio = 1));
-        setTransX(0);
-        setTransY(0);
+        setTransX((mTransX = 0));
+        setTransY((mTransY = 0));
         setRotate(0);
         setIsFullScreen(false);
         emitMove = false;
@@ -123,9 +148,9 @@ function PreviewMask(props) {
         }
         changeStyle('add');
         setSrc(urls[idx]);
-        setVideoSrc('');
-        setTransX(0);
-        setTransY(0);
+        setVideoSrc((mVideoSrc = ''));
+        setTransX((mTransX = 0));
+        setTransY((mTransY = 0));
         setScaleRatio((ratio = 1));
         setRotate(0);
         setSourceErr(false);
@@ -139,7 +164,7 @@ function PreviewMask(props) {
 
     function onSrcLoad(preIdx, idx) {
         img.src = '';
-        setVideoSrc(''); // 停止加载未加载完成的图片/视频
+        setVideoSrc((mVideoSrc = '')); // 停止加载未加载完成的图片/视频
         const type = judgeType(pic_infos[idx]) === 'object' && pic_infos[idx].type;
         if (type === 'jpg' || (type === 'gif' && isCommt)) {
             const normalUrl = getUrl('normal', idx);
@@ -151,11 +176,11 @@ function PreviewMask(props) {
         }
         if (type === 'gif' && !isCommt) {
             const mp4Url = getUrl('normal', idx);
-            setVideoSrc(mp4Url);
+            setVideoSrc((mVideoSrc = mp4Url));
         }
         if (type === 'mov') {
             const movUrl = getUrl('mov', idx);
-            setVideoSrc(movUrl);
+            setVideoSrc((mVideoSrc = movUrl));
         }
         setTimeout(() => {
             if (previewVideo.current) {
@@ -173,17 +198,9 @@ function PreviewMask(props) {
                     setSourceErr(true);
                 };
             }
-            if (!window.isPC && isImg(preIdx) !== isImg(idx)) {
-                const targetEle = previewVideo.current || previewImg.current;
-                on(targetEle, 'doubletap', mScale);
-                on(targetEle, 'tap', resetMask);
-                on(targetEle, 'swipeleft', nextImg);
-                on(targetEle, 'swiperight', preImg);
-                on(targetEle, 'pinchin', throttlePinchin);
-                on(targetEle, 'pinchout', throttlePinchout);
-                on(targetEle, 'dragstart', sourceDown);
-                // on(targetEle, 'drag', sourceDown);
-            }
+            // if (!window.isPC && isImg(preIdx) !== isImg(idx)) {
+            //     console.log('m event'); // needn't
+            // }
         }, 0);
     }
 
@@ -193,7 +210,6 @@ function PreviewMask(props) {
         setCurIdx(curIdx => {
             return curIdx - 1;
         });
-        // index--;
         toggleImg(index--, index);
     }
 
@@ -203,7 +219,6 @@ function PreviewMask(props) {
         setCurIdx(curIdx => {
             return curIdx + 1;
         });
-        // index++;
         toggleImg(index++, index);
     }
 
@@ -214,9 +229,6 @@ function PreviewMask(props) {
                 ratio += 0;
             } else if (ratio >= 28) {
                 ratio += 8;
-                if (ratio >= 50) {
-                    ratio = 50;
-                }
             } else if (ratio >= 16) {
                 ratio += 6;
             } else if (ratio >= 8) {
@@ -226,6 +238,7 @@ function PreviewMask(props) {
             } else {
                 ratio += 1;
             }
+            if (ratio >= 50) ratio = 50;
         } else {
             if (ratio <= 1) {
                 ratio -= 0;
@@ -240,9 +253,10 @@ function PreviewMask(props) {
             } else {
                 ratio -= 8;
             }
+            if (ratio <= 1) ratio = 1;
             if (ratio === 1) {
-                setTransX(0);
-                setTransY(0);
+                setTransX((mTransX = 0));
+                setTransY((mTransY = 0));
             }
         }
         setScaleRatio(ratio);
@@ -256,51 +270,72 @@ function PreviewMask(props) {
     function shrink() {
         changeStyle('remove');
         setScaleRatio((ratio = 1));
-        setTransX(0);
-        setTransY(0);
+        setTransX((mTransX = 0));
+        setTransY((mTransY = 0));
     }
 
     function sourceDown(e) {
-        console.log('dragstart', e);
+        if (status === 1 && timer) {
+            // 超过规定时间内的单机/双击事件无效, 清除单机回调函数
+            clearTimeout(timer);
+            timer = null;
+        }
+        console.log('touchstart', e);
+        if (!window.isPC) {
+            $(preview).off('swipeleft', antiShakeNextImg);
+            $(preview).off('swiperight', antiShakePreImg);
+            $(preview).off('swipeup', resetMask);
+            $(preview).off('swipedown', resetMask);
+        }
         e.target.classList.add('grabbing');
         previewVideo.current && previewVideo.current.pause();
         changeStyle('remove');
         // 获取元素当前的偏移量
-        let t = {
-            tx: transX,
-            ty: transY
+        t = {
+            tx: mTransX,
+            ty: mTransY
         };
         // 记录鼠标的起始位置
-        let start = {
-            startX: e.clientX,
-            startY: e.clientY
+        const clientX = window.isPC ? e.clientX : e.touches[0].clientX;
+        const clientY = window.isPC ? e.clientY : e.touches[0].clientY;
+        start = {
+            startX: clientX,
+            startY: clientY,
+            time: e.timeStamp
         };
-        // throttleSourceMove = _throttle(sourceMove, 100, { begin: true, end: true }, t, start);
-        // document.addEventListener('mousemove', throttleSourceMove);
-        throttleSourceMove = _throttle(mMove, 100, { begin: true, end: true }, t, start);
-        function mMove(e) {
-            e.preventDefault();
-            console.log('drag', e);
+        throttleSourceMove = _throttle(sourceMove, 100, { begin: true, end: true });
+        if (window.isPC) {
+            document.addEventListener('mousemove', throttleSourceMove);
+            document.addEventListener('mouseup', sourceUp);
+        } else {
+            $(preview).on('touchmove', throttleSourceMove);
+            $(preview).on('touchend', sourceUp);
+            // preview.addEventListener('touchmove', throttleSourceMove);
+            // preview.addEventListener('touchend', sourceUp);
         }
-        on(previewImg.current, 'drag', throttleSourceMove);
-        // document.addEventListener('mouseup', sourceUp);
         e.preventDefault();
     }
 
     function resetStart(t, start, e) {
+        const clientX = window.isPC ? e.clientX : e.touches[0].clientX;
+        const clientY = window.isPC ? e.clientY : e.touches[0].clientY;
         t.tx = transX;
         t.ty = transY;
-        start.startX = e.clientX;
-        start.startY = e.clientY;
+        start.startX = clientX;
+        start.startY = clientY;
     }
 
-    function sourceMove(e, ...args) {
+    function sourceMove(e) {
+        console.log('touchmove', e);
+        if (!window.isPC && ratio === 1) return;
         if (emitUp) return; // 解决当 ratio 为 1 时, mousemove 设置 translate 后 mouseup 位置偶现不复原的 bug
+        if (!window.isPC && ratio === 1) return;
         let targetEle = previewImg.current || previewVideo.current;
-        let [t, start] = args;
         emitMove = true;
-        transX = t.tx + (e.clientX - start.startX) / ratio;
-        transY = t.ty + (e.clientY - start.startY) / ratio;
+        const clientX = window.isPC ? e.clientX : e.touches[0].clientX;
+        const clientY = window.isPC ? e.clientY : e.touches[0].clientY;
+        transX = t.tx + (clientX - start.startX) / ratio;
+        transY = t.ty + (clientY - start.startY) / ratio;
         // getComputedStyle 获取到的是未缩放前的宽高
         // window.getComputedStyle(previewImg.current).width;
         // window.getComputedStyle(previewImg.current).height;
@@ -315,8 +350,8 @@ function PreviewMask(props) {
             winHeight = window.innerHeight;
         // 缩放比例为 1, 拖动的边界值在 mouseup 时设置为 0, 即无论怎么拖拽都是原始位置
         if (ratio === 1) {
-            setTransX(transX);
-            setTransY(transY);
+            setTransX((mTransX = transX));
+            setTransY((mTransY = transY));
             return;
         }
         // 缩放比例大于 1, 给拖拽设置边界值
@@ -327,7 +362,12 @@ function PreviewMask(props) {
             } else {
                 borderX = (eleWidth * ratio - winWidth) / 2 / ratio;
             }
-            borderY = (eleHeight * (ratio - 1)) / 2 / ratio;
+            if (eleHeight * ratio < winHeight) {
+                borderY = (winHeight - eleHeight * ratio) / 2 / ratio;
+            } else {
+                borderY = (eleHeight * ratio - winHeight) / 2 / ratio;
+            }
+            // borderY = (eleHeight * (ratio - 1)) / 2 / ratio;
         } else {
             // 旋转后宽高置反
             // 缩放后图片的高度小于窗口宽度
@@ -373,24 +413,71 @@ function PreviewMask(props) {
             resetStart(t, start, e);
         }
         // 缩放比例大于 1, 在 mousemove 的时候设置边界值
-        setTransX(transX);
-        setTransY(transY);
+        setTransX((mTransX = transX));
+        setTransY((mTransY = transY));
     }
 
     function sourceUp(e) {
-        e.target.classList.remove('grabbing');
-        previewVideo.current && videoSrc && previewVideo.current.play();
-        if (ratio === 1) {
-            // 如果缩放比例等于 1, 在 mouseup 的时候设置边界值为 0
-            setTransX(0);
-            setTransY(0);
-        }
-        changeStyle('add');
-        setShowMask(true);
-        document.body.classList.add('overflow-hid');
+        console.log('touchend', e);
+        e.preventDefault();
+        // e.stopPropagation();
+        const target = e.target;
         emitUp = true;
-        document.removeEventListener('mousemove', throttleSourceMove);
-        document.removeEventListener('mouseup', sourceUp);
+        if (emitMove) {
+            // 触发move事件
+            target.classList.remove('grabbing');
+            previewVideo.current && mVideoSrc && previewVideo.current.play();
+            if (ratio === 1) {
+                // 如果缩放比例等于 1, 在 mouseup 的时候设置边界值为 0
+                setTransX((mTransX = 0));
+                setTransY((mTransY = 0));
+            }
+            changeStyle('add');
+            setShowMask(true);
+            document.body.classList.add('overflow-hid');
+        } else {
+            // 仅触发单/双击事件
+            const touch = e.changedTouches[0];
+            sp = {
+                st: e.timeStamp,
+                sx: touch.clientX,
+                sy: touch.clientY
+            };
+            if (sp.st - start.time > 250 || Math.abs(sp.sx - start.startX) > 10 || Math.abs(sp.sy - start.startY) > 10) {
+                status = 0;
+                clearTimeout(timer);
+                timer = null;
+            } else {
+                if (status === 0) {
+                    status++;
+                    timer = setTimeout(() => {
+                        // 单击
+                        resetMask(e);
+                        status = 0;
+                        timer = null;
+                    }, 250);
+                } else {
+                    // 双击
+                    mScale();
+                    status = 0;
+                    clearTimeout(timer);
+                    timer = null;
+                }
+            }
+        }
+        if (window.isPC) {
+            document.removeEventListener('mousemove', throttleSourceMove);
+            document.removeEventListener('mouseup', sourceUp);
+        } else {
+            $(preview).on('swipeleft', antiShakeNextImg);
+            $(preview).on('swiperight', antiShakePreImg);
+            $(preview).on('swipeup', resetMask);
+            $(preview).on('swipedown', resetMask);
+            $(preview).off('touchmove', throttleSourceMove);
+            $(preview).off('touchend', sourceUp);
+            // preview.removeEventListener('touchmove', throttleSourceMove);
+            // preview.removeEventListener('touchend', sourceUp);
+        }
         setTimeout(function () {
             emitUp = false;
             emitMove = false;
@@ -537,25 +624,30 @@ function PreviewMask(props) {
             setScaleRatio((ratio = 2.5));
         } else {
             setScaleRatio((ratio = 1));
+            setTransX((mTransX = 0));
+            setTransY((mTransY = 0));
         }
     }
 
-    function pinchin() {
+    function pinchin(e) {
+        e.preventDefault();
         console.log('pinchin');
         changeStyle('remove');
         if (ratio <= 1) {
             ratio -= 0;
         } else {
-            ratio -= 0.3;
+            ratio -= 0.5;
         }
-        if (ratio === 1) {
-            setTransX(0);
-            setTransY(0);
+        if (ratio <= 1) {
+            ratio = 1;
+            setTransX((mTransX = 0));
+            setTransY((mTransY = 0));
         }
         setScaleRatio(ratio);
     }
 
-    function pinchout() {
+    function pinchout(e) {
+        e.preventDefault();
         console.log('pinchout');
         changeStyle('remove');
         if (ratio >= 2.5) {
@@ -566,16 +658,12 @@ function PreviewMask(props) {
         setScaleRatio(ratio);
     }
 
-    function bindEvent() {
-        if (window.isPC) return '';
-    }
-
     function sourceStyle() {
         let styleObj = {
             transform: `scale3d(${scaleRatio}, ${scaleRatio}, 1) translate3d(${transX}px, ${transY}px, 0px) rotate(${rotate}deg)`
         };
         if (window.isPC) {
-            styleObj.height = isFullScreen || urls.length <= 1 ? '100%' : 'calc(100vh - 70px)';
+            styleObj.height = isFullScreen || urls.length <= 1 ? '100%' : `calc(100vh - ${70}px)`;
             styleObj.bottom = 'unset';
         } else {
             styleObj.width = '100%';
@@ -639,9 +727,8 @@ function PreviewMask(props) {
                     className='preview-img absolute absolute-center grab'
                     src={src}
                     alt='加载失败'
-                    onMouseDown={!window.isPC || sourceErr ? null : sourceDown}
+                    onMouseDown={!sourceErr && window.isPC ? sourceDown : null}
                     style={{ ...sourceStyle(), ...cursorStyle() }}
-                    data-event={bindEvent()}
                 />
             ) : (
                 <video
@@ -652,13 +739,12 @@ function PreviewMask(props) {
                     autoPlay
                     muted
                     loop
-                    onMouseDown={!window.isPC || sourceErr ? null : sourceDown}
+                    onMouseDown={!sourceErr && window.isPC ? sourceDown : null}
                     onPlay={showVideo}
                     style={{ ...sourceStyle(), ...cursorStyle() }}
-                    data-event={bindEvent()}
                 ></video>
             )}
-            <span className={getCls(window.isPC ? 'font-14' : 'font-18', 'progress relative')}>
+            <span className={getCls(window.isPC ? 'font-14' : 'font-18', 'progress relative')} ref={progress}>
                 {curIdx + 1} / {urls.length}
             </span>
             {window.isPC && (
@@ -703,7 +789,7 @@ function PreviewMask(props) {
                                     curIdx={curIdx}
                                     urls={urls}
                                     src={src}
-                                    width='50px'
+                                    width={`${50}px`}
                                     text=''
                                     lazy={false}
                                     onClick={changeImg}

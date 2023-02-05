@@ -9,6 +9,7 @@ import { publish, subscribe, unsubscribe } from 'pubsub-js';
 import Blogs from './route/blogs/blogs';
 import KeepAliveLayout, { useKeepOutlets, KeepAliveContext } from '@chanjs/keepalive';
 import Header from './components/header/header';
+import $ from 'zepto-webpack';
 
 const { Content, Footer } = Layout;
 let beforeTop = 0;
@@ -18,13 +19,18 @@ let preId = null;
 const winHeight = window.innerHeight;
 let toBlogsId;
 let blogsRefreshId;
+let throttleScroll;
 
 export default function App() {
     useEffect(() => {
+        throttleScroll = _throttle(blogScroll, 200, { begin: true, end: true });
         toBlogsId = subscribe('toBlogs', (_, data) => {
             document.onscroll = null;
-            document.onscroll = _throttle(blogScroll, 200, { begin: true, end: true });
+            document.onscroll = throttleScroll;
             document.documentElement.scrollTop = data.scrollTop;
+            if (window.isPC) return;
+            // $(document).off('swipeup', throttleScroll);
+            // $(document).on('swipeup', throttleScroll);
         });
         blogsRefreshId = subscribe('blogsRefresh', () => {
             fetchDone = true;
@@ -35,7 +41,10 @@ export default function App() {
         if (window.location.pathname === '/') {
             fetchBlog(sinceId);
             document.onscroll = null;
-            document.onscroll = _throttle(blogScroll, 200, { begin: true, end: true });
+            document.onscroll = throttleScroll;
+            if (window.isPC) return;
+            // $(document).off('swipeup', throttleScroll);
+            // $(document).on('swipeup', throttleScroll);
         }
         return () => {
             unsubscribe(toBlogsId, blogsRefreshId);

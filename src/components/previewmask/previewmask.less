@@ -4,47 +4,39 @@
     background-color: rgba(0, 0, 0, 0.45);
     z-index: 10;
 }
-
 .preview-mask img,
 .preview-mask video {
     width: auto;
 }
-
 .preview-mask img.preview-img,
 .preview-mask video.preview-video {
-    transition: transform .2s linear;
+    transition: transform 0.2s linear;
     mix-blend-mode: unset;
 }
-
 .preview-mask img.no-trans,
 .preview-mask video.no-trans {
     transition: transform 0s linear;
 }
-
 .preview-mask .mask-foot {
     background-color: rgba(0, 0, 0, 0.15);
     bottom: 0;
 }
-
 .mask-head {
     height: 0;
     line-height: 1.5;
 }
-
 .mask-head .iconfont {
     color: var(--w-pophover-background);
     cursor: pointer;
 }
-
 .progress {
     display: inline-block;
     line-height: 1.5;
-    transform: scale(.8);
+    transform: scale(0.8);
     color: var(--w-color-gray-9);
     user-select: none;
     -webkit-user-select: none;
 }
-
 .toggle-btn {
     text-align: center;
     border-radius: 50%;
@@ -52,65 +44,47 @@
     transform: translateY(-50%);
     background-color: rgba(0, 0, 0, 0.1);
 }
-
 .left-btn {
     left: 0;
 }
-
 .right-btn {
     right: 0;
 }
-
-.mask-foot>div {
-    height: 60px;
+.mask-foot > div {
+    height: 60px; /* no */
     flex-grow: 0;
     flex-shrink: 0;
-    margin: 5px 0;
+    margin: 5px 0; /* no */
 }
-
 .mask-foot .img-mask {
     border: 2px solid var(--w-color-orange-1);
     box-sizing: border-box;
 }
-
 .mask-foot .img-wrap {
     margin: 4px;
 }
-
 .preview-mask .mask-foot img {
     width: 100%;
 }
-
 .mask-head .iconfont {
-    font-size: 22px;
-    /* no */
+    font-size: 22px; /* no */
 }
-
 .mask-head .iconfont {
     float: right;
-    padding: 0 15px;
-    /* no */
+    padding: 0 15px; /* no */
 }
-
 .mask-head .download {
     float: left;
 }
-
 .progress {
-    top: 10px;
-    /* no */
+    top: 10px; /* no */
     left: 50%;
     transform: translateX(-50%);
 }
-
 .toggle-btn span {
-    line-height: 45px;
-    /* no */
+    line-height: 45px; /* no */
 }
-
 .toggle-btn {
-    width: 45px;
-    /* no */
-    height: 45px;
-    /* no */
+    width: 45px; /* no */
+    height: 45px; /* no */
 }

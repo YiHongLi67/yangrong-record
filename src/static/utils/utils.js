@@ -263,3 +263,103 @@ export function setFontSize() {
     }
     window.fontSize = 20;
 }
+
+const tapDefaults = {
+    time: 250,
+    offset: 10
+};
+
+// 单机
+export function tap(node, a, b) {
+    let st, sx, sy;
+    let opts, callback;
+    if (typeof a === 'function') {
+        callback = a;
+        opts = Object.assign({}, tapDefaults, b);
+    } else {
+        callback = b;
+        opts = Object.assign({}, tapDefaults, a);
+    }
+    node.addEventListener(
+        'touchstart',
+        e => {
+            e.preventDefault(); // 阻止浏览器默认行为，防止触摸过程页面滚动
+            const touch = e.targetTouches[0];
+            st = e.timeStamp;
+            sx = touch.pageX;
+            sy = touch.pageY;
+        },
+        false
+    );
+    node.addEventListener(
+        'touchend',
+        e => {
+            const touch = e.changedTouches[0];
+            if (
+                // 若为长按，则将时间判定条件更改
+                e.timeStamp - st <= opts.time &&
+                Math.abs(touch.pageX - sx) <= opts.offset &&
+                Math.abs(touch.pageY - sy) <= opts.offset
+            ) {
+                callback && callback();
+            }
+        },
+        false
+    );
+}
+
+// m端双击
+function handler(node, inject) {
+    let st, sx, sy;
+    node.addEventListener(
+        'touchstart',
+        e => {
+            e.preventDefault();
+            const touch = e.targetTouches[0];
+            st = e.timeStamp;
+            sx = touch.pageX;
+            sy = touch.pageY;
+        },
+        false
+    );
+    node.addEventListener(
+        'touchend',
+        e => {
+            const touch = e.changedTouches[0];
+            inject({
+                time: e.timeStamp - st,
+                offsetX: Math.abs(touch.pageX - sx),
+                offsetY: Math.abs(touch.pageY - sy)
+            });
+        },
+        false
+    );
+}
+
+export function doubletap(node, a, b) {
+    let opts, callback;
+    let status = 0;
+    if (typeof a === 'function') {
+        callback = a;
+        opts = Object.assign({}, tapDefaults, b);
+    } else {
+        callback = b;
+        opts = Object.assign({}, tapDefaults, a);
+    }
+    handler(node, info => {
+        if (info.time <= opts.time && info.offsetX <= opts.offset && info.offsetY <= opts.offset) {
+            if (status === 0) {
+                status = 1;
+                // 时间间隔太长则重置状态
+                setTimeout(() => {
+                    status = 0;
+                }, opts.time);
+            } else if (status === 1) {
+                callback && callback();
+                status = 0;
+            }
+        } else {
+            status = 0;
+        }
+    });
+}

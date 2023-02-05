@@ -59,7 +59,8 @@ module.exports = {
     // 配置 webpack 开发模式下监测文件修改自动打包
     devServer: {
         static: './yangrong-record',
-        host: 'localhost',
+        host: '192.168.43.88',
+        // host: '0.0.0.0',
         port: 3000,
         open: true,
         hot: true, // 开启热更新功能

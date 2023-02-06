@@ -24,7 +24,6 @@ function Source(props) {
     }, []);
 
     function clickEvent(e) {
-        console.log('预览');
         e.stopPropagation();
         if (emitPreview && urls) {
             // blog setShow

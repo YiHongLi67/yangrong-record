@@ -1,5 +1,6 @@
 import moment from 'moment';
 import 'moment/locale/zh-cn';
+import { off } from 'touchjs';
 moment.locale('zh-cn');
 export function throttle(fn, wait, ...args) {
     // 节流
@@ -268,8 +269,7 @@ const tapDefaults = {
     time: 250,
     offset: 10
 };
-
-// 单机
+// m端单机
 export function tap(node, a, b) {
     let st, sx, sy;
     let opts, callback;
@@ -335,7 +335,6 @@ function handler(node, inject) {
         false
     );
 }
-
 export function doubletap(node, a, b) {
     let opts, callback;
     let status = 0;
@@ -362,4 +361,67 @@ export function doubletap(node, a, b) {
             status = 0;
         }
     });
+}
+
+// m端swipe(轻扫)
+const swipeDefaults = {
+    direction: 'horizontal', // vertical
+    speed: 60,
+    offset: 100,
+    // speed: 60,
+    // offset: 100,
+    prevent: true
+    // touchmove: (offset) => {}
+};
+export function swipe(node, a, b) {
+    let opts, callback, sTime, sTouch, eTouch;
+    function swipestart(e) {
+        if (opts.prevent) {
+            e.preventDefault();
+        }
+        if (e.touches.length > 1) return;
+        sTime = e.timeStamp;
+        sTouch = eTouch = e.targetTouches[0];
+        if (typeof opts.touchmove === 'function') {
+            node.addEventListener('touchmove', swipemove, false);
+        }
+        node.addEventListener('touchend', swipeend, false);
+    }
+    function swipemove(e) {
+        eTouch = e.targetTouches[0];
+        if (opts.direction === 'horizontal') {
+            opts.touchmove(eTouch.pageX - sTouch.pageX);
+        } else {
+            opts.touchmove(eTouch.pageY - sTouch.pageY);
+        }
+    }
+    function swipeend(e) {
+        eTouch = e.changedTouches[0];
+        let time = e.timeStamp - sTime;
+        let offset, direction;
+        if (opts.direction === 'horizontal') {
+            offset = eTouch.pageX - sTouch.pageX;
+            direction = offset > 0 ? 'right' : 'left';
+        } else {
+            offset = eTouch.pageY - sTouch.pageY;
+            direction = offset > 0 ? 'down' : 'up';
+        }
+        const speed = (Math.abs(offset) / time) * 1000;
+        offset = Math.abs(offset);
+        // if (Math.abs(offset) >= opts.offset || speed >= opts.speed) {
+        console.log(direction, offset, speed);
+        if ((offset < 60 && speed > 200) || (offset >= 60 && speed > 300)) {
+            callback && callback(e, direction, speed);
+        }
+        node.removeEventListener('touchmove', swipemove);
+        node.removeEventListener('touchend', swipeend);
+    }
+    if (typeof a === 'function') {
+        callback = a;
+        opts = Object.assign({}, swipeDefaults, b);
+    } else {
+        callback = b;
+        opts = Object.assign({}, swipeDefaults, a);
+    }
+    node.addEventListener('touchstart', swipestart, false);
 }

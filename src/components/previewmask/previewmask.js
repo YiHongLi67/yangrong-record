@@ -3,7 +3,7 @@ import { subscribe, unsubscribe } from 'pubsub-js';
 import { on, off } from 'touchjs';
 import $ from 'zepto-webpack';
 import './previewmask.less';
-import { throttle, _throttle, antiShake, judgeType, getCls, tap, doubletap } from '../../static/utils/utils';
+import { throttle, _throttle, antiShake, judgeType, getCls, tap, doubletap, swipe } from '../../static/utils/utils';
 import Source from '../source/source';
 import { getBrowser } from '../../static/utils/utils';
 import defaultImg from '../../static/images/default_img.png';
@@ -12,7 +12,7 @@ import { PropTypes } from 'prop-types';
 const browser = getBrowser();
 const img = document.createElement('img');
 
-let ratio = 1;
+let ratio = 2;
 let throttleSourceMove;
 let throttleMaskMove;
 let antiShakePreImg;
@@ -72,8 +72,13 @@ function PreviewMask(props) {
             preview.addEventListener('touchend', pinchend);
             preview.addEventListener('touchcancel', pinchend);
             preview.addEventListener('touchstart', sourceDown);
-            $(preview).on('swipeleft', antiShakeNextImg);
-            $(preview).on('swiperight', antiShakePreImg);
+            swipe(preview, swipeHorizontal, { direction: 'horizontal' });
+            swipe(preview, swipeVertical, { direction: 'vertical' });
+            // $(preview).on('swipe', e => {
+            //     console.log('swipe', e);
+            // });
+            // $(preview).on('swipeleft', antiShakeNextImg);
+            // $(preview).on('swiperight', antiShakePreImg);
             // $(preview).on('swipeup', resetMask);
             // $(preview).on('swipedown', resetMask);
         }
@@ -83,7 +88,7 @@ function PreviewMask(props) {
     }, []);
 
     function resetMask(e) {
-        console.log('resetMask', e);
+        // console.log('resetMask', e);
         if (!window.isPC && ratio !== 1 && (e.type === 'swipeup' || e.type === 'swipedown')) return;
         preview.classList.remove('animate__fadeIn');
         preview.classList.add('animate__fadeOut');
@@ -278,19 +283,69 @@ function PreviewMask(props) {
         setTransY((mTransY = 0));
     }
 
+    function swipeHorizontal(e, direction, speed) {
+        // if (speed < 60) return;
+        // console.log(mTransX, speed);
+        const { borderX } = cmpBorder();
+        let targetEle = previewImg.current || previewVideo.current;
+        targetEle.classList.remove('no-trans');
+        targetEle.classList.add('trans-3');
+        if (direction === 'left') {
+            transX -= speed / ratio / 2;
+            if (transX <= -borderX) {
+                transX = -borderX;
+            }
+        }
+        if (direction === 'right') {
+            transX += speed / ratio / 2;
+            if (transX >= borderX) {
+                transX = borderX;
+            }
+        }
+        setTransX((mTransX = transX));
+        setTimeout(() => {
+            targetEle.classList.remove('trans-3');
+        }, 300);
+    }
+
+    function swipeVertical(e, direction, speed) {
+        // if (speed < 60) return;
+        // console.log(mTransY, speed);
+        const { borderY } = cmpBorder();
+        let targetEle = previewImg.current || previewVideo.current;
+        targetEle.classList.remove('no-trans');
+        targetEle.classList.add('trans-3');
+        if (direction === 'up') {
+            transY -= speed / ratio / 2;
+            if (transY <= -borderY) {
+                transY = -borderY;
+            }
+        }
+        if (direction === 'down') {
+            transY += speed / ratio / 2;
+            if (transY >= borderY) {
+                transY = borderY;
+            }
+        }
+        setTransY((mTransY = transY));
+        setTimeout(() => {
+            targetEle.classList.remove('trans-3');
+        }, 300);
+    }
+
     function sourceDown(e) {
-        // e.preventDefault();
+        if (!window.isPC && e.touches.length > 1) return;
+        // console.log('dragstart', e.touches, e.targetTouches, e.changedTouches);
         if (status === 1 && timer) {
             // 超过规定时间内的单机/双击事件无效, 清除单机回调函数
             clearTimeout(timer);
             timer = null;
         }
-        console.log('touchstart', e);
         if (!window.isPC) {
-            $(preview).off('swipeleft', antiShakeNextImg);
-            $(preview).off('swiperight', antiShakePreImg);
-            $(preview).off('swipeup', resetMask);
-            $(preview).off('swipedown', resetMask);
+            // $(preview).off('swipeleft', antiShakeNextImg);
+            // $(preview).off('swiperight', antiShakePreImg);
+            // $(preview).off('swipeup', resetMask);
+            // $(preview).off('swipedown', resetMask);
         }
         e.target.classList.add('grabbing');
         previewVideo.current && previewVideo.current.pause();
@@ -301,8 +356,9 @@ function PreviewMask(props) {
             ty: mTransY
         };
         // 记录鼠标的起始位置
-        const clientX = window.isPC ? e.clientX : e.touches[0].clientX;
-        const clientY = window.isPC ? e.clientY : e.touches[0].clientY;
+        const touch = e.touches[0];
+        const clientX = window.isPC ? e.clientX : touch.clientX;
+        const clientY = window.isPC ? e.clientY : touch.clientY;
         start = {
             startX: clientX,
             startY: clientY,
@@ -329,18 +385,8 @@ function PreviewMask(props) {
         start.startY = clientY;
     }
 
-    function sourceMove(e) {
-        // e.preventDefault();
-        console.log('touchmove', e);
-        if (!window.isPC && ratio === 1) return;
-        if (emitUp) return; // 解决当 ratio 为 1 时, mousemove 设置 translate 后 mouseup 位置偶现不复原的 bug
-        if (!window.isPC && ratio === 1) return;
+    function cmpBorder() {
         let targetEle = previewImg.current || previewVideo.current;
-        emitMove = true;
-        const clientX = window.isPC ? e.clientX : e.touches[0].clientX;
-        const clientY = window.isPC ? e.clientY : e.touches[0].clientY;
-        transX = t.tx + (clientX - start.startX) / ratio;
-        transY = t.ty + (clientY - start.startY) / ratio;
         // getComputedStyle 获取到的是未缩放前的宽高
         // window.getComputedStyle(previewImg.current).width;
         // window.getComputedStyle(previewImg.current).height;
@@ -353,13 +399,6 @@ function PreviewMask(props) {
             eleHeight = parseFloat(window.getComputedStyle(targetEle).height),
             winWidth = window.innerWidth,
             winHeight = window.innerHeight;
-        // 缩放比例为 1, 拖动的边界值在 mouseup 时设置为 0, 即无论怎么拖拽都是原始位置
-        if (ratio === 1) {
-            setTransX((mTransX = transX));
-            setTransY((mTransY = transY));
-            return;
-        }
-        // 缩放比例大于 1, 给拖拽设置边界值
         // 如果旋转后宽高未置反
         if (!isRotate()) {
             if (eleWidth * ratio < winWidth) {
@@ -397,6 +436,31 @@ function PreviewMask(props) {
                 borderY = (eleWidth * ratio - eleHeight) / 2 / ratio;
             }
         }
+        return {
+            borderX,
+            borderY
+        };
+    }
+
+    function sourceMove(e) {
+        // console.log('dragmove', e.touches, e.targetTouches, e.changedTouches);
+        if (!window.isPC && ratio === 1) return;
+        if (emitUp) return; // 解决当 ratio 为 1 时, mousemove 设置 translate 后 mouseup 位置偶现不复原的 bug
+        if (!window.isPC && ratio === 1) return;
+        emitMove = true;
+        const touch = e.changedTouches[0];
+        const clientX = window.isPC ? e.clientX : touch.clientX;
+        const clientY = window.isPC ? e.clientY : touch.clientY;
+        transX = t.tx + (clientX - start.startX) / ratio;
+        transY = t.ty + (clientY - start.startY) / ratio;
+        // 缩放比例为 1, 拖动的边界值在 mouseup 时设置为 0, 即无论怎么拖拽都是原始位置
+        if (ratio === 1) {
+            setTransX((mTransX = transX));
+            setTransY((mTransY = transY));
+            return;
+        }
+        // 缩放比例大于 1, 给拖拽设置边界值
+        const { borderX, borderY } = cmpBorder();
         if (transX >= borderX) {
             // 向右拖拽
             transX = borderX;
@@ -423,24 +487,24 @@ function PreviewMask(props) {
     }
 
     function sourceUp(e) {
-        console.log('touchend', e);
-        // e.preventDefault();
-        // e.stopPropagation();
+        // console.log('dragend', e.touches, e.targetTouches, e.changedTouches);
+        // preview.removeEventListener('touchmove', throttleSourceMove);
+        // preview.removeEventListener('touchend', sourceUp);
+        // return;
         const target = e.target;
         emitUp = true;
         previewVideo.current && mVideoSrc && previewVideo.current.play();
-        if (emitMove) {
-            // 触发move事件
-            target.classList.remove('grabbing');
-            if (ratio === 1) {
-                // 如果缩放比例等于 1, 在 mouseup 的时候设置边界值为 0
-                setTransX((mTransX = 0));
-                setTransY((mTransY = 0));
-            }
-            changeStyle('add');
-            setShowMask(true);
-            document.body.classList.add('overflow-hid');
-        } else {
+        target.classList.remove('grabbing');
+        // 触发move事件
+        if (ratio === 1) {
+            // 如果缩放比例等于 1, 在 mouseup 的时候设置边界值为 0
+            setTransX((mTransX = 0));
+            setTransY((mTransY = 0));
+        }
+        changeStyle('add');
+        setShowMask(true);
+        document.body.classList.add('overflow-hid');
+        if (!emitMove && !window.isPC) {
             // 仅触发单/双击事件
             const touch = e.changedTouches[0];
             sp = {
@@ -463,7 +527,7 @@ function PreviewMask(props) {
                     }, 250);
                 } else {
                     // 双击
-                    mScale();
+                    mScale(e);
                     status = 0;
                     clearTimeout(timer);
                     timer = null;
@@ -474,12 +538,10 @@ function PreviewMask(props) {
             document.removeEventListener('mousemove', throttleSourceMove);
             document.removeEventListener('mouseup', sourceUp);
         } else {
-            $(preview).on('swipeleft', antiShakeNextImg);
-            $(preview).on('swiperight', antiShakePreImg);
-            $(preview).on('swipeup', resetMask);
-            $(preview).on('swipedown', resetMask);
-            // $(preview).off('touchmove', throttleSourceMove);
-            // $(preview).off('touchend', sourceUp);
+            // $(preview).on('swipeleft', antiShakeNextImg);
+            // $(preview).on('swiperight', antiShakePreImg);
+            // $(preview).on('swipeup', resetMask);
+            // $(preview).on('swipedown', resetMask);
             preview.removeEventListener('touchmove', throttleSourceMove);
             preview.removeEventListener('touchend', sourceUp);
         }
@@ -622,8 +684,8 @@ function PreviewMask(props) {
         }
     }
 
-    function mScale() {
-        console.log('mScale');
+    function mScale(e) {
+        // console.log('mScale', e);
         changeStyle('remove');
         if (ratio === 1) {
             setScaleRatio((ratio = 2.5));
@@ -635,8 +697,7 @@ function PreviewMask(props) {
     }
 
     function pinchstart(e) {
-        // e.preventDefault();
-        console.log('pinchstart', e);
+        // console.log('pinchstart', e);
         changeStyle('remove');
         let touche1 = e.touches[0];
         let touche2 = e.touches[1];
@@ -652,8 +713,7 @@ function PreviewMask(props) {
     }
 
     function pinchmove(e) {
-        // e.preventDefault();
-        console.log('pinchmove', e);
+        // console.log('pinchmove', e);
         if (!store.moveable) {
             return;
         }
@@ -711,7 +771,7 @@ function PreviewMask(props) {
     }
 
     function pinchend(e) {
-        console.log('pinchend', e);
+        // console.log('pinchend', e);
         store.moveable = false;
         delete store.pageX2;
         delete store.pageY2;

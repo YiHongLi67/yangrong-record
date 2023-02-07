@@ -185,6 +185,7 @@
 }
 
 .absolute-center {
+    position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
@@ -194,6 +195,10 @@
 
 .margin-x-auto {
     margin: 0 auto;
+}
+
+.none {
+    display: none;
 }
 
 .inline-block {

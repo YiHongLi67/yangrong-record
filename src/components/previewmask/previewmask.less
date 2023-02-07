@@ -1,9 +1,12 @@
 .preview-mask {
     top: 0;
     left: 0;
-    background-color: rgba(0, 0, 0, 0.45);
+    background-color: var(--w-mask);
     z-index: 10;
     animation-duration: 300ms;
+}
+.opacity-1 {
+    background-color: var(--w-black);
 }
 .preview-mask img,
 .preview-mask video {
@@ -14,8 +17,8 @@
     transition: transform 0.1s linear;
     mix-blend-mode: unset;
 }
-.preview-mask img.trans-3,
-.preview-mask video.trans-3 {
+.preview-mask img.preview-img.trans-3,
+.preview-mask video.preview-video.trans-3 {
     transition: transform 0.3s linear;
 }
 .preview-mask img.no-trans,
@@ -92,4 +95,30 @@
 .toggle-btn {
     width: 45px; /* no */
     height: 45px; /* no */
+}
+.save {
+    background-color: var(--w-mask);
+    animation-duration: 0.3s;
+}
+.save button {
+    width: 80%;
+    height: 100px;
+    border-radius: 14px; /* no */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+.save .ant-btn:hover,
+.save .ant-btn:focus {
+    color: rgba(0, 0, 0, 0.85);
+    border-color: #d9d9d9;
+    background-color: var(--w-color-light);
+    transition: all 0.3s;
+}
+.save .save-btn-style:hover,
+.save .save-btn-style:focus {
+    background-color: #d9d9d9;
 }

@@ -53,4 +53,6 @@
   --w-tip-error-bg: rgba(255, 237, 219, 0.95);
   --w-tip-warn-bg: #daeeff;
   --w-tip-warn: #507daf;
+  --w-black: #000;
+  --w-mask: rgba(0, 0, 0, 0.45);
 }

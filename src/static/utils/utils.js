@@ -265,6 +265,7 @@ export function setFontSize() {
     window.fontSize = 20;
 }
 
+let status = 0;
 const tapDefaults = {
     time: 250,
     offset: 10
@@ -283,7 +284,7 @@ export function tap(node, a, b) {
     node.addEventListener(
         'touchstart',
         e => {
-            e.preventDefault(); // 阻止浏览器默认行为，防止触摸过程页面滚动
+            // e.preventDefault(); // 阻止浏览器默认行为，防止触摸过程页面滚动
             const touch = e.targetTouches[0];
             st = e.timeStamp;
             sx = touch.pageX;
@@ -301,7 +302,7 @@ export function tap(node, a, b) {
                 Math.abs(touch.pageX - sx) <= opts.offset &&
                 Math.abs(touch.pageY - sy) <= opts.offset
             ) {
-                callback && callback();
+                callback && callback(e);
             }
         },
         false
@@ -314,7 +315,7 @@ function handler(node, inject) {
     node.addEventListener(
         'touchstart',
         e => {
-            e.preventDefault();
+            // e.preventDefault();
             const touch = e.targetTouches[0];
             st = e.timeStamp;
             sx = touch.pageX;
@@ -326,7 +327,7 @@ function handler(node, inject) {
         'touchend',
         e => {
             const touch = e.changedTouches[0];
-            inject({
+            inject(e, {
                 time: e.timeStamp - st,
                 offsetX: Math.abs(touch.pageX - sx),
                 offsetY: Math.abs(touch.pageY - sy)
@@ -345,7 +346,7 @@ export function doubletap(node, a, b) {
         callback = b;
         opts = Object.assign({}, tapDefaults, a);
     }
-    handler(node, info => {
+    handler(node, (e, info) => {
         if (info.time <= opts.time && info.offsetX <= opts.offset && info.offsetY <= opts.offset) {
             if (status === 0) {
                 status = 1;
@@ -354,7 +355,7 @@ export function doubletap(node, a, b) {
                     status = 0;
                 }, opts.time);
             } else if (status === 1) {
-                callback && callback();
+                callback && callback(e);
                 status = 0;
             }
         } else {
@@ -368,10 +369,7 @@ const swipeDefaults = {
     direction: 'horizontal', // vertical
     speed: 60,
     offset: 100,
-    // speed: 60,
-    // offset: 100,
-    prevent: true
-    // touchmove: (offset) => {}
+    prevent: false
 };
 export function swipe(node, a, b) {
     let opts, callback, sTime, sTouch, eTouch;
@@ -424,4 +422,47 @@ export function swipe(node, a, b) {
         opts = Object.assign({}, swipeDefaults, a);
     }
     node.addEventListener('touchstart', swipestart, false);
+}
+
+const pressDefaults = { time: 1000, offset: 10 };
+export function press(node, a, b) {
+    let opts, callback, sx, sy;
+    let timer = null;
+    if (typeof a === 'function') {
+        callback = a;
+        opts = Object.assign({}, pressDefaults, b);
+    } else {
+        callback = b;
+        opts = Object.assign({}, pressDefaults, a);
+    }
+    node.addEventListener(
+        'touchstart',
+        e => {
+            // e.preventDefault();
+            const touch = e.targetTouches[0];
+            sx = touch.pageX;
+            sy = touch.pageY;
+            timer = setTimeout(() => {
+                callback && callback(e);
+            }, opts.time);
+        },
+        false
+    );
+    node.addEventListener(
+        'touchmove',
+        e => {
+            const touch = e.targetTouches[0];
+            if (Math.abs(touch.pageX - sx) > opts.offset || Math.abs(touch.pageY - sy) > opts.offset) {
+                clearTimeout(timer);
+            }
+        },
+        false
+    );
+    node.addEventListener(
+        'touchend',
+        () => {
+            clearTimeout(timer);
+        },
+        false
+    );
 }

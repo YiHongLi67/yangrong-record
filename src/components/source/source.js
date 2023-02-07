@@ -5,10 +5,7 @@ import { getCls, getPropVal } from '../../static/utils/utils';
 import { PropTypes } from 'prop-types';
 import Img from '../img/img';
 import Video from '../video/video';
-import { on, off } from 'touchjs';
-import $ from 'zepto-webpack';
-// import axios from 'axios';
-// const CancelToken = axios.CancelToken;
+import touch from 'touchjs';
 
 function Source(props) {
     const width = getPropVal(props.width);
@@ -19,7 +16,7 @@ function Source(props) {
 
     useEffect(() => {
         if (window.isPC) return;
-        $(imgWrap.current).on('tap', clickEvent);
+        touch.on(imgWrap.current, 'tap', clickEvent);
         return () => {};
     }, []);
 

@@ -9,7 +9,6 @@ import { publish, subscribe, unsubscribe } from 'pubsub-js';
 import Blogs from './route/blogs/blogs';
 import KeepAliveLayout, { useKeepOutlets, KeepAliveContext } from '@chanjs/keepalive';
 import Header from './components/header/header';
-import $ from 'zepto-webpack';
 
 const { Content, Footer } = Layout;
 let beforeTop = 0;
@@ -29,8 +28,6 @@ export default function App() {
             document.onscroll = throttleScroll;
             document.documentElement.scrollTop = data.scrollTop;
             if (window.isPC) return;
-            // $(document).off('swipeup', throttleScroll);
-            // $(document).on('swipeup', throttleScroll);
         });
         blogsRefreshId = subscribe('blogsRefresh', () => {
             fetchDone = true;
@@ -43,8 +40,6 @@ export default function App() {
             document.onscroll = null;
             document.onscroll = throttleScroll;
             if (window.isPC) return;
-            // $(document).off('swipeup', throttleScroll);
-            // $(document).on('swipeup', throttleScroll);
         }
         return () => {
             unsubscribe(toBlogsId, blogsRefreshId);

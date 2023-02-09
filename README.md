@@ -1,54 +1,24 @@
-### yangrong-record.com 是关于杨蓉作品和动态的记录网站
+### [yangrong-record.com](https://yangrong-record.com) 是记录分享[杨蓉](https://www.baidu.com/s?ie=UTF-8&wd=%E6%9D%A8%E8%93%89)作品和微博动态的网站
 
-01. 比如微博更新记录
+#### 目标功能
 
-### 优化
+`yangrong-record.com`将汇总杨蓉的作品和微博动态, 收集归纳并分享相关资源
 
-* 移动端上滑动加载更多事件
-* 移动端双指缩放事件
-* 移动端单指拖拽事件
-* 移动端拖拽和滑动事件冲突
-* 展开全文
-* 真实服务器头像禁止访问
-* 头像加载错误显示默认头像
-* V标识动画每条微博出现时都添加
-* 数字格式化字符串显示
-* 转发评论点赞为0不显示
-* video scale 黑屏
-* 加载当前blog全部mov/gif
-* 评论`博主`logo
-* 增加回到顶部按钮
-* 评论排序
-* 请求未完成时添加`加载动画`
-* v认证标识
-* 粉丝等级标识
-* 会员标识
+#### 现有功能
 
-### media资源
+* `yangrong-record.com`目前正在开发收集微博动态的功能, 包括微博正文、评论、图片, 移动PC端均已适配
+* 其他功能我们正在努力开发中...
 
-* jpg `pid.jpg`
-  + thumb: .jpg
-  + normal: .jpg
-  + large: .jpg
-* gif `pid.gif`
-  + thumb: .gif
-  + normal: .mp4
-  + large: .gif
-* mov `pid.mov`
-  + thumb: .jpg
-  + normal: .jpg
-  + large: .jpg
-  + mov: .mov
+#### 使用
 
-### 图片 size 规格
+为了获得更好的使用体验, 根据测试, 我们的浏览器的建议是:
+  + 移动端: 微博QQ内置浏览器 > 谷歌浏览器 = 华为浏览器 > 微信内置浏览器. (这是因为浏览器APP的一些手势和`yangrong-record.com`的手势冲突, 如果可以关闭浏览器手势建议关闭, 而微信内置浏览器在拖拽图片时会产生卡顿, 对此bug我们后续将尝试修复.)
+  + PC端: 谷歌浏览器、火狐浏览器、360 QQ等其他国产浏览器, 不建议使用IE浏览器
 
-* thumb: `https://wx2.sinaimg.cn/wap180/006Ur1aCgy1h962r87uo5g308i08akjl.gif`
-* bmiddle: `https://wx2.sinaimg.cn/wap360/006Ur1aCgy1h962r87uo5g308i08akjl.gif`
-* large: `https://wx2.sinaimg.cn/sti960/006Ur1aCgy1h962r87uo5g308i08akjl.gif`
-* original: `https://wx2.sinaimg.cn/orj1080/006Ur1aCgy1h962r87uo5g308i08akjl.gif`
-* largest: `https://wx2.sinaimg.cn/large/006Ur1aCgy1h962r87uo5g308i08akjl.gif`
-* mw2000: `https://wx2.sinaimg.cn/mw2000/006Ur1aCgy1h962r87uo5g308i08akjl.gif`
+#### 说明
 
-* blog 获取 size 规格: bmiddle original largest(原图)
-* comment--jpg 获取 size 规格: bmiddle original mw2000
-* comment--gif 获取 size 规格: bmiddle original  -->  original === mw2000
+`yangrong-record.com`仅用做技术学习和资源分享
+
+#### 反馈
+
+您在使用过程中遇到任何问题可以通过邮箱 yhl_to_yr@qq.com 向我们反馈. 若您是开发人员, 也可以在 gitee 或 github 上查看源码或留言.

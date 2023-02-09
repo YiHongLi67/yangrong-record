@@ -19,7 +19,7 @@ let throttleMaskMove;
 let emitUp = false;
 let emitMove = false;
 let showMaskId;
-let _curIdx = -1;
+let index = 0;
 let imgGroup = null;
 let mTransX = 0;
 let mTransY = 0;
@@ -27,25 +27,21 @@ let start = null;
 let t = null;
 let mVideoSrc = '';
 let preview = null;
-let mSourceCls = 'preview-source';
-let _viewTX = 0;
-let viewSTX = 0;
-let STX = 0;
+let status = 0;
+let timer = null;
 
 function PreviewMask(props) {
-    const { urls, pic_infos, isCommt, onClose, pic_num } = props;
+    const { urls, pic_infos, isCommt, onClose } = props;
     let [showMask, setShowMask] = useState(true);
-    let [curIdx, setCurIdx] = useState(_curIdx);
+    let [curIdx, setCurIdx] = useState(0);
     let [src, setSrc] = useState('');
     let [videoSrc, setVideoSrc] = useState('');
     let [scaleRatio, setScaleRatio] = useState(ratio);
     let [transX, setTransX] = useState(0);
     let [transY, setTransY] = useState(0);
     let [rotate, setRotate] = useState(0);
-    let [viewTX, setViewTX] = useState(0);
     let [isFullScreen, setIsFullScreen] = useState(false);
     let [sourceErr, setSourceErr] = useState(false);
-    let [sourceCls, setSourceCls] = useState(mSourceCls);
     const previewMask = useRef(null);
     const previewImg = useRef(null);
     const maskFoot = useRef(null);
@@ -53,7 +49,6 @@ function PreviewMask(props) {
     const progress = useRef(null);
     const save = useRef(null);
     const saveBtn = useRef(null);
-    const viewSource = useRef(null);
 
     useEffect(() => {
         preview = previewMask.current;
@@ -62,45 +57,24 @@ function PreviewMask(props) {
             let idx = data.idx || 0;
             imgGroup = data.parentNode;
             setSrc(data.urls[idx]);
-            setCurIdx((_curIdx = idx));
-            setViewTX((_viewTX = -idx * window.innerWidth));
+            setCurIdx(idx);
+            index = idx;
             onSrcLoad(-1, idx);
         });
         if (!window.isPC) {
-            const imgWraps = document.querySelectorAll('.view-source .img-wrap');
-            imgWraps.forEach(imgWrap => {
-                on(imgWrap, 'hold', hold);
-                on(imgWrap, 'tap', resetMask);
-                on(imgWrap, 'doubletap', mScale);
-                on(imgWrap, 'pinchstart', pinchstart);
-                on(imgWrap, 'dragstart', sourceDown);
-                on(imgWrap, 'drag', sourceMove);
-                on(imgWrap, 'dragend', sourceUp);
-                on(imgWrap, 'dragstart', viewDown);
-                on(imgWrap, 'drag', viewMove);
-                on(imgWrap, 'dragend', viewUp);
-                on(imgWrap, 'swipeend', swipeend);
-                on(imgWrap, 'swipestart', getTransX);
-                on(imgWrap, 'swipeend', mChangeImg);
-                on(save.current, 'tap', closeSave);
-                on(saveBtn.current, 'tap', mSave);
-                on(saveBtn.current, 'touchstart', setBtnStyle);
-                on(saveBtn.current, 'touchend', setBtnStyle);
-            });
-
             preview.addEventListener('contextmenu', closeMenu);
-            // on(preview, 'hold', hold);
-            // on(preview, 'tap', resetMask);
-            // on(preview, 'doubletap', mScale);
-            // on(preview, 'pinchstart', pinchstart);
-            // on(preview, 'dragstart', sourceDown);
-            // on(preview, 'drag', sourceMove);
-            // on(preview, 'dragend', sourceUp);
-            // on(preview, 'swipeend', swipeend);
-            // on(save.current, 'tap', closeSave);
-            // on(saveBtn.current, 'tap', mSave);
-            // on(saveBtn.current, 'touchstart', setBtnStyle);
-            // on(saveBtn.current, 'touchend', setBtnStyle);
+            on(preview, 'hold', hold);
+            on(preview, 'tap', resetMask);
+            on(preview, 'doubletap', mScale);
+            on(preview, 'pinchstart', pinchstart);
+            on(preview, 'dragstart', sourceDown);
+            on(preview, 'drag', sourceMove);
+            on(preview, 'dragend', sourceUp);
+            on(preview, 'swipeend', swipeend);
+            on(save.current, 'tap', closeSave);
+            on(saveBtn.current, 'tap', mSave);
+            on(saveBtn.current, 'touchstart', setBtnStyle);
+            on(saveBtn.current, 'touchend', setBtnStyle);
         }
         return () => {
             unsubscribe(showMaskId);
@@ -108,7 +82,9 @@ function PreviewMask(props) {
     }, []);
 
     function resetMask(e) {
+        console.log('resetMask', e);
         e.preventDefault();
+        // console.log('resetMask', e);
         if (!window.isPC && ratio !== 1 && (e.type === 'swipeup' || e.type === 'swipedown')) return;
         preview.classList.remove('animate__fadeIn');
         preview.classList.add('animate__fadeOut');
@@ -122,7 +98,6 @@ function PreviewMask(props) {
             setTransY((mTransY = 0));
             setRotate(0);
             setIsFullScreen(false);
-            // setCurIdx((_curIdx = -1));
             emitMove = false;
             emitUp = false;
             imgGroup && imgGroup.setAttribute('data-show', '');
@@ -154,7 +129,8 @@ function PreviewMask(props) {
         }
     }
 
-    function changeStyle(operate, targetEle = previewVideo.current || previewImg.current) {
+    function changeStyle(operate) {
+        let targetEle = previewVideo.current || previewImg.current;
         if (!targetEle) return;
         if (operate === 'add') {
             targetEle.classList.add('no-trans');
@@ -163,28 +139,11 @@ function PreviewMask(props) {
         }
     }
 
-    function getTransX() {
-        STX = transX;
-    }
-
-    function mChangeImg(e) {
-        if (e.factor > 3) return;
-        console.log('mChangeImg', STX, transX);
-        const { borderX, borderY } = cmpBorder();
-        changeStyle('remove', viewSource.current);
-        if (e.direction === 'right' && STX === borderX) {
-            preImg();
-        }
-        if (e.direction === 'left' && STX === -borderX) {
-            nextImg();
-        }
-    }
-
     function changeImg(e, idx) {
-        if (idx === _curIdx) return;
+        if (idx === curIdx) return;
         toggleImg(undefined, idx);
-        setCurIdx((_curIdx = idx));
-        setViewTX((_viewTX = -idx * window.innerWidth));
+        setCurIdx(idx);
+        index = idx;
     }
 
     function toggleImg(preIdx, idx) {
@@ -248,23 +207,21 @@ function PreviewMask(props) {
     }
 
     function preImg() {
-        // console.log('preImg');
-        if (_curIdx === 0) return;
-        const pre = _curIdx;
-        _curIdx -= 1;
-        setCurIdx(_curIdx);
-        setViewTX((_viewTX = -_curIdx * window.innerWidth));
-        toggleImg(pre, _curIdx);
+        console.log('preImg');
+        if (index === 0) return;
+        setCurIdx(curIdx => {
+            return curIdx - 1;
+        });
+        toggleImg(index--, index);
     }
 
     function nextImg() {
-        // console.log('nextImg');
-        if (_curIdx === urls.length - 1) return;
-        const pre = _curIdx;
-        _curIdx += 1;
-        setCurIdx(_curIdx);
-        setViewTX((_viewTX = -_curIdx * window.innerWidth));
-        toggleImg(pre, _curIdx);
+        console.log('nextImg');
+        if (index === urls.length - 1) return;
+        setCurIdx(curIdx => {
+            return curIdx + 1;
+        });
+        toggleImg(index++, index);
     }
 
     function scaleImg(e) {
@@ -319,52 +276,16 @@ function PreviewMask(props) {
         setTransY((mTransY = 0));
     }
 
-    function viewDown(e) {
-        changeStyle('remove', viewSource.current);
-        // 获取元素当前的偏移量
-        viewSTX = _viewTX;
-        // console.log('start', e.originEvent.touches);
-    }
-
-    function viewMove(e) {
-        // console.log('viewmove', e);
-        console.log('drag', STX, transX);
-        const { borderX } = cmpBorder();
-        if (e.direction === 'right' && transX !== borderX) return;
-        if (e.direction === 'left' && transX !== -borderX) return;
-        viewTX = viewSTX + e.distanceX;
-        const maxBorderX = 0;
-        const minBorderX = -(pic_num - 1) * window.innerWidth;
-        if (viewTX < minBorderX) viewTX = minBorderX;
-        if (viewTX > maxBorderX) viewTX = maxBorderX;
-        setViewTX((_viewTX = viewTX));
-    }
-
-    function viewUp(e) {
-        const { distanceX } = e;
-        if (Math.abs(distanceX) > (window.innerWidth / 3) * 2) {
-            // 切换图片
-            if (distanceX > 0) {
-                // 向右滑动, 切换上一张
-                preImg();
-            } else {
-                // 向左滑动, 切换下一张
-                nextImg();
-            }
-        } else {
-            // 当前图片位置还原
-            setViewTX((_viewTX = -_curIdx * window.innerWidth));
-        }
-    }
-
     function sourceDown(e) {
-        e.target.classList.add('grabbing');
-        const targetEle = getTargetEle();
-        if (window.isPC) {
-            previewVideo.current && previewVideo.current.pause();
-        } else {
-            targetEle.tagName.toLowerCase() === 'video' && targetEle.pause();
+        if (status === 1 && timer) {
+            // 超过规定时间内的单机/双击事件无效, 清除单机回调函数
+            clearTimeout(timer);
+            timer = null;
         }
+        if (!window.isPC) {
+        }
+        e.target.classList.add('grabbing');
+        previewVideo.current && previewVideo.current.pause();
         changeStyle('remove');
         // 获取元素当前的偏移量
         t = {
@@ -396,19 +317,9 @@ function PreviewMask(props) {
         start.startX = clientX;
         start.startY = clientY;
     }
-    function getTargetEle() {
-        const imgWraps = document.querySelectorAll('.view-source .img-wrap');
-        let targetEle;
-        if (window.isPC) {
-            targetEle = previewImg.current || previewVideo.current;
-        } else {
-            targetEle = imgWraps[_curIdx] && imgWraps[_curIdx].children[0];
-        }
-        return targetEle;
-    }
 
     function cmpBorder() {
-        const targetEle = getTargetEle();
+        let targetEle = previewImg.current || previewVideo.current;
         // getComputedStyle 获取到的是未缩放前的宽高
         // window.getComputedStyle(previewImg.current).width;
         // window.getComputedStyle(previewImg.current).height;
@@ -467,6 +378,7 @@ function PreviewMask(props) {
     function sourceMove(e) {
         if (!window.isPC && ratio === 1) return;
         if (emitUp) return; // 解决当 ratio 为 1 时, mousemove 设置 translate 后 mouseup 位置偶现不复原的 bug
+        if (!window.isPC && ratio === 1) return;
         emitMove = true;
         const touch = e.originEvent && e.originEvent.changedTouches[0];
         const clientX = window.isPC ? e.clientX : touch.clientX;
@@ -509,12 +421,7 @@ function PreviewMask(props) {
     function sourceUp(e) {
         const target = e.target;
         emitUp = true;
-        const targetEle = getTargetEle();
-        if (window.isPC) {
-            previewVideo.current && mVideoSrc && previewVideo.current.play();
-        } else {
-            targetEle.tagName.toLowerCase() === 'video' && targetEle.play();
-        }
+        previewVideo.current && mVideoSrc && previewVideo.current.play();
         target.classList.remove('grabbing');
         // 触发move事件
         if (ratio === 1) {
@@ -627,15 +534,15 @@ function PreviewMask(props) {
     }
 
     function download() {
-        if (judgeType(pic_infos[_curIdx]) === 'object') {
-            const type = pic_infos[_curIdx].type;
+        if (judgeType(pic_infos[index]) === 'object') {
+            const type = pic_infos[index].type;
             if (isCommt) {
-                downloadImage(getUrl('normal', _curIdx));
+                downloadImage(getUrl('normal', index));
             } else {
                 if (type === 'mov') {
-                    downloadImage(getUrl('mov', _curIdx));
+                    downloadImage(getUrl('mov', index));
                 } else if (type === 'jpg' || type === 'gif') {
-                    downloadImage(getUrl('large', _curIdx));
+                    downloadImage(getUrl('large', index));
                 }
             }
         }
@@ -684,23 +591,9 @@ function PreviewMask(props) {
         }
     }
 
-    function cmpLazySrc(idx) {
-        if (idx < 0) return;
-        const sourceType = (judgeType(pic_infos[idx]) === 'object' && pic_infos[idx].type) || null;
-        if (sourceType === 'jpg') {
-            return { lazySrcType: 'jpg', lazySource: (judgeType(pic_infos[idx]) === 'object' && pic_infos[idx].normalUrl) || null };
-        }
-        if (sourceType === 'gif') {
-            const lazySource = (judgeType(pic_infos[idx]) === 'object' && pic_infos[idx].normalUrl) || null;
-            if (isCommt) return { lazySrcType: 'gif', lazySource };
-            return { lazySrcType: 'mp4', lazySource };
-        }
-        if (sourceType === 'mov') {
-            return { lazySrcType: 'mov', lazySource: (judgeType(pic_infos[idx]) === 'object' && pic_infos[idx].movUrl) || null };
-        }
-    }
-
     function mScale(e) {
+        console.log('doubletap', e);
+        changeStyle('remove');
         if (ratio === 1) {
             setScaleRatio((ratio = 3));
         } else {
@@ -715,12 +608,12 @@ function PreviewMask(props) {
     }
 
     function hold() {
-        save.current && save.current.classList.remove('none');
+        save.current.classList.remove('none');
     }
 
     function closeSave(e) {
         e.stopPropagation();
-        save.current && save.current.classList.add('none');
+        save.current.classList.add('none');
     }
 
     function pinchstart() {
@@ -747,7 +640,7 @@ function PreviewMask(props) {
         // console.log('swipeend', e);
         if (e.factor > 4) return;
         const { borderX, borderY } = cmpBorder();
-        const targetEle = getTargetEle();
+        let targetEle = previewImg.current || previewVideo.current;
         targetEle.classList.remove('no-trans');
         targetEle.classList.add('trans-3');
         transX += e.distanceX;
@@ -796,14 +689,6 @@ function PreviewMask(props) {
         return styleObj;
     }
 
-    function mSourceStyle(idx) {
-        return idx === _curIdx
-            ? {
-                  transform: `scale3d(${scaleRatio}, ${scaleRatio}, 1) translate3d(${transX}px, ${transY}px, 0px) rotate(${rotate}deg)`
-              }
-            : {};
-    }
-
     function fullScreenTitle() {
         return isFullScreen ? '退出全屏' : '全屏';
     }
@@ -814,14 +699,14 @@ function PreviewMask(props) {
 
     function leftBtnStyle() {
         return {
-            cursor: _curIdx === 0 ? 'no-drop' : 'pointer',
-            color: _curIdx === 0 ? 'rgba(204, 204, 204, 0.5)' : 'var(--w-color-gray-7)'
+            cursor: curIdx === 0 ? 'no-drop' : 'pointer',
+            color: curIdx === 0 ? 'rgba(204, 204, 204, 0.5)' : 'var(--w-color-gray-7)'
         };
     }
     function rightBtnStyle() {
         return {
-            cursor: _curIdx === urls.length - 1 ? 'no-drop' : 'pointer',
-            color: _curIdx === urls.length - 1 ? 'rgba(204, 204, 204, 0.5)' : 'var(--w-color-gray-7)'
+            cursor: curIdx === urls.length - 1 ? 'no-drop' : 'pointer',
+            color: curIdx === urls.length - 1 ? 'rgba(204, 204, 204, 0.5)' : 'var(--w-color-gray-7)'
         };
     }
 
@@ -845,19 +730,6 @@ function PreviewMask(props) {
         };
     }
 
-    // return (
-    //     showMask && (
-    //         <video
-    //             class='yr-video'
-    //             poster='https://yangrong-record.com/images/blog/thumb/2022/006Ur1aCgy1h962r6q3z8g30f00qo1l9.gif'
-    //             autoplay='autoplay'
-    //             src='https://yangrong-record.com/images/blog/normal/2022/006Ur1aCgy1h962r6q3z8g30f00qo1l9.mp4'
-    //             style={{ objectFit: 'cover' }}
-    //             loop='loop'
-    //         ></video>
-    //     )
-    // );
-
     return showMask ? (
         <div
             id='preview-mask'
@@ -867,14 +739,14 @@ function PreviewMask(props) {
             onMouseDown={maskDown}
             onWheel={sourceErr ? null : throttle(scaleImg, 200)}
         >
-            {/* {isImg(_curIdx) ? (
+            {isImg(curIdx) ? (
                 <img
                     ref={previewImg}
                     className='preview-img absolute-center grab'
                     src={src}
                     alt='加载失败'
                     onMouseDown={!sourceErr && window.isPC ? sourceDown : null}
-                    style={{ ...sourceStyle(), ...cursorStyle }}
+                    style={{ ...sourceStyle(), ...cursorStyle() }}
                 />
             ) : (
                 <video
@@ -889,40 +761,8 @@ function PreviewMask(props) {
                     onPlay={showVideo}
                     style={{ ...sourceStyle(), ...cursorStyle() }}
                 ></video>
-            )} */}
-            <div
-                ref={viewSource}
-                className='view-source clear h-full no-trans'
-                style={{ width: `calc(100vw * ${pic_num})`, transform: `translate3d(${viewTX}px, 0, 0)` }}
-            >
-                {urls.map((src, idx) => {
-                    const { lazySrcType, lazySource } = cmpLazySrc(idx);
-                    return (
-                        <Source
-                            className='flex flex-col-center'
-                            key={src + idx}
-                            alt={sourceErr ? '加载失败' : ''}
-                            idx={idx}
-                            curIdx={curIdx}
-                            urls={urls}
-                            src={src}
-                            width='100vw'
-                            height='100%'
-                            paddingTop={0}
-                            text=''
-                            // lazySource={idx === curIdx ? lazySource : ''}
-                            lazySource={lazySource}
-                            lazySrcType={lazySrcType}
-                            showMask={false}
-                            style={mSourceStyle(idx)}
-                            sourceCls={idx === curIdx ? sourceCls : 'preview-source'}
-                            lazyTime={0}
-                            isPreview={true}
-                        ></Source>
-                    );
-                })}
-            </div>
-            <span className={getCls(window.isPC ? 'font-14' : 'font-18', 'progress fixed')} ref={progress}>
+            )}
+            <span className={getCls(window.isPC ? 'font-14' : 'font-18', 'progress relative')} ref={progress}>
                 {curIdx + 1} / {urls.length}
             </span>
             {window.isPC && (
@@ -977,7 +817,7 @@ function PreviewMask(props) {
                     </div>
                 </div>
             )}
-            <div ref={save} className='save w-full h-full absolute top-0 none animate__animated animate__fadeIn'>
+            <div className='save w-full h-full absolute top-0 none animate__animated animate__fadeIn' ref={save}>
                 <Button className='absolute-center font-20 line-20' ref={saveBtn}>
                     保存原图
                 </Button>
@@ -990,13 +830,11 @@ function PreviewMask(props) {
 PreviewMask.propTypes = {
     urls: PropTypes.array.isRequired,
     pic_infos: PropTypes.array,
-    pic_num: PropTypes.number,
     isCommt: PropTypes.bool,
     onClose: PropTypes.func
 };
 PreviewMask.defaultProps = {
     pic_infos: [],
-    isCommt: false,
-    pic_num: 1
+    isCommt: false
 };
 export default PreviewMask;

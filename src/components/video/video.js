@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { getPropVal } from '../../static/utils/utils';
+import { getCls, getPropVal } from '../../static/utils/utils';
 import { PropTypes } from 'prop-types';
 import defaultImg from '../../static/images/default_img.png';
 // import axios from 'axios';
@@ -8,7 +8,24 @@ import defaultImg from '../../static/images/default_img.png';
 function Video(props) {
     const width = getPropVal(props.width);
     const height = getPropVal(props.height);
-    const { urls, lazySrcType, idx, curIdx, src, poster, text, alt, objectFit, emitPreview, borderRadius, lazy, onClick } = props;
+    const {
+        className,
+        urls,
+        lazySrcType,
+        idx,
+        curIdx,
+        src,
+        poster,
+        text,
+        alt,
+        objectFit,
+        emitPreview,
+        borderRadius,
+        lazy,
+        onClick,
+        style,
+        lazyTime
+    } = props;
     const observerVideo = useRef(null);
 
     useEffect(() => {
@@ -40,7 +57,7 @@ function Video(props) {
                             video[0].target.play();
                             video[0].target.loop = true;
                         };
-                    }, 1000);
+                    }, lazyTime);
                 } else {
                     // 当 video 消失于视线时还未加载完成, 则结束 video 的加载
                     // source.cancel();
@@ -68,12 +85,12 @@ function Video(props) {
     return (
         <video
             ref={observerVideo}
-            className='yr-video'
+            className={getCls(className || '', 'yr-video')}
             poster={poster}
             autoPlay
             muted
             src={lazy ? '' : src}
-            style={{ objectFit }}
+            style={{ objectFit, ...style }}
             onPlay={playSpeed}
             onError={loadErr}
         ></video>
@@ -88,7 +105,9 @@ Video.propTypes = {
     idx: PropTypes.number,
     // previewmask 所需
     curIdx: PropTypes.number,
-    // img 所需
+    // video 所需
+    className: PropTypes.string,
+    style: PropTypes.object,
     src: PropTypes.string.isRequired,
     width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -98,7 +117,8 @@ Video.propTypes = {
     emitPreview: PropTypes.bool, // 点击图片是否触发预览模态框
     borderRadius: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     lazy: PropTypes.bool,
-    onclick: PropTypes.func
+    onclick: PropTypes.func,
+    lazyTime: PropTypes.number
 };
 
 Video.defaultProps = {
@@ -111,10 +131,12 @@ Video.defaultProps = {
     height: '',
     objectFit: 'cover',
     text: '预览',
-    alt: '加载失败',
+    alt: '',
     emitPreview: false,
     borderRadius: 0,
-    lazy: true
+    lazy: true,
+    style: {},
+    lazyTime: 1000
 };
 
 export default Video;

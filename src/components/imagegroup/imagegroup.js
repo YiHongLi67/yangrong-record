@@ -81,6 +81,7 @@ function ImageGroup(props) {
                         alt={alt}
                         borderRadius={borderRadius}
                         emitPreview={emitPreview}
+                        showMask={window.isPC}
                     ></Source>
                 );
             })}
@@ -88,6 +89,7 @@ function ImageGroup(props) {
                 <PreviewMask
                     urls={urls}
                     pic_infos={pic_infos}
+                    pic_num={pic_num}
                     onClose={() => {
                         setShowPreview(false);
                     }}
@@ -122,7 +124,7 @@ ImageGroup.defaultProps = {
     imgHeight: '',
     objectFit: 'cover',
     text: '预览',
-    alt: '加载失败',
+    alt: '',
     borderRadius: 0,
     emitPreview: true
 };

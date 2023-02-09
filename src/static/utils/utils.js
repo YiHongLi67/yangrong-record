@@ -406,8 +406,6 @@ export function swipe(node, a, b) {
         }
         const speed = (Math.abs(offset) / time) * 1000;
         offset = Math.abs(offset);
-        // if (Math.abs(offset) >= opts.offset || speed >= opts.speed) {
-        console.log(direction, offset, speed);
         if ((offset < 60 && speed > 200) || (offset >= 60 && speed > 300)) {
             callback && callback(e, direction, speed);
         }

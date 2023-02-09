@@ -21,6 +21,15 @@
 .preview-mask video.preview-video.trans-3 {
     transition: transform 0.3s linear;
 }
+.preview-mask img.preview-source,
+.preview-mask video.preview-source {
+    transition: transform 0.1s linear;
+    mix-blend-mode: unset;
+}
+.preview-mask img.preview-source.trans-3,
+.preview-mask video.preview-source.trans-3 {
+    transition: transform 0.3s linear;
+}
 .preview-mask img.no-trans,
 .preview-mask video.no-trans {
     transition: transform 0s linear;
@@ -121,4 +130,27 @@
 .save .save-btn-style:hover,
 .save .save-btn-style:focus {
     background-color: #d9d9d9;
+}
+.view-source {
+    transition: transform 0.2s linear;
+    .img-wrap {
+        > video {
+            mix-blend-mode: unset;
+        }
+        > img.yr-img,
+        > video.yr-video,
+        > i.i-svg {
+            position: unset;
+            width: 100%;
+            height: auto;
+            transform: unset;
+        }
+    }
+}
+.view-source.no-trans {
+    transition: transform 0s linear;
+}
+.img-group .view-source .img-wrap {
+    margin: 0;
+    float: left;
 }

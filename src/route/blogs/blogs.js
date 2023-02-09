@@ -1,13 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useEffect } from 'react';
 import Blog from '../../components/blog/blog';
 import { PropTypes } from 'prop-types';
 import { subscribe, unsubscribe } from 'pubsub-js';
-import { Avatar, Radio } from 'antd';
-import avatar from '../../static/images/avatar.png';
+import { Radio } from 'antd';
 import { getMobileFont } from '../../static/utils/utils';
-import Son from '../../components/son/son';
-import touch from 'touchjs';
 
 let updateBlogsDataId;
 let blogsRefreshId;
@@ -15,12 +12,8 @@ let blogsRefreshId;
 function Blogs(props) {
     const { pathName } = props;
     let [blogsData, setBlogsData] = useState([]);
-    const grandfather = useRef(null);
 
     useEffect(() => {
-        // touch.on(grandfather.current, 'tap', e => {
-        //     console.log('tap', e);
-        // });
         updateBlogsDataId = subscribe('updateBlogsData', (_, data) => {
             setBlogsData(blogsData => {
                 return [...blogsData, ...data];
@@ -41,11 +34,6 @@ function Blogs(props) {
 
     return (
         <>
-            {/* <div className='grandfather' ref={grandfather}>
-                <div className='father'>
-                    <Son />
-                </div>
-            </div> */}
             <Radio.Group name='radiogroup' defaultValue={window.fontSize} size='large' onChange={changeFontSize}>
                 <Radio value={14} className={getMobileFont('radio')}>
                     14

@@ -19,7 +19,7 @@ let throttleMaskMove;
 let emitUp = false;
 let emitMove = false;
 let showMaskId;
-let _curIdx = -1;
+let _curIdx = 0;
 let imgGroup = null;
 let mTransX = 0;
 let mTransY = 0;
@@ -31,6 +31,8 @@ let _viewTX = 0;
 let viewSTX = 0;
 let STX = 0;
 let isPC = false;
+
+// 组件函数同步代码 -> return html结构 -> useEffect -> 消息订阅回调函数 -> 更新组件(执行组件函数)
 
 function PreviewMask(props) {
     const { urls, pic_infos, isCommt, onClose, pic_num } = props;
@@ -71,6 +73,7 @@ function PreviewMask(props) {
             setSrc(data.urls[idx]);
             setCurIdx((_curIdx = idx));
             setViewTX((_viewTX = -idx * window.innerWidth));
+            if (!window.isPC) return;
             onSrcLoad(-1, idx);
         });
         if (window.isPC) return;
@@ -881,7 +884,7 @@ function PreviewMask(props) {
                                 height='100%'
                                 paddingTop={0}
                                 text=''
-                                lazySource={lazySource}
+                                lazySource={curIdx === idx ? lazySource : ''}
                                 lazySrcType={lazySrcType}
                                 showMask={false}
                                 style={mSourceStyle(idx)}
@@ -893,7 +896,6 @@ function PreviewMask(props) {
                     })}
                 </div>
             )}
-
             <span className={getCls(window.isPC ? 'font-14' : 'font-18', 'progress fixed')} ref={progress}>
                 {curIdx + 1} / {urls.length}
             </span>

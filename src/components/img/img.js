@@ -6,8 +6,6 @@ import { PropTypes } from 'prop-types';
 // const CancelToken = axios.CancelToken;
 
 function Img(props) {
-    const width = getPropVal(props.width);
-    const height = getPropVal(props.height);
     const {
         className,
         lazySrcType,
@@ -29,15 +27,16 @@ function Img(props) {
     const observerImg = useRef(null);
 
     useEffect(() => {
-        bindErrEvent();
+        init();
+        return () => {};
+    }, [props.curIdx]);
+
+    function init() {
         if (lazy) {
             interObs();
+        } else {
+            bindErrEvent();
         }
-        return () => {};
-    }, []);
-
-    if (isPreview) {
-        interObs();
     }
 
     function interObs() {
@@ -46,10 +45,12 @@ function Img(props) {
         const imgObserver = new IntersectionObserver(img => {
             imgTag.onload = () => {
                 img[0].target.setAttribute('src', lazySource);
+                bindErrEvent();
                 imgObserver.unobserve(img[0].target);
             };
             if (img[0].isIntersecting) {
                 img[0].target.setAttribute('src', src);
+                bindErrEvent();
                 if (!lazySource) {
                     // 如果 lazySource 不存在, 则直接取消观察, 不加载 lazySource
                     imgObserver.unobserve(img[0].target);
@@ -71,21 +72,21 @@ function Img(props) {
         observerImg.current && imgObserver.observe(observerImg.current);
     }
 
-    function loadErr() {
-        observerImg.current.src = defaultImg;
-    }
-
     function bindErrEvent() {
-        if (lazy) {
-            setTimeout(() => {
-                observerImg.current.addEventListener('error', loadErr);
-            }, lazyTime);
-            return;
-        }
-        observerImg.current.addEventListener('error', loadErr);
+        observerImg.current.onError = function () {
+            observerImg.current.src = defaultImg;
+        };
     }
 
-    return <img className={getCls(className || '', 'yr-img')} ref={observerImg} src={lazy ? '' : src} alt={alt} style={{ objectFit, ...style }} />;
+    return (
+        <img
+            className={getCls(className || '', 'yr-img')}
+            ref={observerImg}
+            src={lazy && !isPreview ? '' : src}
+            alt={alt}
+            style={{ objectFit, ...style }}
+        />
+    );
 }
 
 Img.propTypes = {

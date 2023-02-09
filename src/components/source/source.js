@@ -1,12 +1,11 @@
 import React, { useRef, useEffect } from 'react';
 import { publish } from 'pubsub-js';
 import './source.css';
-import { getCls, getPropVal, judgeType } from '../../static/utils/utils';
+import { getCls, getPropVal } from '../../static/utils/utils';
 import { PropTypes } from 'prop-types';
 import Img from '../img/img';
 import Video from '../video/video';
 import touch from 'touchjs';
-import { useState } from 'react';
 
 function Source(props) {
     const className = getPropVal(props.className);
@@ -17,6 +16,7 @@ function Source(props) {
         urls,
         pic_num,
         sourceType,
+        lazySource,
         lazySrcType,
         src,
         text,
@@ -34,16 +34,6 @@ function Source(props) {
         lazyTime,
         isPreview
     } = props;
-    let lazySource;
-    if (isPreview) {
-        if (curIdx === idx) {
-            lazySource = props.lazySource;
-        } else {
-            lazySource = '';
-        }
-    } else {
-        lazySource = props.lazySource;
-    }
     const imgWrap = useRef(null);
 
     useEffect(() => {
@@ -108,16 +98,7 @@ function Source(props) {
                     <></>
                 )
             ) : (
-                <Img
-                    className={sourceCls}
-                    src={src}
-                    lazy={false}
-                    objectFit={objectFit}
-                    style={style}
-                    curIdx={curIdx}
-                    idx={idx}
-                    isPreview={isPreview}
-                />
+                <Img className={sourceCls} src={src} lazy={false} objectFit={objectFit} style={style} idx={idx} isPreview={isPreview} />
             )}
             {sourceType !== 'jpg' && (
                 <span

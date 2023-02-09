@@ -27,10 +27,10 @@ let start = null;
 let t = null;
 let mVideoSrc = '';
 let preview = null;
-let mSourceCls = 'preview-source';
 let _viewTX = 0;
 let viewSTX = 0;
 let STX = 0;
+let isPC = false;
 
 function PreviewMask(props) {
     const { urls, pic_infos, isCommt, onClose, pic_num } = props;
@@ -45,7 +45,6 @@ function PreviewMask(props) {
     let [viewTX, setViewTX] = useState(0);
     let [isFullScreen, setIsFullScreen] = useState(false);
     let [sourceErr, setSourceErr] = useState(false);
-    let [sourceCls, setSourceCls] = useState(mSourceCls);
     const previewMask = useRef(null);
     const previewImg = useRef(null);
     const maskFoot = useRef(null);
@@ -54,6 +53,14 @@ function PreviewMask(props) {
     const save = useRef(null);
     const saveBtn = useRef(null);
     const viewSource = useRef(null);
+
+    (function () {
+        const _isPC = isPC;
+        isPC = window.isPC;
+        if (_isPC !== window.isPC) {
+            // console.log('refresh');
+        }
+    })();
 
     useEffect(() => {
         preview = previewMask.current;
@@ -66,42 +73,29 @@ function PreviewMask(props) {
             setViewTX((_viewTX = -idx * window.innerWidth));
             onSrcLoad(-1, idx);
         });
-        if (!window.isPC) {
-            const imgWraps = document.querySelectorAll('.view-source .img-wrap');
-            imgWraps.forEach(imgWrap => {
-                on(imgWrap, 'hold', hold);
-                on(imgWrap, 'tap', resetMask);
-                on(imgWrap, 'doubletap', mScale);
-                on(imgWrap, 'pinchstart', pinchstart);
-                on(imgWrap, 'dragstart', sourceDown);
-                on(imgWrap, 'drag', sourceMove);
-                on(imgWrap, 'dragend', sourceUp);
-                on(imgWrap, 'dragstart', viewDown);
-                on(imgWrap, 'drag', viewMove);
-                on(imgWrap, 'dragend', viewUp);
-                on(imgWrap, 'swipeend', swipeend);
-                on(imgWrap, 'swipestart', getTransX);
-                on(imgWrap, 'swipeend', mChangeImg);
-                on(save.current, 'tap', closeSave);
-                on(saveBtn.current, 'tap', mSave);
-                on(saveBtn.current, 'touchstart', setBtnStyle);
-                on(saveBtn.current, 'touchend', setBtnStyle);
-            });
+        if (window.isPC) return;
+        const imgWraps = document.querySelectorAll('.view-source .img-wrap');
+        imgWraps.forEach(imgWrap => {
+            on(imgWrap, 'hold', hold);
+            on(imgWrap, 'tap', resetMask);
+            on(imgWrap, 'doubletap', mScale);
+            on(imgWrap, 'pinchstart', pinchstart);
+            on(imgWrap, 'dragstart', sourceDown);
+            on(imgWrap, 'drag', sourceMove);
+            on(imgWrap, 'dragend', sourceUp);
+            on(imgWrap, 'dragstart', viewDown);
+            on(imgWrap, 'drag', viewMove);
+            on(imgWrap, 'dragend', viewUp);
+            on(imgWrap, 'swipeend', swipeend);
+            on(imgWrap, 'swipestart', getTransX);
+            on(imgWrap, 'swipeend', mChangeImg);
+            on(save.current, 'tap', closeSave);
+            on(saveBtn.current, 'tap', mSave);
+            on(saveBtn.current, 'touchstart', setBtnStyle);
+            on(saveBtn.current, 'touchend', setBtnStyle);
+        });
+        preview.addEventListener('contextmenu', closeMenu);
 
-            preview.addEventListener('contextmenu', closeMenu);
-            // on(preview, 'hold', hold);
-            // on(preview, 'tap', resetMask);
-            // on(preview, 'doubletap', mScale);
-            // on(preview, 'pinchstart', pinchstart);
-            // on(preview, 'dragstart', sourceDown);
-            // on(preview, 'drag', sourceMove);
-            // on(preview, 'dragend', sourceUp);
-            // on(preview, 'swipeend', swipeend);
-            // on(save.current, 'tap', closeSave);
-            // on(saveBtn.current, 'tap', mSave);
-            // on(saveBtn.current, 'touchstart', setBtnStyle);
-            // on(saveBtn.current, 'touchend', setBtnStyle);
-        }
         return () => {
             unsubscribe(showMaskId);
         };
@@ -122,7 +116,6 @@ function PreviewMask(props) {
             setTransY((mTransY = 0));
             setRotate(0);
             setIsFullScreen(false);
-            // setCurIdx((_curIdx = -1));
             emitMove = false;
             emitUp = false;
             imgGroup && imgGroup.setAttribute('data-show', '');
@@ -169,8 +162,7 @@ function PreviewMask(props) {
 
     function mChangeImg(e) {
         if (e.factor > 3) return;
-        console.log('mChangeImg', STX, transX);
-        const { borderX, borderY } = cmpBorder();
+        const { borderX } = cmpBorder();
         changeStyle('remove', viewSource.current);
         if (e.direction === 'right' && STX === borderX) {
             preImg();
@@ -189,9 +181,7 @@ function PreviewMask(props) {
 
     function toggleImg(preIdx, idx) {
         const target = previewImg.current || previewVideo.current;
-        if (target) {
-            target.onerror = null;
-        }
+        if (target) target.onerror = null;
         changeStyle('add');
         setSrc(urls[idx]);
         setVideoSrc((mVideoSrc = ''));
@@ -248,7 +238,6 @@ function PreviewMask(props) {
     }
 
     function preImg() {
-        // console.log('preImg');
         if (_curIdx === 0) return;
         const pre = _curIdx;
         _curIdx -= 1;
@@ -258,7 +247,6 @@ function PreviewMask(props) {
     }
 
     function nextImg() {
-        // console.log('nextImg');
         if (_curIdx === urls.length - 1) return;
         const pre = _curIdx;
         _curIdx += 1;
@@ -320,15 +308,11 @@ function PreviewMask(props) {
     }
 
     function viewDown(e) {
-        changeStyle('remove', viewSource.current);
         // 获取元素当前的偏移量
         viewSTX = _viewTX;
-        // console.log('start', e.originEvent.touches);
     }
 
     function viewMove(e) {
-        // console.log('viewmove', e);
-        console.log('drag', STX, transX);
         const { borderX } = cmpBorder();
         if (e.direction === 'right' && transX !== borderX) return;
         if (e.direction === 'left' && transX !== -borderX) return;
@@ -433,7 +417,6 @@ function PreviewMask(props) {
             } else {
                 borderY = (eleHeight * ratio - winHeight) / 2 / ratio;
             }
-            // borderY = (eleHeight * (ratio - 1)) / 2 / ratio;
         } else {
             // 旋转后宽高置反
             // 缩放后图片的高度小于窗口宽度
@@ -744,7 +727,6 @@ function PreviewMask(props) {
     }
 
     function swipeend(e) {
-        // console.log('swipeend', e);
         if (e.factor > 4) return;
         const { borderX, borderY } = cmpBorder();
         const targetEle = getTargetEle();
@@ -845,19 +827,6 @@ function PreviewMask(props) {
         };
     }
 
-    // return (
-    //     showMask && (
-    //         <video
-    //             class='yr-video'
-    //             poster='https://yangrong-record.com/images/blog/thumb/2022/006Ur1aCgy1h962r6q3z8g30f00qo1l9.gif'
-    //             autoplay='autoplay'
-    //             src='https://yangrong-record.com/images/blog/normal/2022/006Ur1aCgy1h962r6q3z8g30f00qo1l9.mp4'
-    //             style={{ objectFit: 'cover' }}
-    //             loop='loop'
-    //         ></video>
-    //     )
-    // );
-
     return showMask ? (
         <div
             id='preview-mask'
@@ -867,61 +836,64 @@ function PreviewMask(props) {
             onMouseDown={maskDown}
             onWheel={sourceErr ? null : throttle(scaleImg, 200)}
         >
-            {/* {isImg(_curIdx) ? (
-                <img
-                    ref={previewImg}
-                    className='preview-img absolute-center grab'
-                    src={src}
-                    alt='加载失败'
-                    onMouseDown={!sourceErr && window.isPC ? sourceDown : null}
-                    style={{ ...sourceStyle(), ...cursorStyle }}
-                />
+            {window.isPC ? (
+                isImg(_curIdx) ? (
+                    <img
+                        ref={previewImg}
+                        className='preview-img absolute-center grab'
+                        src={src}
+                        alt='加载失败'
+                        onMouseDown={!sourceErr && window.isPC ? sourceDown : null}
+                        style={{ ...sourceStyle(), ...cursorStyle }}
+                    />
+                ) : (
+                    <video
+                        ref={previewVideo}
+                        className='preview-video absolute-center grab'
+                        poster={src}
+                        src={videoSrc}
+                        autoPlay
+                        muted
+                        loop
+                        onMouseDown={!sourceErr && window.isPC ? sourceDown : null}
+                        onPlay={showVideo}
+                        style={{ ...sourceStyle(), ...cursorStyle() }}
+                    ></video>
+                )
             ) : (
-                <video
-                    ref={previewVideo}
-                    className='preview-video absolute-center grab'
-                    poster={src}
-                    src={videoSrc}
-                    autoPlay
-                    muted
-                    loop
-                    onMouseDown={!sourceErr && window.isPC ? sourceDown : null}
-                    onPlay={showVideo}
-                    style={{ ...sourceStyle(), ...cursorStyle() }}
-                ></video>
-            )} */}
-            <div
-                ref={viewSource}
-                className='view-source clear h-full no-trans'
-                style={{ width: `calc(100vw * ${pic_num})`, transform: `translate3d(${viewTX}px, 0, 0)` }}
-            >
-                {urls.map((src, idx) => {
-                    const { lazySrcType, lazySource } = cmpLazySrc(idx);
-                    return (
-                        <Source
-                            className='flex flex-col-center'
-                            key={src + idx}
-                            alt={sourceErr ? '加载失败' : ''}
-                            idx={idx}
-                            curIdx={curIdx}
-                            urls={urls}
-                            src={src}
-                            width='100vw'
-                            height='100%'
-                            paddingTop={0}
-                            text=''
-                            // lazySource={idx === curIdx ? lazySource : ''}
-                            lazySource={lazySource}
-                            lazySrcType={lazySrcType}
-                            showMask={false}
-                            style={mSourceStyle(idx)}
-                            sourceCls={idx === curIdx ? sourceCls : 'preview-source'}
-                            lazyTime={0}
-                            isPreview={true}
-                        ></Source>
-                    );
-                })}
-            </div>
+                <div
+                    ref={viewSource}
+                    className='view-source clear h-full no-trans'
+                    style={{ width: `calc(100vw * ${pic_num})`, transform: `translate3d(${viewTX}px, 0, 0)` }}
+                >
+                    {urls.map((src, idx) => {
+                        const { lazySrcType, lazySource } = cmpLazySrc(idx);
+                        return (
+                            <Source
+                                className='flex flex-col-center'
+                                key={src + idx}
+                                alt={sourceErr ? '加载失败' : ''}
+                                idx={idx}
+                                curIdx={curIdx}
+                                urls={urls}
+                                src={src}
+                                width='100vw'
+                                height='100%'
+                                paddingTop={0}
+                                text=''
+                                lazySource={lazySource}
+                                lazySrcType={lazySrcType}
+                                showMask={false}
+                                style={mSourceStyle(idx)}
+                                sourceCls='preview-source'
+                                lazyTime={0}
+                                isPreview={true}
+                            ></Source>
+                        );
+                    })}
+                </div>
+            )}
+
             <span className={getCls(window.isPC ? 'font-14' : 'font-18', 'progress fixed')} ref={progress}>
                 {curIdx + 1} / {urls.length}
             </span>

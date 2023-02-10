@@ -64,7 +64,7 @@ function Source(props) {
 
     return (
         <div
-            className={getCls(className || '', 'img-wrap overflow-hid inline-block vertical-m relative')}
+            className={getCls(className || '', 'img-wrap overflow-hid vertical-m relative')}
             onClick={window.isPC ? clickEvent : null}
             style={{ width, height, borderRadius, paddingTop: getHeight() }}
             ref={imgWrap}

@@ -88,7 +88,7 @@ export default function App() {
                     </Route>
                 </Routes>
             </Content>
-            <Footer className='fixed bottom-0 ie-box align-center w-full font-12'>©CopyRight yhl</Footer>
+            {window.isPC && <Footer className='fixed bottom-0 ie-box align-center w-full font-12'>©CopyRight yhl</Footer>}
         </KeepAliveLayout>
     );
 }

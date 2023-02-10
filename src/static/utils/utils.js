@@ -265,6 +265,32 @@ export function setFontSize() {
     window.fontSize = 20;
 }
 
+export function isFullScreen(isFull = false, el) {
+    const doc = document;
+    if (isFull) {
+        if (!el) throw new Error('if isFull is true, an el param is required');
+        if (el.requestFullScreen) {
+            el.requestFullScreen();
+        } else if (el.webkitRequestFullScreen) {
+            el.webkitRequestFullScreen();
+        } else if (el.mozRequestFullScreen) {
+            el.mozRequestFullScreen();
+        } else if (el.msRequestFullScreen) {
+            el.msRequestFullScreen();
+        }
+        return;
+    }
+    if (doc.exitFullscreen) {
+        doc.exitFullscreen();
+    } else if (doc.msExitFullscreen) {
+        doc.msExitFullscreen(); //早期IE浏览器
+    } else if (doc.webkitExitFullscreen) {
+        doc.webkitExitFullscreen(); //早期Chrome浏览器
+    } else if (doc.mozCancelFullScreen) {
+        doc.mozCancelFullScreen(); //早期火狐浏览器
+    }
+}
+
 let status = 0;
 const tapDefaults = {
     time: 250,

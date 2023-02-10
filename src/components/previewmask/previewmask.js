@@ -3,7 +3,7 @@ import { subscribe, unsubscribe } from 'pubsub-js';
 import touch from 'touchjs';
 const { on, off } = touch;
 import './previewmask.less';
-import { throttle, _throttle, antiShake, judgeType, getCls } from '../../static/utils/utils';
+import { throttle, _throttle, antiShake, judgeType, getCls, isFullScreen } from '../../static/utils/utils';
 import Source from '../source/source';
 import { getBrowser } from '../../static/utils/utils';
 import defaultImg from '../../static/images/default_img.png';
@@ -45,7 +45,7 @@ function PreviewMask(props) {
     let [transY, setTransY] = useState(0);
     let [rotate, setRotate] = useState(0);
     let [viewTX, setViewTX] = useState(0);
-    let [isFullScreen, setIsFullScreen] = useState(false);
+    let [isFull, setIsFull] = useState(!window.isPC);
     let [sourceErr, setSourceErr] = useState(false);
     const previewMask = useRef(null);
     const previewImg = useRef(null);
@@ -73,8 +73,8 @@ function PreviewMask(props) {
             setSrc(data.urls[idx]);
             setCurIdx((_curIdx = idx));
             setViewTX((_viewTX = -idx * window.innerWidth));
-            if (!window.isPC) return;
-            onSrcLoad(-1, idx);
+            if (window.isPC) onSrcLoad(-1, idx);
+            else isFullScreen(true, preview);
         });
         if (window.isPC) return;
         const imgWraps = document.querySelectorAll('.view-source .img-wrap');
@@ -98,7 +98,6 @@ function PreviewMask(props) {
             on(saveBtn.current, 'touchend', setBtnStyle);
         });
         preview.addEventListener('contextmenu', closeMenu);
-
         return () => {
             unsubscribe(showMaskId);
         };
@@ -118,7 +117,7 @@ function PreviewMask(props) {
             setTransX((mTransX = 0));
             setTransY((mTransY = 0));
             setRotate(0);
-            setIsFullScreen(false);
+            setIsFull(false);
             emitMove = false;
             emitUp = false;
             imgGroup && imgGroup.setAttribute('data-show', '');
@@ -132,7 +131,7 @@ function PreviewMask(props) {
             resetMask(e);
             return;
         }
-        if (isFullScreen) {
+        if (isFull) {
             if (e.target.id === 'close') {
                 // 浏览器全屏模式下 click 的同时会触发模拟的 mousemove 事件
                 // 因此无法通过设置 emitMove emitUp 判断鼠标行为是否是点击还是拖拽
@@ -565,15 +564,10 @@ function PreviewMask(props) {
         });
     }
 
-    function fullScreen(e) {
-        let FullScreen = document.webkitIsFullScreen || document.mozFullScreen || false;
-        if (FullScreen) {
-            document.exitFullscreen();
-        } else {
-            previewMask.current.requestFullscreen();
-        }
-        setIsFullScreen(isFullScreen => {
-            return !isFullScreen;
+    function changeIsfull(e) {
+        isFullScreen(!isFull, preview);
+        setIsFull(isFull => {
+            return !isFull;
         });
     }
 
@@ -773,7 +767,7 @@ function PreviewMask(props) {
             transform: `scale3d(${scaleRatio}, ${scaleRatio}, 1) translate3d(${transX}px, ${transY}px, 0px) rotate(${rotate}deg)`
         };
         if (window.isPC) {
-            styleObj.height = isFullScreen || urls.length <= 1 ? '100%' : `calc(100vh - ${70}px)`;
+            styleObj.height = isFull || urls.length <= 1 ? '100%' : `calc(100vh - ${70}px)`;
             styleObj.bottom = 'unset';
         } else {
             styleObj.width = '100%';
@@ -790,11 +784,11 @@ function PreviewMask(props) {
     }
 
     function fullScreenTitle() {
-        return isFullScreen ? '退出全屏' : '全屏';
+        return isFull ? '退出全屏' : '全屏';
     }
 
     function fullScreenCls() {
-        return 'iconfont ' + (isFullScreen ? 'icon-quxiaoquanping_huaban' : 'icon-quanping');
+        return 'iconfont ' + (isFull ? 'icon-quxiaoquanping_huaban' : 'icon-quanping');
     }
 
     function leftBtnStyle() {
@@ -896,14 +890,16 @@ function PreviewMask(props) {
                     })}
                 </div>
             )}
-            <span className={getCls(window.isPC ? 'font-14' : 'font-18', 'progress fixed')} ref={progress}>
-                {curIdx + 1} / {urls.length}
-            </span>
+            {urls.length > 1 && (
+                <span className={getCls(window.isPC ? 'font-14' : 'font-18', 'progress fixed')} ref={progress}>
+                    {curIdx + 1} / {urls.length}
+                </span>
+            )}
             {window.isPC && (
                 <div className='mask-head fixed top-0 w-full margin-t-10 padding-l-10 padding-r-10 ie-box'>
                     <span className='iconfont icon-xiazai-wenjianxiazai-05 download' title='下载原图' onClick={antiShake(download, 1000)}></span>
                     <span id='close' className='iconfont icon-24gl-delete' title='关闭' onClick={closeMask}></span>
-                    <span className={fullScreenCls()} title={fullScreenTitle()} onClick={fullScreen}></span>
+                    <span className={fullScreenCls()} title={fullScreenTitle()} onClick={changeIsfull}></span>
                     <span
                         className='iconfont icon-fangda'
                         title='最大化'
@@ -930,7 +926,7 @@ function PreviewMask(props) {
                     </div>
                 </>
             )}
-            {window.isPC && !isFullScreen && urls.length > 1 && (
+            {window.isPC && !isFull && urls.length > 1 && (
                 <div className='mask-foot fixed w-v-full' ref={maskFoot}>
                     <div className='flex-center padding-t-6 padding-b-6 ie-box'>
                         {urls.map((src, idx) => {

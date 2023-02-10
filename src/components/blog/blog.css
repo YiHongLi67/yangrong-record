@@ -19,7 +19,6 @@
 .img-group .img-wrap {
     margin: 2px;
     /* no */
-    display: flex;
 }
 
 .ant-image {

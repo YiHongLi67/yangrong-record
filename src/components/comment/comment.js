@@ -142,7 +142,7 @@ function Comment(props) {
                                                       <span className='iconfont icon-31zhuanfa'></span>
                                                       <span className='iconfont icon-pinglun'></span>
                                                       <span className='iconfont icon-dianzan'>
-                                                          {like_counts ? (
+                                                          {like_counts && (
                                                               <span
                                                                   className={getCls(
                                                                       window.isPC ? 'font-12 line-12' : 'font-14 line-14',
@@ -151,8 +151,6 @@ function Comment(props) {
                                                               >
                                                                   {like_counts}
                                                               </span>
-                                                          ) : (
-                                                              <></>
                                                           )}
                                                       </span>
                                                   </div>
@@ -160,7 +158,7 @@ function Comment(props) {
                                           </>
                                       }
                                       actions={[
-                                          !isModal && reply.avatar_reply && reply.reply_count !== reply.avatar_reply.length ? (
+                                          !isModal && reply.avatar_reply && reply.reply_count !== reply.avatar_reply.length && (
                                               <span
                                                   className='fold-comments inline-flex flex-col-center'
                                                   onClick={antiShake(fetchReply, 500, commtData)}
@@ -170,8 +168,6 @@ function Comment(props) {
                                                   </span>
                                                   <span className='iconfont icon-zhankai1'></span>
                                               </span>
-                                          ) : (
-                                              false
                                           )
                                       ].filter(Boolean)}
                                   ></AntdComment>
@@ -181,15 +177,13 @@ function Comment(props) {
                               <AntdComment
                                   className='reply-inner'
                                   actions={[
-                                      !isModal && reply.reply_count ? (
+                                      !isModal && reply.reply_count && (
                                           <span className='fold-comments inline-flex flex-col-center' onClick={antiShake(fetchReply, 500, commtData)}>
                                               <span className={window.isPC ? 'font-12' : getMobileFont('fold-comments')}>
                                                   共{reply.reply_count}条回复
                                               </span>
                                               <span className='iconfont icon-zhankai1'></span>
                                           </span>
-                                      ) : (
-                                          false
                                       )
                                   ].filter(Boolean)}
                               ></AntdComment>

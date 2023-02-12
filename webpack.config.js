@@ -5,6 +5,7 @@ const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin'
 const MiniCssExtractPlugin = require('mini-css-extract-plugin'); // 提取 css 成单独的文件
 const CssMinimizerWebpackPlugin = require('css-minimizer-webpack-plugin'); // 压缩 css
 const TerserWebpackPlugin = require('terser-webpack-plugin'); // 压缩 js
+const webpack = require('webpack');
 // "dev": "webpack serve --config ./webpack.dev.js",
 // "build": "webpack --config ./webpack.prod.js",
 // babel 环境变量
@@ -100,7 +101,10 @@ module.exports = {
                 filename: 'static/css[name].[contenthash:10].css', // 提取 css 到单独文件中
                 chunkFilename: 'static/css[name].[contenthash:10].chunk.css'
             }),
-        isProduction && new CssMinimizerWebpackPlugin()
+        isProduction && new CssMinimizerWebpackPlugin(),
+        new webpack.ProvidePlugin({
+            zepto: 'zepto-webpack'
+        })
     ].filter(Boolean),
     module: {
         // 详细 loader 配置
@@ -166,6 +170,11 @@ module.exports = {
                     remPrecision: 4 // px转rem小数点保留的位置
                 }
             }
+            // {
+            //     test: require.resolve('zepto'),
+            //     // use: ['exports-loader', 'script-loader'],
+            //     use: ['exports-loader?window.Zepto', 'script-loader']
+            // }
         ]
     }
 };

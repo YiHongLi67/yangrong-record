@@ -1,31 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useEffect } from 'react';
 import Blog from '../../components/blog/blog';
 import { PropTypes } from 'prop-types';
-import { subscribe, unsubscribe } from 'pubsub-js';
 import { Radio } from 'antd';
 import { getMobileFont } from '../../static/utils/utils';
 
-let updateBlogsDataId;
-let blogsRefreshId;
-
 function Blogs(props) {
-    const { pathName } = props;
-    let [blogsData, setBlogsData] = useState([]);
+    const { pathName, blogsData } = props;
 
     useEffect(() => {
-        updateBlogsDataId = subscribe('updateBlogsData', (_, data) => {
-            setBlogsData(blogsData => {
-                return [...blogsData, ...data];
-            });
-        });
-        blogsRefreshId = subscribe('blogsRefresh', () => {
-            setBlogsData([]);
-        });
-        return () => {
-            unsubscribe(updateBlogsDataId);
-            unsubscribe(blogsRefreshId);
-        };
+        return () => {};
     }, []);
 
     function changeFontSize(e) {

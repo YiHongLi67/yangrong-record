@@ -40,9 +40,8 @@ function BlogComment(props) {
     const navigate = useNavigate();
 
     useEffect(() => {
-        document.onscroll = null;
         // allcomment 添加 scroll 事件
-        document.onscroll = _throttle(appScroll, 200, { before: true, end: true });
+        document.addEventListener('scroll', _throttle(appScroll, 200, { before: true, end: true }));
         fetchComment(curPage);
         blogCommtRefreshId = subscribe('blogCommtRefresh', _ => {
             curPage = 1;
@@ -77,16 +76,18 @@ function BlogComment(props) {
     }
 
     function appScroll(e) {
-        let currentTop = e.target.documentElement.scrollTop;
-        if (currentTop <= beforeTop) {
-            // 向上滚动
+        if (/^\/comment/.test(window.location.pathname)) {
+            let currentTop = document.documentElement.scrollTop || document.body.scrollTop;
+            if (currentTop <= beforeTop) {
+                // 向上滚动
+                beforeTop = currentTop;
+                return;
+            }
             beforeTop = currentTop;
-            return;
-        }
-        beforeTop = currentTop;
-        if (e.target.documentElement.scrollHeight - currentTop <= winHeight + 400 && fetchDone && curPage !== prePage) {
-            fetchDone = false;
-            fetchComment(curPage);
+            if (e.target.documentElement.scrollHeight - currentTop <= winHeight + 100 && fetchDone && curPage !== prePage) {
+                fetchDone = false;
+                fetchComment(curPage);
+            }
         }
     }
 

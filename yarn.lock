@@ -3071,6 +3071,11 @@
   "resolved" "https://registry.npmmirror.com/batch/-/batch-0.6.1.tgz"
   "version" "0.6.1"
 
+"be-full@^0.1.4":
+  "integrity" "sha512-Nj3yBvk8rxhBhDv6YROxP9ynTA5H0l9lMjU+XqEAY4rTLJ68l2+n0geWCoeTqAxhOFedtbmYCpxFzMxMA8CnUg=="
+  "resolved" "https://registry.npmmirror.com/be-full/-/be-full-0.1.4.tgz"
+  "version" "0.1.4"
+
 "bfj@^7.0.2":
   "integrity" "sha512-+e/UqUzwmzJamNF50tBV6tZPTORow7gQ96iFow+8b562OdMpEK0BcJEq2OSPEDmAbSMBQ7PKZ87ubFkgxpYWgw=="
   "resolved" "https://registry.npmmirror.com/bfj/-/bfj-7.0.2.tgz"
@@ -4306,6 +4311,11 @@
   "resolved" "https://registry.npmmirror.com/dotenv/-/dotenv-10.0.0.tgz"
   "version" "10.0.0"
 
+"dropload@^1.1.0":
+  "integrity" "sha512-VEqisq+80bUByM6RJQf/PRpyVxCafYYvNZvchy1PmAbfOD1PiN91CutlpbG+lx5rTNjePaxPrqbJqqitIg7DxA=="
+  "resolved" "https://registry.npmmirror.com/dropload/-/dropload-1.1.0.tgz"
+  "version" "1.1.0"
+
 "duplexer@^0.1.2":
   "integrity" "sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg=="
   "resolved" "https://registry.npmmirror.com/duplexer/-/duplexer-0.1.2.tgz"
@@ -4832,6 +4842,13 @@
     "jest-matcher-utils" "^29.2.1"
     "jest-message-util" "^29.2.1"
     "jest-util" "^29.2.1"
+
+"exports-loader@^4.0.0":
+  "integrity" "sha512-4iqFFIAnlVAbkAUMHhWceyxK6N6dMDWpQFbSHLmiayGEPMXl2bgWD4D11GYi1VNuEQwJaHGdATcPYTnXpwzSmw=="
+  "resolved" "https://registry.npmmirror.com/exports-loader/-/exports-loader-4.0.0.tgz"
+  "version" "4.0.0"
+  dependencies:
+    "source-map" "^0.6.1"
 
 "express@^4.17.3":
   "integrity" "sha512-5/PsL6iGPdfQ/lKM1UuielYgv3BUoJfz1aUwU9vHZ+J7gyvwdQXFEBIEIaxeGf0GIcreATNyBExtalisDbuMqQ=="
@@ -8550,6 +8567,11 @@
     "iconv-lite" "0.4.24"
     "unpipe" "1.0.0"
 
+"raw-loader@~0.5.1":
+  "integrity" "sha512-sf7oGoLuaYAScB4VGr0tzetsYlS8EJH6qnTCfQ/WVEa89hALQ4RQfCKt5xCyPQKPDUbVUAIP1QsxAwfAjlDp7Q=="
+  "resolved" "https://registry.npmmirror.com/raw-loader/-/raw-loader-0.5.1.tgz"
+  "version" "0.5.1"
+
 "rc-align@^4.0.0":
   "integrity" "sha512-3DuwSJp8iC/dgHzwreOQl52soj40LchlfUHtgACOUtwGuoFIOVh6n/sCpfqCU8kO5+iz6qR0YKvjgB8iPdE3aQ=="
   "resolved" "https://registry.npmmirror.com/rc-align/-/rc-align-4.0.12.tgz"
@@ -9515,6 +9537,13 @@
     "@types/json-schema" "^7.0.4"
     "ajv" "^6.12.2"
     "ajv-keywords" "^3.4.1"
+
+"script-loader@^0.7.2":
+  "integrity" "sha512-UMNLEvgOAQuzK8ji8qIscM3GIrRCWN6MmMXGD4SD5l6cSycgGsCo0tX5xRnfQcoghqct0tjHjcykgI1PyBE2aA=="
+  "resolved" "https://registry.npmmirror.com/script-loader/-/script-loader-0.7.2.tgz"
+  "version" "0.7.2"
+  dependencies:
+    "raw-loader" "~0.5.1"
 
 "scroll-into-view-if-needed@^2.2.25":
   "integrity" "sha512-hxpAR6AN+Gh53AdAimHM6C8oTN1ppwVZITihix+WqalywBeFcQ6LdQP5ABNl26nX8GTEL7VT+b8lKpdqq65wXg=="
@@ -11220,3 +11249,13 @@
   "integrity" "sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q=="
   "resolved" "https://registry.npmmirror.com/yocto-queue/-/yocto-queue-0.1.0.tgz"
   "version" "0.1.0"
+
+"zepto-webpack@^1.2.1":
+  "integrity" "sha512-E+CcGC3hlAToPAovdQCpusl7GAmREmTLO8w9S+mA+cJtnFZIrSXDEI7qKsHv7Q3/k2/DSWAGggFPywU8j/Jfqg=="
+  "resolved" "https://registry.npmmirror.com/zepto-webpack/-/zepto-webpack-1.2.1.tgz"
+  "version" "1.2.1"
+
+"zepto@^1.2.0":
+  "integrity" "sha512-C1x6lfvBICFTQIMgbt3JqMOno3VOtkWat/xEakLTOurskYIHPmzJrzd1e8BnmtdDVJlGuk5D+FxyCA8MPmkIyA=="
+  "resolved" "https://registry.npmmirror.com/zepto/-/zepto-1.2.0.tgz"
+  "version" "1.2.0"

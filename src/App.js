@@ -5,7 +5,7 @@ import { getblog } from './axios/api';
 import { _throttle } from './static/utils/utils';
 import { Routes, Route } from 'react-router-dom';
 import BlogComment from './route/blogcomment/blogcomment';
-import { publish, subscribe, unsubscribe } from 'pubsub-js';
+import { subscribe, unsubscribe } from 'pubsub-js';
 import Blogs from './route/blogs/blogs';
 import KeepAliveLayout, { useKeepOutlets, KeepAliveContext } from '@chanjs/keepalive';
 import Header from './components/header/header';
@@ -18,28 +18,22 @@ let preId = null;
 const winHeight = window.innerHeight;
 let toBlogsId;
 let blogsRefreshId;
-let throttleScroll;
 
 export default function App() {
+    let [blogsData, setBlogsData] = useState([]);
     useEffect(() => {
-        throttleScroll = _throttle(blogScroll, 200, { begin: true, end: true });
+        document.addEventListener('scroll', _throttle(blogScroll, 200, { begin: true, end: true }));
         toBlogsId = subscribe('toBlogs', (_, data) => {
-            document.onscroll = null;
-            document.onscroll = throttleScroll;
+            // 手机端 QQ/微信/QQ浏览器 获取到的 document.documentElement.scrollTop始终为 0
+            document.body.scrollTop = data.scrollTop;
             document.documentElement.scrollTop = data.scrollTop;
-            if (window.isPC) return;
+            // alert(`body: ${document.body.scrollTop}, documentElement: ${document.documentElement.scrollTop}`);
         });
         blogsRefreshId = subscribe('blogsRefresh', () => {
-            fetchDone = true;
-            preId = null;
-            sinceId = '';
-            fetchBlog(sinceId);
+            blogsRefresh();
         });
         if (window.location.pathname === '/') {
             fetchBlog(sinceId);
-            document.onscroll = null;
-            document.onscroll = throttleScroll;
-            if (window.isPC) return;
         }
         return () => {
             unsubscribe(toBlogsId, blogsRefreshId);
@@ -47,27 +41,44 @@ export default function App() {
     }, []);
 
     async function fetchBlog(since_id) {
+        // console.log('fetch');
+        const isRefresh = sinceId === '';
         let response = await getblog(since_id);
         fetchDone = true;
         preId = since_id;
+        setBlogsData(blogsData => {
+            if (isRefresh) {
+                return [...response];
+            } else {
+                return [...blogsData, ...response];
+            }
+        });
         if (response.length === 0) {
             return;
         }
-        publish('updateBlogsData', response);
         sinceId = response[response.length - 1].mid;
     }
 
+    function blogsRefresh() {
+        fetchDone = true;
+        preId = null;
+        sinceId = '';
+        fetchBlog(sinceId);
+    }
+
     function blogScroll(e) {
-        let currentTop = e.target.documentElement.scrollTop;
-        if (currentTop <= beforeTop) {
-            // 向上滚动
+        let currentTop = document.documentElement.scrollTop || document.body.scrollTop;
+        if (window.location.pathname === '/') {
+            if (currentTop <= beforeTop) {
+                // 向上滚动
+                beforeTop = currentTop;
+                return;
+            }
             beforeTop = currentTop;
-            return;
-        }
-        beforeTop = currentTop;
-        if (e.target.documentElement.scrollHeight - currentTop <= winHeight + 400 && fetchDone && sinceId !== preId) {
-            fetchDone = false;
-            fetchBlog(sinceId);
+            if (e.target.documentElement.scrollHeight - currentTop <= winHeight + 100 && fetchDone && sinceId !== preId) {
+                fetchDone = false;
+                fetchBlog(sinceId);
+            }
         }
     }
 
@@ -78,17 +89,20 @@ export default function App() {
     };
 
     return (
-        <KeepAliveLayout keepalive={['/']}>
-            <Header />
-            <Content>
-                <Routes>
-                    <Route path='/' element={<MemoComponents />}>
-                        <Route path='/' element={<Blogs pathName='/' />}></Route>
-                        <Route path='/comment' element={<BlogComment pathName='/comment' />}></Route>
-                    </Route>
-                </Routes>
-            </Content>
-            {window.isPC && <Footer className='fixed bottom-0 ie-box align-center w-full font-12'>©CopyRight yhl</Footer>}
-        </KeepAliveLayout>
+        <>
+            <KeepAliveLayout keepalive={['/']}>
+                <Header />
+                <Content>
+                    <Routes>
+                        <Route path='/' element={<MemoComponents />}>
+                            {/* <Route path='/'> */}
+                            <Route path='/' element={<Blogs pathName='/' blogsData={blogsData} />}></Route>
+                            <Route path='/comment' element={<BlogComment pathName='/comment' />}></Route>
+                        </Route>
+                    </Routes>
+                </Content>
+                {window.isPC && <Footer className='fixed bottom-0 ie-box align-center w-full font-12'>©CopyRight yhl</Footer>}
+            </KeepAliveLayout>
+        </>
     );
 }

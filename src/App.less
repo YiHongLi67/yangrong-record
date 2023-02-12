@@ -33,8 +33,6 @@ main {
     margin: auto;
     min-width: 750px;
     max-width: 1200px;
-    // margin-left: 300px;
-    // margin-right: 100px;
 }
 main::before,
 main::after {
@@ -89,12 +87,6 @@ video {
     min-width: 400px; /* no */
     max-width: 640px; /* no */
 }
-
-.grandfather,
-.father,
-.son,
-.grandson {
-    width: 100vw;
-    height: 80vh;
-    background-color: var(--w-brand);
+* {
+    touch-action: pan-y; // 使用全局样式样式去掉浏览器左右滑动前进后退事件
 }

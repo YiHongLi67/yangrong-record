@@ -66,7 +66,7 @@ function BlogFoot(props) {
             return;
         }
         beforeTop = currentTop;
-        if (e.target.scrollHeight - currentTop <= e.target.clientHeight + 400 && fetchDone && curPage !== prePage) {
+        if (e.target.scrollHeight - currentTop <= e.target.clientHeight + 100 && fetchDone && curPage !== prePage) {
             fetchDone = false;
             fetchReply(curPage, curCommt.rootid);
         }

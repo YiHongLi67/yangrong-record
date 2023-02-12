@@ -74,7 +74,7 @@ function PreviewMask(props) {
             setCurIdx((_curIdx = idx));
             setViewTX((_viewTX = -idx * window.innerWidth));
             if (window.isPC) onSrcLoad(-1, idx);
-            else isFullScreen(true, preview);
+            // else isFullScreen(true, preview);~
         });
         if (window.isPC) return;
         const imgWraps = document.querySelectorAll('.view-source .img-wrap');

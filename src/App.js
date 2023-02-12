@@ -31,6 +31,8 @@ export default function App() {
         });
         blogsRefreshId = subscribe('blogsRefresh', () => {
             blogsRefresh();
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
         });
         if (window.location.pathname === '/') {
             fetchBlog(sinceId);

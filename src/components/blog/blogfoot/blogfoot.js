@@ -116,7 +116,7 @@ function BlogFoot(props) {
     }
 
     function viewComment() {
-        navigate(`/comment?mid=${mid}`, { state: { blogData, scrollTop: document.documentElement.scrollTop } });
+        navigate(`/comment?mid=${mid}`, { state: { blogData, scrollTop: document.documentElement.scrollTop || document.body.scrollTop } });
     }
 
     function resetModal() {

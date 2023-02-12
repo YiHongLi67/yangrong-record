@@ -1,16 +1,79 @@
-import React from 'react';
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Blog from '../../components/blog/blog';
-import { PropTypes } from 'prop-types';
 import { Radio } from 'antd';
 import { getMobileFont } from '../../static/utils/utils';
+import { getblog } from '../../axios/api';
+import { _throttle } from '../../static/utils/utils';
+import { subscribe, unsubscribe } from 'pubsub-js';
 
-function Blogs(props) {
-    const { pathName, blogsData } = props;
+let beforeTop = 0;
+let fetchDone = true;
+let sinceId = '';
+let preId = null;
+const winHeight = window.innerHeight;
+let blogsRefreshId;
+
+function Blogs() {
+    const { pathname } = useLocation();
+    let [blogsData, setBlogsData] = useState([]);
 
     useEffect(() => {
-        return () => {};
+        document.addEventListener('scroll', _throttle(blogScroll, 200, { begin: true, end: true }));
+        blogsRefreshId = subscribe('blogsRefresh', () => {
+            blogsRefresh();
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        });
+        if (pathname === '/') {
+            fetchBlog(sinceId);
+        }
+        return () => {
+            unsubscribe(blogsRefreshId);
+        };
     }, []);
+
+    async function fetchBlog(since_id) {
+        // console.log('fetch');
+        const isRefresh = sinceId === '';
+        let response = await getblog(since_id);
+        fetchDone = true;
+        preId = since_id;
+        setBlogsData(blogsData => {
+            if (isRefresh) {
+                return [...response];
+            } else {
+                return [...blogsData, ...response];
+            }
+        });
+        if (response.length === 0) {
+            return;
+        }
+        sinceId = response[response.length - 1].mid;
+    }
+
+    function blogsRefresh() {
+        fetchDone = true;
+        preId = null;
+        sinceId = '';
+        fetchBlog(sinceId);
+    }
+
+    function blogScroll(e) {
+        let currentTop = document.documentElement.scrollTop || document.body.scrollTop;
+        if (pathname === '/') {
+            if (currentTop <= beforeTop) {
+                // 向上滚动
+                beforeTop = currentTop;
+                return;
+            }
+            beforeTop = currentTop;
+            if (e.target.documentElement.scrollHeight - currentTop <= winHeight + 100 && fetchDone && sinceId !== preId) {
+                fetchDone = false;
+                fetchBlog(sinceId);
+            }
+        }
+    }
 
     function changeFontSize(e) {
         window.fontSize = e.target.value;
@@ -57,14 +120,11 @@ function Blogs(props) {
                         source={source}
                         created_at={created_at}
                         region_name={region_name}
-                        pathName={pathName}
+                        pathName={pathname}
                     ></Blog>
                 );
             })}
         </>
     );
 }
-Blogs.propTypes = {
-    pathName: PropTypes.string.isRequired
-};
 export default Blogs;

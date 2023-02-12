@@ -4,8 +4,7 @@ import Blog from '../../components/blog/blog';
 import { getComment } from '../../axios/api';
 import { _throttle } from '../../static/utils/utils';
 import './blogcomment.css';
-import { publish, subscribe, unsubscribe } from 'pubsub-js';
-import { PropTypes } from 'prop-types';
+import { subscribe, unsubscribe } from 'pubsub-js';
 
 const winHeight = window.innerHeight;
 let curPage = 1;
@@ -14,27 +13,11 @@ let fetchDone = true;
 let beforeTop = 0;
 let blogCommtRefreshId;
 
-function BlogComment(props) {
-    const { pathName } = props;
-    const {
-        state: {
-            blogData: {
-                uid,
-                mid,
-                pic_ids,
-                pic_num,
-                pic_infos,
-                text,
-                reposts_count,
-                comments_count,
-                attitudes_count,
-                source,
-                created_at,
-                region_name
-            },
-            scrollTop
-        }
-    } = useLocation();
+function BlogComment() {
+    const [pathname] = useState(useLocation().pathname);
+    const [blogData] = useState(useLocation().state.blogData);
+    const [scrollTop] = useState(useLocation().state.scrollTop);
+    const { uid, mid, pic_ids, pic_num, pic_infos, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = blogData;
     let [allCommt, setAllCommt] = useState([]);
     let [display, setDisplay] = useState('none');
     const navigate = useNavigate();
@@ -53,7 +36,6 @@ function BlogComment(props) {
             // 路由切换 组件卸载 reset 参数
             curPage = 1;
             prePage = 0;
-            publish('toBlogs', { scrollTop });
             unsubscribe(blogCommtRefreshId);
         };
     }, []);
@@ -76,7 +58,7 @@ function BlogComment(props) {
     }
 
     function appScroll(e) {
-        if (/^\/comment/.test(window.location.pathname)) {
+        if (/^\/comment/.test(pathname)) {
             let currentTop = document.documentElement.scrollTop || document.body.scrollTop;
             if (currentTop <= beforeTop) {
                 // 向上滚动
@@ -98,6 +80,9 @@ function BlogComment(props) {
         navigate(`/`, {
             state: {}
         });
+        // 手机端 QQ/微信/QQ浏览器 获取到的 document.documentElement.scrollTop始终为 0
+        document.body.scrollTop = scrollTop;
+        document.documentElement.scrollTop = scrollTop;
     }
 
     return (
@@ -108,7 +93,7 @@ function BlogComment(props) {
             </div>
             <Blog
                 className='all-comment'
-                pathName={pathName}
+                pathName={pathname}
                 key={mid}
                 mid={mid}
                 uid='1858065064'
@@ -132,7 +117,4 @@ function BlogComment(props) {
         </>
     );
 }
-BlogComment.propTypes = {
-    pathName: PropTypes.string.isRequired
-};
 export default BlogComment;

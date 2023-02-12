@@ -13,9 +13,7 @@ export function getblog(sinceId) {
                 url,
                 method: 'get'
             });
-            // setTimeout(() => {
             resolve(res.data.err || res.data.data);
-            // }, 0);
         } catch (e) {
             reject(e.message);
         }

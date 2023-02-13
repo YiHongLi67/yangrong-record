@@ -38,7 +38,15 @@
 }
 .operate .iconfont {
     color: var(--w-color-gray-3);
+}
+.operate .iconfont:not(:last-child) {
     margin-right: 16px; /* no */
+}
+.comments-msg,
+.comments-msg div,
+.operate,
+.operate span {
+    height: inherit;
 }
 .icon-pinglun:before {
     position: relative;
@@ -59,7 +67,6 @@
     padding: 0 0 0px 10px;
 }
 .reply-inner .operate {
-    opacity: 0;
     transition: opacity 0.2s;
 }
 .ant-comment-content-detail:hover .operate {

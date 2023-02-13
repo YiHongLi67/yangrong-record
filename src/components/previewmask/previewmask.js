@@ -51,7 +51,6 @@ function PreviewMask(props) {
     const previewImg = useRef(null);
     const maskFoot = useRef(null);
     const previewVideo = useRef(null);
-    const progress = useRef(null);
     const save = useRef(null);
     const saveBtn = useRef(null);
     const viewSource = useRef(null);
@@ -682,7 +681,11 @@ function PreviewMask(props) {
 
     function mScale(e) {
         if (ratio === 1) {
-            setScaleRatio((ratio = 3));
+            if (isWLtH()) {
+                setScaleRatio((ratio = 6));
+            } else {
+                setScaleRatio((ratio = 3));
+            }
         } else {
             setScaleRatio((ratio = 1));
             setTransX((mTransX = 0));
@@ -703,6 +706,12 @@ function PreviewMask(props) {
         save.current && save.current.classList.add('none');
     }
 
+    function isWLtH() {
+        const w = parseFloat(window.getComputedStyle(getTargetEle()).width);
+        const h = parseFloat(window.getComputedStyle(getTargetEle()).height);
+        return w > h;
+    }
+
     function pinchstart() {
         changeStyle('remove');
         const originRatio = ratio;
@@ -710,8 +719,14 @@ function PreviewMask(props) {
             // 应用在元素上的缩放比例
             let newScale = originRatio * e.scale;
             // 最大/小缩放比例限制
-            if (newScale > 3) {
-                newScale = 3;
+            if (isWLtH()) {
+                if (newScale > 6) {
+                    newScale = 6;
+                }
+            } else {
+                if (newScale > 3) {
+                    newScale = 3;
+                }
             }
             if (newScale < 1) {
                 newScale = 1;
@@ -891,7 +906,7 @@ function PreviewMask(props) {
                 </div>
             )}
             {urls.length > 1 && (
-                <span className={getCls(window.isPC ? 'font-14' : 'font-18', 'progress fixed')} ref={progress}>
+                <span className={getCls(window.isPC ? 'font-14' : 'font-18', 'progress fixed')}>
                     {curIdx + 1} / {urls.length}
                 </span>
             )}

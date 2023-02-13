@@ -26,10 +26,6 @@
     transition: transform 0.1s linear;
     mix-blend-mode: unset;
 }
-// .preview-mask img.preview-source.trans-3,
-// .preview-mask video.preview-source.trans-3 {
-//     transition: transform 0.3s linear;
-// }
 .preview-mask img.no-trans,
 .preview-mask video.no-trans {
     transition: transform 0s linear;
@@ -42,10 +38,6 @@
     height: 0;
     line-height: 1.5;
 }
-.mask-head .iconfont {
-    color: var(--w-pophover-background);
-    cursor: pointer;
-}
 .progress {
     display: inline-block;
     line-height: 1.5;
@@ -53,6 +45,9 @@
     color: var(--w-color-gray-9);
     user-select: none;
     -webkit-user-select: none;
+    top: 10px; /* no */
+    left: 50%;
+    transform: translateX(-50%);
 }
 .toggle-btn {
     text-align: center;
@@ -85,18 +80,13 @@
 }
 .mask-head .iconfont {
     font-size: 22px; /* no */
-}
-.mask-head .iconfont {
     float: right;
     padding: 0 15px; /* no */
+    color: var(--w-pophover-background);
+    cursor: pointer;
 }
 .mask-head .download {
     float: left;
-}
-.progress {
-    top: 10px; /* no */
-    left: 50%;
-    transform: translateX(-50%);
 }
 .toggle-btn span {
     line-height: 45px; /* no */

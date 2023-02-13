@@ -75,17 +75,18 @@ function Comment(props) {
                         ) : (
                             <></>
                         )}
-                        <div className={getCls(window.isPC ? 'font-12 line-12' : 'font-14 line-14', 'clear operate-wrap')}>
-                            <div className='comments-msg float-l'>
-                                <span>{formatTime(created_at)}</span>
-                                <span>&nbsp;{source}</span>
+                        <div className={getCls(window.isPC ? 'font-12 line-12 height-12' : 'font-14 line-14 height-14', 'clear operate-wrap flex')}>
+                            <div className='comments-msg flex-1 ellipsis'>
+                                <div className='ellipsis'>{`${formatTime(created_at)} ${source}`}</div>
                             </div>
-                            <div className='operate float-r flex-center'>
+                            <div className='operate flex-center' style={{ opacity: !window.isPC + 0 }}>
                                 <span className='iconfont icon-31zhuanfa'></span>
                                 <span className='iconfont icon-pinglun'></span>
                                 <span className='iconfont icon-dianzan'>
                                     {like_counts ? (
-                                        <span className={getCls(window.isPC ? 'font-12 line-12' : 'font-14 line-14', 'padding-l-6 like')}>
+                                        <span
+                                            className={getCls(window.isPC ? 'font-12 line-12' : 'font-14 line-14', 'padding-l-6 like inline-block')}
+                                        >
                                             {like_counts}
                                         </span>
                                     ) : (
@@ -133,12 +134,16 @@ function Comment(props) {
                                                       dangerouslySetInnerHTML={{ __html: text }}
                                                   ></span>
                                               </div>
-                                              <div className={getCls(window.isPC ? 'font-12 line-12' : 'font-14 line-14', 'clear operate-wrap')}>
-                                                  <div className='comments-msg float-l'>
-                                                      <span>{formatTime(created_at)}</span>
-                                                      <span>&nbsp;{source}</span>
+                                              <div
+                                                  className={getCls(
+                                                      window.isPC ? 'font-12 line-12 height-12' : 'font-14 line-14 height-14',
+                                                      'clear operate-wrap flex'
+                                                  )}
+                                              >
+                                                  <div className='comments-msg flex-1 ellipsis'>
+                                                      <div className='ellipsis'>{`${formatTime(created_at)} ${source}`}</div>
                                                   </div>
-                                                  <div className='operate float-r flex-center'>
+                                                  <div className='operate flex-center'>
                                                       <span className='iconfont icon-31zhuanfa'></span>
                                                       <span className='iconfont icon-pinglun'></span>
                                                       <span className='iconfont icon-dianzan'>
@@ -146,7 +151,7 @@ function Comment(props) {
                                                               <span
                                                                   className={getCls(
                                                                       window.isPC ? 'font-12 line-12' : 'font-14 line-14',
-                                                                      'padding-l-6 like'
+                                                                      'padding-l-6 like inline-block'
                                                                   )}
                                                               >
                                                                   {like_counts}

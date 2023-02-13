@@ -12,17 +12,21 @@ let prePage = 0;
 let fetchDone = true;
 let beforeTop = 0;
 let blogCommtRefreshId;
+let scrollTop, blogData;
 
 function BlogComment() {
-    const [pathname] = useState(useLocation().pathname);
-    const [blogData] = useState(useLocation().state.blogData);
-    const [scrollTop] = useState(useLocation().state.scrollTop);
-    const { uid, mid, pic_ids, pic_num, pic_infos, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = blogData;
+    let { state } = useLocation();
+    const [_blogData] = useState(state && state.blogData);
+    const [_scrollTop] = useState(state && state.scrollTop);
     let [allCommt, setAllCommt] = useState([]);
     let [display, setDisplay] = useState('none');
     const navigate = useNavigate();
+    const { uid, mid, pic_ids, pic_num, pic_infos, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } =
+        blogData || _blogData;
 
     useEffect(() => {
+        scrollTop = _scrollTop;
+        blogData = { ..._blogData };
         // allcomment 添加 scroll 事件
         document.addEventListener('scroll', _throttle(appScroll, 200, { before: true, end: true }));
         fetchComment(curPage);
@@ -58,7 +62,7 @@ function BlogComment() {
     }
 
     function appScroll(e) {
-        if (/^\/comment/.test(pathname)) {
+        if (window.location.pathname === '/comment') {
             let currentTop = document.documentElement.scrollTop || document.body.scrollTop;
             if (currentTop <= beforeTop) {
                 // 向上滚动
@@ -93,7 +97,6 @@ function BlogComment() {
             </div>
             <Blog
                 className='all-comment'
-                pathName={pathname}
                 key={mid}
                 mid={mid}
                 uid='1858065064'
@@ -110,7 +113,7 @@ function BlogComment() {
                 region_name={region_name}
                 isAllCommt
                 allCommt={allCommt}
-            ></Blog>
+            />
             <div className='end align-center font-12 padding-t-6 padding-b-6 margin-t-4 margin-b-4 w-sub' style={{ display }}>
                 <span>评论已经到底了~</span>
             </div>

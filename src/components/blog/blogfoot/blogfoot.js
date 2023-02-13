@@ -17,7 +17,7 @@ let curCommt = {};
 let fetchReplyId;
 
 function BlogFoot(props) {
-    const { blogData, mid, avatar_uid, isAllCommt, allCommt, pathName } = props;
+    const { blogData, mid, avatar_uid, isAllCommt, allCommt } = props;
     const { reposts_count, comments_count, attitudes_count } = blogData;
     let [showDetail, setShowDetail] = useState(isAllCommt ? 'block' : 'none');
     let [partCommt, setPartCommt] = useState([]);
@@ -106,7 +106,7 @@ function BlogFoot(props) {
     }
 
     function spreadReply(e, rootCommt) {
-        if (rootCommt.mid === mid && pathName === window.location.pathname) {
+        if (rootCommt.mid === mid) {
             curPage = 1;
             prePage = 0;
             openModal();
@@ -211,8 +211,7 @@ BlogFoot.propTypes = {
     mid: PropTypes.string.isRequired,
     avatar_uid: PropTypes.string.isRequired,
     isAllCommt: PropTypes.bool,
-    allCommt: PropTypes.array,
-    pathName: PropTypes.string.isRequired
+    allCommt: PropTypes.array
 };
 BlogFoot.defaultProps = {
     isAllCommt: false

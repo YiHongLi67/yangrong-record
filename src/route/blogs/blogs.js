@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import Blog from '../../components/blog/blog';
 import { Radio } from 'antd';
 import { getMobileFont } from '../../static/utils/utils';
@@ -15,7 +14,6 @@ const winHeight = window.innerHeight;
 let blogsRefreshId;
 
 function Blogs() {
-    const { pathname } = useLocation();
     let [blogsData, setBlogsData] = useState([]);
 
     useEffect(() => {
@@ -25,7 +23,7 @@ function Blogs() {
             document.body.scrollTop = 0;
             document.documentElement.scrollTop = 0;
         });
-        if (pathname === '/') {
+        if (window.location.pathname === '/') {
             fetchBlog(sinceId);
         }
         return () => {
@@ -34,7 +32,6 @@ function Blogs() {
     }, []);
 
     async function fetchBlog(since_id) {
-        // console.log('fetch');
         const isRefresh = sinceId === '';
         let response = await getblog(since_id);
         fetchDone = true;
@@ -61,7 +58,7 @@ function Blogs() {
 
     function blogScroll(e) {
         let currentTop = document.documentElement.scrollTop || document.body.scrollTop;
-        if (pathname === '/') {
+        if (window.location.pathname === '/') {
             if (currentTop <= beforeTop) {
                 // 向上滚动
                 beforeTop = currentTop;
@@ -120,7 +117,6 @@ function Blogs() {
                         source={source}
                         created_at={created_at}
                         region_name={region_name}
-                        pathName={pathname}
                     ></Blog>
                 );
             })}

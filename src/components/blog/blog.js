@@ -12,7 +12,7 @@ import 'moment/locale/zh-cn';
 moment.locale('zh-cn');
 
 function Blog(props) {
-    const { uid, mid, pic_ids, pic_infos, pic_num, text, source, created_at, region_name, isAllCommt, allCommt, pathName } = props;
+    const { uid, mid, pic_ids, pic_infos, pic_num, text, source, created_at, region_name, isAllCommt, allCommt } = props;
     const className = getCls(props.className, 'blog-wrap');
     const width = picWidth();
     const [pic_wrap_width, set_pic_wrap_width] = useState(width.pic_wrap_width);
@@ -152,7 +152,7 @@ function Blog(props) {
                         <></>
                     )}
                 </div>
-                <BlogFoot blogData={props} mid={mid} avatar_uid={uid} isAllCommt={isAllCommt} allCommt={allCommt} pathName={pathName}></BlogFoot>
+                <BlogFoot blogData={props} mid={mid} avatar_uid={uid} isAllCommt={isAllCommt} allCommt={allCommt}></BlogFoot>
             </div>
         </div>
     );
@@ -169,8 +169,7 @@ Blog.propTypes = {
     region_name: PropTypes.string,
     isAllCommt: PropTypes.bool,
     allCommt: PropTypes.array,
-    className: PropTypes.string,
-    pathName: PropTypes.string.isRequired
+    className: PropTypes.string
 };
 Blog.defaultProps = {
     region_name: null,

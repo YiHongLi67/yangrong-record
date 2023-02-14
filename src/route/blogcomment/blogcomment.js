@@ -18,7 +18,6 @@ let mid = '';
 
 function BlogComment() {
     let location = useLocation();
-    // console.log('render', uid, mid);
     let [blogData, setBlogData] = useState({});
     let [allCommt, setAllCommt] = useState([]);
     let [display, setDisplay] = useState('none');
@@ -31,15 +30,18 @@ function BlogComment() {
         const search = querystring.parse(location.search);
         uid = search.uid;
         mid = search.mid;
-        console.log('didmount', uid, mid);
         fetchBlog(1);
         fetchComment(curPage, 2);
         blogCommtRefreshId = subscribe('blogCommtRefresh', (_, data) => {
-            uid = data.uid;
-            mid = data.mid;
+            fetchDone = true;
+            beforeTop = 0;
             curPage = 1;
             prePage = 0;
-            console.log('订阅刷新');
+            if (data) {
+                uid = data.uid;
+                mid = data.mid;
+            }
+            setDisplay('none');
             setBlogData({});
             fetchBlog(3);
             setAllCommt([]);
@@ -54,13 +56,11 @@ function BlogComment() {
     }, []);
 
     async function fetchBlog(num) {
-        console.log(num);
         const response = await getblog({ mid });
         setBlogData(response[0]);
     }
 
     async function fetchComment(page, num) {
-        console.log(num);
         // comment 页面获取一级评论
         const response = await getComment(uid, mid, page);
         fetchDone = true;

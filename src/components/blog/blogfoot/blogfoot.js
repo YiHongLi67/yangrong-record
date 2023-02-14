@@ -92,19 +92,21 @@ function BlogFoot(props) {
     }
 
     function openModal() {
-        setModalOpen(true);
-        resetModal();
-        setReplyDetail([]);
-        setShowEnd('none');
-        setTimeout(() => {
-            const modalBody = document.querySelector('.ant-modal-body');
-            const modalWrap = document.querySelector('.ant-modal-wrap');
-            modalBody.onscroll = null;
-            modalBody.onscroll = _throttle(modalBodyScroll, 200, { begin: true, end: true });
-            if (!window.isPC) {
-                modalWrap.style.top = 'unset';
-            }
-        }, 10);
+        if ((isAllCommt && window.location.pathname === '/comment') || (!isAllCommt && window.location.pathname === '/')) {
+            setModalOpen(true);
+            resetModal();
+            setReplyDetail([]);
+            setShowEnd('none');
+            setTimeout(() => {
+                const modalBody = document.querySelector('.ant-modal-body');
+                const modalWrap = document.querySelector('.ant-modal-wrap');
+                modalBody.onscroll = null;
+                modalBody.onscroll = _throttle(modalBodyScroll, 200, { begin: true, end: true });
+                if (!window.isPC) {
+                    modalWrap.style.top = 'unset';
+                }
+            }, 10);
+        }
     }
 
     function spreadReply(e, rootCommt) {
@@ -113,7 +115,9 @@ function BlogFoot(props) {
             prePage = 0;
             openModal();
             curCommt = rootCommt;
-            fetchReply(curPage, rootCommt.rootid);
+            if ((isAllCommt && window.location.pathname === '/comment') || (!isAllCommt && window.location.pathname === '/')) {
+                fetchReply(curPage, rootCommt.rootid);
+            }
         }
     }
 
@@ -121,10 +125,8 @@ function BlogFoot(props) {
         // const state = { mid, uid, blogScrollTop: document.documentElement.scrollTop || document.body.scrollTop };
         const state = { uid, mid };
         navigate(`/comment?uid=${uid}&mid=${mid}`, { state });
-        console.log(`mid-${mid}, premid-${premid}$`);
         if (mid !== premid) {
             if (premid !== '') {
-                console.log(`清空~~~`);
                 document.body.classList.add('overflow-hid');
                 publish('blogCommtRefresh', { uid, mid });
             }
@@ -181,7 +183,7 @@ function BlogFoot(props) {
                         }
                         centered
                         width={window.isPC ? '45vw' : '100vw'}
-                        bodyStyle={{ height: window.isPC ? '70vh' : '90vh', overflow: 'auto' }}
+                        bodyStyle={{ height: window.isPC ? '70vh' : '85vh', overflow: 'auto' }}
                         open={modalOpen}
                         onOk={() => setModalOpen(false)}
                         onCancel={() => setModalOpen(false)}

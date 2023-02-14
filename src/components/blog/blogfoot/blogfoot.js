@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './blogfoot.less';
 import { antiShake, getCls, getMobileFont, _throttle } from '../../../static/utils/utils';
@@ -8,6 +8,7 @@ import { Modal } from 'antd';
 import Comment from '../../comment/comment';
 import { publish, subscribe, unsubscribe } from 'pubsub-js';
 import PropTypes from 'prop-types';
+import { PreMid } from '../../../context/context';
 
 let curPage = 1;
 let prePage = 0;
@@ -17,7 +18,8 @@ let curCommt = {};
 let fetchReplyId;
 
 function BlogFoot(props) {
-    const { blogData, mid, avatar_uid, isAllCommt, allCommt } = props;
+    const { premid, changePremid } = useContext(PreMid);
+    const { blogData, uid, mid, avatar_uid, isAllCommt, allCommt } = props;
     const { reposts_count, comments_count, attitudes_count } = blogData;
     let [showDetail, setShowDetail] = useState(isAllCommt ? 'block' : 'none');
     let [partCommt, setPartCommt] = useState([]);
@@ -116,7 +118,20 @@ function BlogFoot(props) {
     }
 
     function viewComment() {
-        navigate(`/comment?mid=${mid}`, { state: { blogData, scrollTop: document.documentElement.scrollTop || document.body.scrollTop } });
+        // const state = { mid, uid, blogScrollTop: document.documentElement.scrollTop || document.body.scrollTop };
+        const state = { uid, mid };
+        navigate(`/comment?uid=${uid}&mid=${mid}`, { state });
+        console.log(`mid-${mid}, premid-${premid}$`);
+        if (mid !== premid) {
+            if (premid !== '') {
+                console.log(`清空~~~`);
+                document.body.classList.add('overflow-hid');
+                publish('blogCommtRefresh', { uid, mid });
+            }
+            changePremid(mid);
+        }
+        // document.documentElement.scrollTop = commtScrollTop;
+        // document.body.scrollTop = commtScrollTop;
     }
 
     function resetModal() {
@@ -209,6 +224,7 @@ function BlogFoot(props) {
 BlogFoot.propTypes = {
     blogData: PropTypes.object.isRequired,
     mid: PropTypes.string.isRequired,
+    uid: PropTypes.string.isRequired,
     avatar_uid: PropTypes.string.isRequired,
     isAllCommt: PropTypes.bool,
     allCommt: PropTypes.array

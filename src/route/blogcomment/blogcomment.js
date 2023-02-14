@@ -1,40 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Blog from '../../components/blog/blog';
-import { getComment } from '../../axios/api';
+import { getblog, getComment } from '../../axios/api';
 import { _throttle } from '../../static/utils/utils';
 import './blogcomment.css';
 import { subscribe, unsubscribe } from 'pubsub-js';
-
+import querystring from 'query-string';
 const winHeight = window.innerHeight;
+
 let curPage = 1;
 let prePage = 0;
 let fetchDone = true;
 let beforeTop = 0;
 let blogCommtRefreshId;
-let scrollTop, blogData;
 
 function BlogComment() {
-    let { state } = useLocation();
-    const [_blogData] = useState(state && state.blogData);
-    const [_scrollTop] = useState(state && state.scrollTop);
+    const location = useLocation();
+    const { uid, mid } = querystring.parse(location.search);
+    let [blogData, setBlogData] = useState({});
     let [allCommt, setAllCommt] = useState([]);
     let [display, setDisplay] = useState('none');
     const navigate = useNavigate();
-    const { uid, mid, pic_ids, pic_num, pic_infos, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } =
-        blogData || _blogData;
-
+    const { pic_ids, pic_num, pic_infos, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = blogData || {};
     useEffect(() => {
-        scrollTop = _scrollTop;
-        blogData = { ..._blogData };
+        // 移动端虚拟返回键返回时, 拿不到路由跳转携带的 state
         // allcomment 添加 scroll 事件
         document.addEventListener('scroll', _throttle(appScroll, 200, { before: true, end: true }));
-        fetchComment(curPage);
-        blogCommtRefreshId = subscribe('blogCommtRefresh', _ => {
+        fetchBlog(mid, 1);
+        fetchComment(uid, mid, curPage, 2);
+        blogCommtRefreshId = subscribe('blogCommtRefresh', (_, data) => {
             curPage = 1;
             prePage = 0;
+            const { uid, mid } = data;
+            console.log('订阅刷新');
+            setBlogData({});
+            fetchBlog(mid, 3);
             setAllCommt([]);
-            fetchComment(curPage);
+            fetchComment(uid, mid, curPage, 4);
         });
         return () => {
             // 路由切换 组件卸载 reset 参数
@@ -44,7 +46,14 @@ function BlogComment() {
         };
     }, []);
 
-    async function fetchComment(page) {
+    async function fetchBlog(mid, num) {
+        console.log(num);
+        const response = await getblog({ mid });
+        setBlogData(response[0]);
+    }
+
+    async function fetchComment(uid, mid, page, num) {
+        console.log(num);
         // comment 页面获取一级评论
         const response = await getComment(uid, mid, page);
         fetchDone = true;
@@ -53,6 +62,9 @@ function BlogComment() {
             setAllCommt(allCommt => {
                 return [...allCommt, ...response.data];
             });
+            setTimeout(() => {
+                document.body.classList.remove('overflow-hid');
+            }, 100);
         }
         if (response.isEnd) {
             setDisplay('block');
@@ -62,7 +74,7 @@ function BlogComment() {
     }
 
     function appScroll(e) {
-        if (window.location.pathname === '/comment') {
+        if (window.location.pathname === '/comment' && !document.body.classList.contains('overflow-hid')) {
             let currentTop = document.documentElement.scrollTop || document.body.scrollTop;
             if (currentTop <= beforeTop) {
                 // 向上滚动
@@ -72,21 +84,20 @@ function BlogComment() {
             beforeTop = currentTop;
             if (e.target.documentElement.scrollHeight - currentTop <= winHeight + 100 && fetchDone && curPage !== prePage) {
                 fetchDone = false;
-                fetchComment(curPage);
+                fetchComment(uid, mid, curPage, 5);
             }
         }
     }
 
     function toBlogs(e) {
+        // const state = { commtScrollTop: document.documentElement.scrollTop || document.body.scrollTop, mid };
         if (e.target.className.indexOf('back') !== -1) {
             return;
         }
-        navigate(`/`, {
-            state: {}
-        });
+        navigate(`/`);
         // 手机端 QQ/微信/QQ浏览器 获取到的 document.documentElement.scrollTop始终为 0
-        document.body.scrollTop = scrollTop;
-        document.documentElement.scrollTop = scrollTop;
+        // document.body.scrollTop = blogScrollTop;
+        // document.documentElement.scrollTop = blogScrollTop;
     }
 
     return (
@@ -95,25 +106,26 @@ function BlogComment() {
                 <span className='iconfont icon-arrow-left-bold font-20 pointer float-l'></span>
                 <span className='pointer weight-600 float-l'>返回</span>
             </div>
-            <Blog
-                className='all-comment'
-                key={mid}
-                mid={mid}
-                uid='1858065064'
-                // uid='6330711166'
-                pic_ids={pic_ids}
-                pic_num={pic_num}
-                pic_infos={pic_infos}
-                text={text}
-                reposts_count={reposts_count}
-                comments_count={comments_count}
-                attitudes_count={attitudes_count}
-                source={source}
-                created_at={created_at}
-                region_name={region_name}
-                isAllCommt
-                allCommt={allCommt}
-            />
+            {uid && created_at && (
+                <Blog
+                    className='all-comment'
+                    key={mid}
+                    mid={mid}
+                    uid={uid}
+                    pic_ids={pic_ids}
+                    pic_num={pic_num}
+                    pic_infos={pic_infos}
+                    text={text}
+                    reposts_count={reposts_count}
+                    comments_count={comments_count}
+                    attitudes_count={attitudes_count}
+                    source={source}
+                    created_at={created_at}
+                    region_name={region_name}
+                    isAllCommt
+                    allCommt={allCommt}
+                />
+            )}
             <div className='end align-center font-12 padding-t-6 padding-b-6 margin-t-4 margin-b-4 w-sub' style={{ display }}>
                 <span>评论已经到底了~</span>
             </div>

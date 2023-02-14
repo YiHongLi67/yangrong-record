@@ -152,7 +152,7 @@ function Blog(props) {
                         <></>
                     )}
                 </div>
-                <BlogFoot blogData={props} mid={mid} avatar_uid={uid} isAllCommt={isAllCommt} allCommt={allCommt}></BlogFoot>
+                <BlogFoot blogData={props} uid={uid} mid={mid} avatar_uid={uid} isAllCommt={isAllCommt} allCommt={allCommt}></BlogFoot>
             </div>
         </div>
     );

@@ -1,11 +1,5 @@
 ### 待优化
 
-* blog 
-    - -> comment
-* blog  <-
-    - -> comment
-* blog <-
-
 * 18
 * comment跳blog报错
 * 下拉刷新

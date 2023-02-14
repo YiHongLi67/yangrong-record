@@ -5,6 +5,7 @@ import { getMobileFont } from '../../static/utils/utils';
 import { getblog } from '../../axios/api';
 import { _throttle } from '../../static/utils/utils';
 import { subscribe, unsubscribe } from 'pubsub-js';
+import { PreMid } from '../../context/context';
 
 let beforeTop = 0;
 let fetchDone = true;
@@ -13,8 +14,13 @@ let preId = null;
 const winHeight = window.innerHeight;
 let blogsRefreshId;
 
-function Blogs() {
+export default function Blogs() {
     let [blogsData, setBlogsData] = useState([]);
+    const [premid, setPremid] = useState('');
+
+    function changePremid(premid) {
+        setPremid(premid);
+    }
 
     useEffect(() => {
         document.addEventListener('scroll', _throttle(blogScroll, 200, { begin: true, end: true }));
@@ -33,7 +39,7 @@ function Blogs() {
 
     async function fetchBlog(since_id) {
         const isRefresh = sinceId === '';
-        let response = await getblog(since_id);
+        let response = await getblog({ sinceId: since_id });
         fetchDone = true;
         preId = since_id;
         setBlogsData(blogsData => {
@@ -77,7 +83,7 @@ function Blogs() {
     }
 
     return (
-        <>
+        <PreMid.Provider value={{ premid, changePremid }}>
             <Radio.Group name='radiogroup' defaultValue={window.fontSize} size='large' onChange={changeFontSize}>
                 <Radio value={14} className={getMobileFont('radio')}>
                     14
@@ -120,7 +126,6 @@ function Blogs() {
                     ></Blog>
                 );
             })}
-        </>
+        </PreMid.Provider>
     );
 }
-export default Blogs;

@@ -73,9 +73,11 @@ function Img(props) {
     }
 
     function bindErrEvent() {
-        observerImg.current.onError = function () {
-            observerImg.current.src = defaultImg;
-        };
+        if (observerImg.current) {
+            observerImg.current.onError = function () {
+                observerImg.current.src = defaultImg;
+            };
+        }
     }
 
     return (

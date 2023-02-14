@@ -1,2 +1,2 @@
 import { createContext } from 'react';
-export const PathName = createContext('');
+export const PreMid = createContext({ premid: '', changePremid: () => {} });

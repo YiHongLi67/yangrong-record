@@ -13,30 +13,37 @@ let prePage = 0;
 let fetchDone = true;
 let beforeTop = 0;
 let blogCommtRefreshId;
+let uid = '';
+let mid = '';
 
 function BlogComment() {
-    const location = useLocation();
-    const { uid, mid } = querystring.parse(location.search);
+    let location = useLocation();
+    // console.log('render', uid, mid);
     let [blogData, setBlogData] = useState({});
     let [allCommt, setAllCommt] = useState([]);
     let [display, setDisplay] = useState('none');
     const navigate = useNavigate();
     const { pic_ids, pic_num, pic_infos, text, reposts_count, comments_count, attitudes_count, source, created_at, region_name } = blogData || {};
     useEffect(() => {
-        // 移动端虚拟返回键返回时, 拿不到路由跳转携带的 state
         // allcomment 添加 scroll 事件
         document.addEventListener('scroll', _throttle(appScroll, 200, { before: true, end: true }));
-        fetchBlog(mid, 1);
-        fetchComment(uid, mid, curPage, 2);
+        // 移动端虚拟返回键返回时, 拿不到路由跳转携带的 state
+        const search = querystring.parse(location.search);
+        uid = search.uid;
+        mid = search.mid;
+        console.log('didmount', uid, mid);
+        fetchBlog(1);
+        fetchComment(curPage, 2);
         blogCommtRefreshId = subscribe('blogCommtRefresh', (_, data) => {
+            uid = data.uid;
+            mid = data.mid;
             curPage = 1;
             prePage = 0;
-            const { uid, mid } = data;
             console.log('订阅刷新');
             setBlogData({});
-            fetchBlog(mid, 3);
+            fetchBlog(3);
             setAllCommt([]);
-            fetchComment(uid, mid, curPage, 4);
+            fetchComment(curPage, 4);
         });
         return () => {
             // 路由切换 组件卸载 reset 参数
@@ -46,13 +53,13 @@ function BlogComment() {
         };
     }, []);
 
-    async function fetchBlog(mid, num) {
+    async function fetchBlog(num) {
         console.log(num);
         const response = await getblog({ mid });
         setBlogData(response[0]);
     }
 
-    async function fetchComment(uid, mid, page, num) {
+    async function fetchComment(page, num) {
         console.log(num);
         // comment 页面获取一级评论
         const response = await getComment(uid, mid, page);
@@ -84,7 +91,7 @@ function BlogComment() {
             beforeTop = currentTop;
             if (e.target.documentElement.scrollHeight - currentTop <= winHeight + 100 && fetchDone && curPage !== prePage) {
                 fetchDone = false;
-                fetchComment(uid, mid, curPage, 5);
+                fetchComment(curPage, 5);
             }
         }
     }

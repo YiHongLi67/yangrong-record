@@ -67,6 +67,9 @@ module.exports = {
         hot: true, // 开启热更新功能
         historyApiFallback: true //解决前端路由刷新 404
     },
+    watchOptions: {
+        // ignored: /node_modules\/[^touchjs]\/[^touch].js/
+    },
     resolve: {
         // webpack 解析模块加载的配置选项
         extensions: ['.jsx', '.js', '.tsx', '.ts', '.json'] // 自动补全文件扩展名

@@ -1,7 +1,17 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+# 尾随的 /* 很重要:
+# 模式 dir/ 排除了一个名为 dir 的目录以及(隐式地)它下的所有内容
+# 使用 dir/, Git 永远不会查看 dir 下的任何内容, 因此永远不会将任何取消排除的模式应用于 dir
+# 模式 dir/* 没有说明 dir 本身, 它只是排除 dir 下的所有内容,
+# 使用 dir/*, Git 将处理 dir 的直接内容, 让其他模式有机会取消排除某些内容(!dir/sub/)
+
+Git 将处理 dir 的直接内容，让其他模式有机会取消排除"某些内容(!dir/sub/).
+/node_modules/*
+!/node_modules/touchjs
+/node_modules/touchjs/*
+!/node_modules/touchjs/touch.js
 /.pnp
 .pnp.js
 

@@ -8,7 +8,7 @@ import { Modal } from 'antd';
 import Comment from '../../comment/comment';
 import { publish, subscribe, unsubscribe } from 'pubsub-js';
 import PropTypes from 'prop-types';
-import { PreMid } from '../../../context/context';
+import { PreMid, PageScrollContext } from '../../../context/context';
 
 let curPage = 1;
 let prePage = 0;
@@ -19,6 +19,7 @@ let fetchReplyId;
 
 function BlogFoot(props) {
     const { premid, changePremid } = useContext(PreMid);
+    const changeScroll = useContext(PageScrollContext);
     const { blogData, uid, mid, avatar_uid, isAllCommt, allCommt } = props;
     const { reposts_count, comments_count, attitudes_count } = blogData;
     let [showDetail, setShowDetail] = useState(isAllCommt ? 'block' : 'none');
@@ -131,9 +132,11 @@ function BlogFoot(props) {
                 publish('blogCommtRefresh', { uid, mid });
             }
             changePremid(mid);
+        } else {
+            setTimeout(() => {
+                changeScroll('/comment');
+            }, 0);
         }
-        // document.documentElement.scrollTop = commtScrollTop;
-        // document.body.scrollTop = commtScrollTop;
     }
 
     function resetModal() {

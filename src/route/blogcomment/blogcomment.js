@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Blog from '../../components/blog/blog';
 import { getblog, getComment } from '../../axios/api';
@@ -6,6 +6,7 @@ import { _throttle } from '../../static/utils/utils';
 import './blogcomment.css';
 import { subscribe, unsubscribe } from 'pubsub-js';
 import querystring from 'query-string';
+import { PageScrollContext } from '../../context/context';
 const winHeight = window.innerHeight;
 
 let curPage = 1;
@@ -18,6 +19,7 @@ let mid = '';
 
 function BlogComment() {
     let location = useLocation();
+    const changeScroll = useContext(PageScrollContext);
     let [blogData, setBlogData] = useState({});
     let [allCommt, setAllCommt] = useState([]);
     let [display, setDisplay] = useState('none');
@@ -30,6 +32,7 @@ function BlogComment() {
         const search = querystring.parse(location.search);
         uid = search.uid;
         mid = search.mid;
+        sessionStorage.setItem(location.pathname, String(0));
         fetchBlog(1);
         fetchComment(curPage, 2);
         blogCommtRefreshId = subscribe('blogCommtRefresh', (_, data) => {
@@ -37,6 +40,7 @@ function BlogComment() {
             beforeTop = 0;
             curPage = 1;
             prePage = 0;
+            sessionStorage.setItem(location.pathname, String(0));
             if (data) {
                 uid = data.uid;
                 mid = data.mid;
@@ -97,14 +101,13 @@ function BlogComment() {
     }
 
     function toBlogs(e) {
-        // const state = { commtScrollTop: document.documentElement.scrollTop || document.body.scrollTop, mid };
         if (e.target.className.indexOf('back') !== -1) {
             return;
         }
         navigate(`/`);
-        // 手机端 QQ/微信/QQ浏览器 获取到的 document.documentElement.scrollTop始终为 0
-        // document.body.scrollTop = blogScrollTop;
-        // document.documentElement.scrollTop = blogScrollTop;
+        setTimeout(() => {
+            changeScroll('/');
+        }, 0);
     }
 
     return (

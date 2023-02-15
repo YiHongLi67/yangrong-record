@@ -7,6 +7,7 @@ import Blogs from './route/blogs/blogs';
 import KeepAliveLayout, { useKeepOutlets, KeepAliveContext } from '@chanjs/keepalive';
 import Header from './components/header/header';
 const { Content, Footer } = Layout;
+import ScrollToPosition from './components/scrollposition/scrollposition';
 
 export default function App() {
     const MemoComponents = () => {
@@ -16,16 +17,18 @@ export default function App() {
     };
     return (
         <KeepAliveLayout keepalive={['/', '/comment']}>
-            <Header />
-            <Content>
-                <Routes>
-                    <Route path='/' element={<MemoComponents />}>
-                        <Route path='/' element={<Blogs />} />
-                        <Route path='/comment' element={<BlogComment />} />
-                    </Route>
-                </Routes>
-            </Content>
-            {window.isPC && <Footer className='fixed bottom-0 ie-box align-center w-full font-12'>©CopyRight yhl</Footer>}
+            <ScrollToPosition>
+                <Header />
+                <Content>
+                    <Routes>
+                        <Route path='/' element={<MemoComponents />}>
+                            <Route path='/' element={<Blogs />} />
+                            <Route path='/comment' element={<BlogComment />} />
+                        </Route>
+                    </Routes>
+                </Content>
+                {window.isPC && <Footer className='fixed bottom-0 ie-box align-center w-full font-12'>©CopyRight yhl</Footer>}
+            </ScrollToPosition>
         </KeepAliveLayout>
     );
 }

@@ -315,8 +315,8 @@ function PreviewMask(props) {
 
     function viewMove(e) {
         const { borderX } = cmpBorder();
-        if (e.direction === 'right' && transX !== borderX) return;
-        if (e.direction === 'left' && transX !== -borderX) return;
+        if (e.direction !== 'left' && transX !== borderX) return;
+        if (e.direction !== 'right' && transX !== -borderX) return;
         viewTX = viewSTX + e.distanceX;
         const maxBorderX = 0;
         const minBorderX = -(pic_num - 1) * window.innerWidth;
@@ -409,12 +409,14 @@ function PreviewMask(props) {
         // 如果旋转后宽高未置反
         if (!isRotate()) {
             if (eleWidth * ratio < winWidth) {
-                borderX = (winWidth - eleWidth * ratio) / 2 / ratio;
+                if (window.isPC) borderX = (winWidth - eleWidth * ratio) / 2 / ratio;
+                else borderX = 0;
             } else {
                 borderX = (eleWidth * ratio - winWidth) / 2 / ratio;
             }
             if (eleHeight * ratio < winHeight) {
-                borderY = (winHeight - eleHeight * ratio) / 2 / ratio;
+                if (window.isPC) borderY = (winHeight - eleHeight * ratio) / 2 / ratio;
+                else borderY = 0;
             } else {
                 borderY = (eleHeight * ratio - winHeight) / 2 / ratio;
             }
@@ -427,7 +429,8 @@ function PreviewMask(props) {
                  * 除以 2 是图片居中, 上下可 translate 的距离均分
                  * 为何除以缩放比例 ratio, 摸索出来的
                  */
-                borderX = (winWidth - eleHeight * ratio) / 2 / ratio;
+                if (window.isPC) borderX = (winWidth - eleHeight * ratio) / 2 / ratio;
+                else borderX = 0;
             } else {
                 borderX = (eleHeight * ratio - winWidth) / 2 / ratio;
             }
@@ -437,7 +440,8 @@ function PreviewMask(props) {
                  * 可向上 / 向下拖拽最的大距离: (窗口高度 - 图片宽度 * 缩放比例) / 2 / 缩放比例
                  * 由于图片高度为 100%, 所以宽口高度 winHeight 也就是图片高度 eleHeight
                  */
-                borderY = (eleHeight - eleWidth * ratio) / 2 / ratio;
+                if (window.isPC) borderY = (eleHeight - eleWidth * ratio) / 2 / ratio;
+                else borderY = 0;
             } else {
                 borderY = (eleWidth * ratio - eleHeight) / 2 / ratio;
             }

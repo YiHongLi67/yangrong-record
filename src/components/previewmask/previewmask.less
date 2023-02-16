@@ -4,39 +4,53 @@
     background-color: var(--w-mask);
     z-index: 10;
     animation-duration: 300ms;
+    touch-action: none;
+    img,
+    video {
+        width: auto;
+    }
+    img.preview-img,
+    video.preview-video {
+        transition: transform 0.1s linear;
+        mix-blend-mode: unset;
+    }
+    img.preview-img.trans-3,
+    video.preview-video.trans-3 {
+        transition: transform 0.3s linear;
+    }
+    img.preview-source,
+    video.preview-source {
+        transition: transform 0.1s linear;
+        mix-blend-mode: unset;
+    }
+    img.no-trans,
+    video.no-trans {
+        transition: transform 0s linear;
+    }
+    .mask-foot {
+        background-color: rgba(0, 0, 0, 0.15);
+        bottom: 0;
+        img {
+            width: 100%;
+        }
+    }
 }
 .opacity-1 {
     background-color: var(--w-black);
 }
-.preview-mask img,
-.preview-mask video {
-    width: auto;
-}
-.preview-mask img.preview-img,
-.preview-mask video.preview-video {
-    transition: transform 0.1s linear;
-    mix-blend-mode: unset;
-}
-.preview-mask img.preview-img.trans-3,
-.preview-mask video.preview-video.trans-3 {
-    transition: transform 0.3s linear;
-}
-.preview-mask img.preview-source,
-.preview-mask video.preview-source {
-    transition: transform 0.1s linear;
-    mix-blend-mode: unset;
-}
-.preview-mask img.no-trans,
-.preview-mask video.no-trans {
-    transition: transform 0s linear;
-}
-.preview-mask .mask-foot {
-    background-color: rgba(0, 0, 0, 0.15);
-    bottom: 0;
-}
 .mask-head {
     height: 0;
     line-height: 1.5;
+    .iconfont {
+        font-size: 22px; /* no */
+        float: right;
+        padding: 0 15px; /* no */
+        color: var(--w-pophover-background);
+        cursor: pointer;
+    }
+    .download {
+        float: left;
+    }
 }
 .progress {
     display: inline-block;
@@ -50,11 +64,16 @@
     transform: translateX(-50%);
 }
 .toggle-btn {
+    width: 45px; /* no */
+    height: 45px; /* no */
     text-align: center;
     border-radius: 50%;
     top: 50%;
     transform: translateY(-50%);
     background-color: rgba(0, 0, 0, 0.1);
+    span {
+        line-height: 45px; /* no */
+    }
 }
 .left-btn {
     left: 0;
@@ -62,64 +81,46 @@
 .right-btn {
     right: 0;
 }
-.mask-foot > div {
-    height: 60px; /* no */
-    flex-grow: 0;
-    flex-shrink: 0;
-    margin: 5px 0; /* no */
-}
-.mask-foot .img-mask {
-    border: 2px solid var(--w-color-orange-1);
-    box-sizing: border-box;
-}
-.mask-foot .img-wrap {
-    margin: 4px;
-}
-.preview-mask .mask-foot img {
-    width: 100%;
-}
-.mask-head .iconfont {
-    font-size: 22px; /* no */
-    float: right;
-    padding: 0 15px; /* no */
-    color: var(--w-pophover-background);
-    cursor: pointer;
-}
-.mask-head .download {
-    float: left;
-}
-.toggle-btn span {
-    line-height: 45px; /* no */
-}
-.toggle-btn {
-    width: 45px; /* no */
-    height: 45px; /* no */
+.mask-foot {
+    > div {
+        height: 60px; /* no */
+        flex-grow: 0;
+        flex-shrink: 0;
+        margin: 5px 0; /* no */
+    }
+    .img-mask {
+        border: 2px solid var(--w-color-orange-1);
+        box-sizing: border-box;
+    }
+    .img-wrap {
+        margin: 4px;
+    }
 }
 .save {
     background-color: var(--w-mask);
     animation-duration: 0.3s;
-}
-.save button {
-    width: 80%;
-    height: 100px;
-    border-radius: 50px;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-.save .ant-btn:hover,
-.save .ant-btn:focus {
-    color: rgba(0, 0, 0, 0.85);
-    border-color: #d9d9d9;
-    background-color: var(--w-color-light);
-    transition: all 0.3s;
-}
-.save .save-btn-style:hover,
-.save .save-btn-style:focus {
-    background-color: #d9d9d9;
+    button {
+        width: 70%;
+        height: 100px;
+        border-radius: 50px;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    .ant-btn:hover,
+    .ant-btn:focus {
+        color: rgba(0, 0, 0, 0.85);
+        border-color: #d9d9d9;
+        background-color: var(--w-color-light);
+        transition: all 0.3s;
+    }
+    .save-btn-style:hover,
+    .save-btn-style:focus {
+        background-color: #d9d9d9;
+    }
 }
 .view-source {
     transition: transform 0.2s linear;

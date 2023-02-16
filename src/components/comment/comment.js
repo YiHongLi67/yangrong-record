@@ -83,14 +83,12 @@ function Comment(props) {
                                 <span className='iconfont icon-31zhuanfa'></span>
                                 <span className='iconfont icon-pinglun'></span>
                                 <span className='iconfont icon-dianzan'>
-                                    {like_counts ? (
+                                    {like_counts > 0 && (
                                         <span
                                             className={getCls(window.isPC ? 'font-12 line-12' : 'font-14 line-14', 'padding-l-6 like inline-block')}
                                         >
                                             {like_counts}
                                         </span>
-                                    ) : (
-                                        <></>
                                     )}
                                 </span>
                             </div>
@@ -147,7 +145,7 @@ function Comment(props) {
                                                       <span className='iconfont icon-31zhuanfa'></span>
                                                       <span className='iconfont icon-pinglun'></span>
                                                       <span className='iconfont icon-dianzan'>
-                                                          {like_counts && (
+                                                          {like_counts > 0 && (
                                                               <span
                                                                   className={getCls(
                                                                       window.isPC ? 'font-12 line-12' : 'font-14 line-14',

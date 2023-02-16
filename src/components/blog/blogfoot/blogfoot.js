@@ -164,15 +164,15 @@ function BlogFoot(props) {
             <div className='comment flex line-24'>
                 <div className='flex flex-1 flex-row-center flex-col-center pointer'>
                     <span className='iconfont icon-31zhuanfa margin-r-8'></span>
-                    <span className={getSize12()}>{reposts_count}</span>
+                    {reposts_count > 0 && <span className={getSize12()}>{reposts_count}</span>}
                 </div>
                 <div className={getComCls()} onClick={antiShake(fetchComment, 500)}>
                     <span className='iconfont icon-pinglun margin-r-4'></span>
-                    <span className={getSize12()}>{comments_count}</span>
+                    {comments_count > 0 && <span className={getSize12()}>{comments_count}</span>}
                 </div>
                 <div className='flex flex-1 flex-row-center flex-col-center pointer'>
                     <span className='iconfont icon-dianzan margin-r-8'></span>
-                    <span className={getSize12()}>{attitudes_count}</span>
+                    {attitudes_count > 0 && <span className={getSize12()}>{attitudes_count}</span>}
                 </div>
             </div>
             <div className='comment-detail' style={{ display: showDetail }}>

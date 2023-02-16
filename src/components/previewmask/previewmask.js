@@ -742,13 +742,25 @@ function PreviewMask(props) {
     }
 
     function swipeend(e) {
-        if (e.factor > 4) return;
+        if (e.factor > 5) return;
         const { borderX, borderY } = cmpBorder();
         const targetEle = getTargetEle();
-        targetEle.classList.remove('no-trans');
-        targetEle.classList.add('trans-3');
-        transX += e.distanceX;
-        transY += e.distanceY;
+        let offsetX;
+        let offsetY;
+        if (e.factor < 1) {
+            offsetX = e.distanceX / 2;
+            offsetY = e.distanceY / 2;
+        } else if (e.factor < 3) {
+            offsetX = e.distanceX / 4;
+            offsetY = e.distanceY / 4;
+        } else {
+            offsetX = e.distanceX / 6;
+            offsetY = e.distanceY / 6;
+        }
+        // 如果滑动距离大于阈值, 则动画时长为.2s
+        if (Math.abs(offsetX) > 40 || Math.abs(offsetY) > 40) targetEle.classList.add('trans-2');
+        transX += offsetX;
+        transY += offsetY;
         if (e.distanceX < 0) {
             // left
             if (transX <= -borderX) {
@@ -776,7 +788,7 @@ function PreviewMask(props) {
         setTransX((mTransX = transX));
         setTransY((mTransY = transY));
         setTimeout(() => {
-            targetEle.classList.remove('trans-3');
+            targetEle.classList.remove('trans-2');
         }, 300);
     }
 

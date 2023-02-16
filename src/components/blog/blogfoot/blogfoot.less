@@ -1,54 +1,40 @@
 .comment > div > span {
     color: var(--w-fonticon);
-}
-
-/* 每条微博内容底部的转发 评论 点赞按钮 */
+} /* 每条微博内容底部的转发 评论 点赞按钮 */
 .comment > div:hover > span,
 .operate > span:hover {
     color: var(--w-brand);
     cursor: pointer;
 }
-
 .comment > div > span.iconfont::before {
     padding: 3px;
 }
-
 .comment > div:hover > span.iconfont::before {
     background-color: #ff000013;
     border-radius: 50%;
-}
-
-/* 点赞后的颜色未设置:  --w-color-red */
+} /* 点赞后的颜色未设置:  --w-color-red */
 .show-all:hover {
     color: var(--w-alink);
     cursor: pointer;
 }
-
 .show-all {
     transition: color 0.1s;
 }
 div.show-all > span.icon-arrow-right-bold {
     font-size: 14px; /* no */
 }
-
 .comment .comment-active-color > span {
     color: var(--w-brand);
 }
-
 .comment-detail .iconfont.icon-lianjie {
     margin: 0;
 }
-
 .ant-modal-body {
-    padding: 16px 20px;
+    padding: 16px 20px; /* no */
 }
-
 .vh70 {
-    height: calc(70vh - 22px);
-    /* no */
+    height: calc(70vh - 22px); /* no */
 }
-
 .vh100 {
-    height: calc(100vh - 22px);
-    /* no */
+    height: calc(100vh - 22px); /* no */
 }

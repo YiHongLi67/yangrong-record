@@ -2,10 +2,9 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Blog from '../../components/blog/blog';
 import { getblog, getComment } from '../../axios/api';
-import { _throttle } from '../../static/utils/utils';
+import { _throttle, queryString } from '../../static/utils/utils';
 import './blogcomment.css';
 import { subscribe, unsubscribe } from 'pubsub-js';
-import querystring from 'query-string';
 import { PageScrollContext } from '../../context/context';
 const winHeight = window.innerHeight;
 
@@ -29,7 +28,7 @@ function BlogComment() {
         // allcomment 添加 scroll 事件
         document.addEventListener('scroll', _throttle(appScroll, 200, { before: true, end: true }));
         // 移动端虚拟返回键返回时, 拿不到路由跳转携带的 state
-        const search = querystring.parse(location.search);
+        const search = queryString(location.search);
         uid = search.uid;
         mid = search.mid;
         sessionStorage.setItem(location.pathname, String(0));

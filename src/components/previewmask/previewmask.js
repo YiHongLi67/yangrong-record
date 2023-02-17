@@ -393,6 +393,8 @@ function PreviewMask(props) {
 
     function cmpBorder() {
         const targetEle = getTargetEle();
+        const foot = document.querySelector('.mask-foot');
+        const footHeight = foot ? parseFloat(window.getComputedStyle(foot).height) : 0;
         // getComputedStyle 获取到的是未缩放前的宽高
         // window.getComputedStyle(previewImg.current).width;
         // window.getComputedStyle(previewImg.current).height;
@@ -404,7 +406,7 @@ function PreviewMask(props) {
             eleWidth = parseFloat(window.getComputedStyle(targetEle).width),
             eleHeight = parseFloat(window.getComputedStyle(targetEle).height),
             winWidth = window.innerWidth,
-            winHeight = window.innerHeight;
+            winHeight = window.innerHeight - footHeight;
         // 如果旋转后宽高未置反
         if (!isRotate()) {
             if (eleWidth * ratio < winWidth) {
